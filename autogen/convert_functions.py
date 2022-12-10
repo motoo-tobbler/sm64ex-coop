@@ -502,6 +502,11 @@ def build_function(function, do_extern):
 
     s += '    if(!smlua_functions_valid_param_count(L, %d)) { return 0; }\n\n' % len(function['params'])
 
+    # stub Bass and discord
+    if 'audio_' in fid and 'smlua' not in fid or 'discord' in fid:
+        function['implemented'] = True
+        return s + '    return 1;\n}\n\n'
+
     i = 1
     for param in function['params']:
         s += build_param(param, i)

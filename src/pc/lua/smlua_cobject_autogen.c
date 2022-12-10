@@ -77,15 +77,6 @@ static struct LuaObjectField sAreaFields[LUA_AREA_FIELD_COUNT] = {
 //  { "whirlpools",          LOT_???,       offsetof(struct Area, whirlpools),          false, LOT_???            }, <--- UNIMPLEMENTED
 };
 
-#define LUA_BASS_AUDIO_FIELD_COUNT 5
-static struct LuaObjectField sBassAudioFields[LUA_BASS_AUDIO_FIELD_COUNT] = {
-    { "file",     LVT_COBJECT_P, offsetof(struct BassAudio, file),     true, LOT_MODFILE },
-    { "handle",   LVT_U32,       offsetof(struct BassAudio, handle),   true, LOT_NONE    },
-    { "isStream", LVT_BOOL,      offsetof(struct BassAudio, isStream), true, LOT_NONE    },
-    { "loaded",   LVT_BOOL,      offsetof(struct BassAudio, loaded),   true, LOT_NONE    },
-    { "rawData",  LVT_STRING_P,  offsetof(struct BassAudio, rawData),  true, LOT_NONE    },
-};
-
 #define LUA_BEHAVIOR_DIALOGS_FIELD_COUNT 84
 static struct LuaObjectField sBehaviorDialogsFields[LUA_BEHAVIOR_DIALOGS_FIELD_COUNT] = {
     { "BobombBuddyBob1Dialog",         LVT_S32, offsetof(struct BehaviorDialogs, BobombBuddyBob1Dialog),         false, LOT_NONE },
@@ -757,6 +748,13 @@ static struct LuaObjectField sLinearTransitionPointFields[LUA_LINEAR_TRANSITION_
     { "pitch", LVT_S16,     offsetof(struct LinearTransitionPoint, pitch), false, LOT_NONE  },
     { "pos",   LVT_COBJECT, offsetof(struct LinearTransitionPoint, pos),   true,  LOT_VEC3F },
     { "yaw",   LVT_S16,     offsetof(struct LinearTransitionPoint, yaw),   false, LOT_NONE  },
+};
+
+#define LUA_MARIO_ANIM_DMA_RELATED_THING_FIELD_COUNT 3
+static struct LuaObjectField sMarioAnimDmaRelatedThingFields[LUA_MARIO_ANIM_DMA_RELATED_THING_FIELD_COUNT] = {
+    { "anim",    LVT_COBJECT, offsetof(struct MarioAnimDmaRelatedThing, anim),    true,  LOT_OFFSETSIZEPAIR },
+    { "count",   LVT_U32,     offsetof(struct MarioAnimDmaRelatedThing, count),   false, LOT_NONE           },
+    { "srcAddr", LVT_U8_P,    offsetof(struct MarioAnimDmaRelatedThing, srcAddr), true,  LOT_POINTER        },
 };
 
 #define LUA_MARIO_ANIMATION_FIELD_COUNT 2
@@ -1787,6 +1785,14 @@ static struct LuaObjectField sRayIntersectionInfoFields[LUA_RAY_INTERSECTION_INF
     { "surface", LVT_COBJECT_P, offsetof(struct RayIntersectionInfo, surface), false, LOT_SURFACE },
 };
 
+#define LUA_SPTASK_FIELD_COUNT 1
+static struct LuaObjectField sSPTaskFields[LUA_SPTASK_FIELD_COUNT] = {
+//  { "msg",      LVT_???, offsetof(struct SPTask, msg),      false, LOT_???  }, <--- UNIMPLEMENTED
+//  { "msgqueue", LVT_???, offsetof(struct SPTask, msgqueue), false, LOT_???  }, <--- UNIMPLEMENTED
+    { "state",    LVT_S32, offsetof(struct SPTask, state),    false, LOT_NONE },
+//  { "task",     LVT_???, offsetof(struct SPTask, task),     false, LOT_???  }, <--- UNIMPLEMENTED
+};
+
 #define LUA_SERVER_SETTINGS_FIELD_COUNT 8
 static struct LuaObjectField sServerSettingsFields[LUA_SERVER_SETTINGS_FIELD_COUNT] = {
     { "bubbleDeath",             LVT_U8,  offsetof(struct ServerSettings, bubbleDeath),             false, LOT_NONE },
@@ -1922,6 +1928,21 @@ static struct LuaObjectField sTransitionInfoFields[LUA_TRANSITION_INFO_FIELD_COU
     { "posYaw",     LVT_S16,     offsetof(struct TransitionInfo, posYaw),     false, LOT_NONE  },
 };
 
+#define LUA_UNUSED_AREA28_FIELD_COUNT 5
+static struct LuaObjectField sUnusedArea28Fields[LUA_UNUSED_AREA28_FIELD_COUNT] = {
+    { "unk00", LVT_S16, offsetof(struct UnusedArea28, unk00), false, LOT_NONE },
+    { "unk02", LVT_S16, offsetof(struct UnusedArea28, unk02), false, LOT_NONE },
+    { "unk04", LVT_S16, offsetof(struct UnusedArea28, unk04), false, LOT_NONE },
+    { "unk06", LVT_S16, offsetof(struct UnusedArea28, unk06), false, LOT_NONE },
+    { "unk08", LVT_S16, offsetof(struct UnusedArea28, unk08), false, LOT_NONE },
+};
+
+#define LUA_VBLANK_HANDLER_FIELD_COUNT 0
+static struct LuaObjectField sVblankHandlerFields[LUA_VBLANK_HANDLER_FIELD_COUNT] = {
+//  { "msg",   LVT_???, offsetof(struct VblankHandler, msg),   false, LOT_??? }, <--- UNIMPLEMENTED
+//  { "queue", LVT_???, offsetof(struct VblankHandler, queue), false, LOT_??? }, <--- UNIMPLEMENTED
+};
+
 #define LUA_WALL_COLLISION_DATA_FIELD_COUNT 6
 static struct LuaObjectField sWallCollisionDataFields[LUA_WALL_COLLISION_DATA_FIELD_COUNT] = {
     { "normalAddition", LVT_COBJECT, offsetof(struct WallCollisionData, normalAddition), true,  LOT_VEC3F },
@@ -2002,7 +2023,6 @@ struct LuaObjectTable sLuaObjectAutogenTable[LOT_AUTOGEN_MAX - LOT_AUTOGEN_MIN] 
     { LOT_ANIMINFO,                  sAnimInfoFields,                  LUA_ANIM_INFO_FIELD_COUNT                    },
     { LOT_ANIMATION,                 sAnimationFields,                 LUA_ANIMATION_FIELD_COUNT                    },
     { LOT_AREA,                      sAreaFields,                      LUA_AREA_FIELD_COUNT                         },
-    { LOT_BASSAUDIO,                 sBassAudioFields,                 LUA_BASS_AUDIO_FIELD_COUNT                   },
     { LOT_BEHAVIORDIALOGS,           sBehaviorDialogsFields,           LUA_BEHAVIOR_DIALOGS_FIELD_COUNT             },
     { LOT_BEHAVIORTRAJECTORIES,      sBehaviorTrajectoriesFields,      LUA_BEHAVIOR_TRAJECTORIES_FIELD_COUNT        },
     { LOT_BEHAVIORVALUES,            sBehaviorValuesFields,            LUA_BEHAVIOR_VALUES_FIELD_COUNT              },
@@ -2030,6 +2050,7 @@ struct LuaObjectTable sLuaObjectAutogenTable[LOT_AUTOGEN_MAX - LOT_AUTOGEN_MIN] 
     { LOT_LAKITUSTATE,               sLakituStateFields,               LUA_LAKITU_STATE_FIELD_COUNT                 },
     { LOT_LEVELVALUES,               sLevelValuesFields,               LUA_LEVEL_VALUES_FIELD_COUNT                 },
     { LOT_LINEARTRANSITIONPOINT,     sLinearTransitionPointFields,     LUA_LINEAR_TRANSITION_POINT_FIELD_COUNT      },
+    { LOT_MARIOANIMDMARELATEDTHING,  sMarioAnimDmaRelatedThingFields,  LUA_MARIO_ANIM_DMA_RELATED_THING_FIELD_COUNT },
     { LOT_MARIOANIMATION,            sMarioAnimationFields,            LUA_MARIO_ANIMATION_FIELD_COUNT              },
     { LOT_MARIOBODYSTATE,            sMarioBodyStateFields,            LUA_MARIO_BODY_STATE_FIELD_COUNT             },
     { LOT_MARIOSTATE,                sMarioStateFields,                LUA_MARIO_STATE_FIELD_COUNT                  },
@@ -2047,6 +2068,7 @@ struct LuaObjectTable sLuaObjectAutogenTable[LOT_AUTOGEN_MAX - LOT_AUTOGEN_MIN] 
     { LOT_PLAYERGEOMETRY,            sPlayerGeometryFields,            LUA_PLAYER_GEOMETRY_FIELD_COUNT              },
     { LOT_PLAYERPALETTE,             sPlayerPaletteFields,             LUA_PLAYER_PALETTE_FIELD_COUNT               },
     { LOT_RAYINTERSECTIONINFO,       sRayIntersectionInfoFields,       LUA_RAY_INTERSECTION_INFO_FIELD_COUNT        },
+    { LOT_SPTASK,                    sSPTaskFields,                    LUA_SPTASK_FIELD_COUNT                       },
     { LOT_SERVERSETTINGS,            sServerSettingsFields,            LUA_SERVER_SETTINGS_FIELD_COUNT              },
     { LOT_SOUNDSTATE,                sSoundStateFields,                LUA_SOUND_STATE_FIELD_COUNT                  },
     { LOT_SPAWNINFO,                 sSpawnInfoFields,                 LUA_SPAWN_INFO_FIELD_COUNT                   },
@@ -2057,6 +2079,8 @@ struct LuaObjectTable sLuaObjectAutogenTable[LOT_AUTOGEN_MAX - LOT_AUTOGEN_MIN] 
     { LOT_SURFACE,                   sSurfaceFields,                   LUA_SURFACE_FIELD_COUNT                      },
     { LOT_TEXTUREINFO,               sTextureInfoFields,               LUA_TEXTURE_INFO_FIELD_COUNT                 },
     { LOT_TRANSITIONINFO,            sTransitionInfoFields,            LUA_TRANSITION_INFO_FIELD_COUNT              },
+    { LOT_UNUSEDAREA28,              sUnusedArea28Fields,              LUA_UNUSED_AREA28_FIELD_COUNT                },
+    { LOT_VBLANKHANDLER,             sVblankHandlerFields,             LUA_VBLANK_HANDLER_FIELD_COUNT               },
     { LOT_WALLCOLLISIONDATA,         sWallCollisionDataFields,         LUA_WALL_COLLISION_DATA_FIELD_COUNT          },
     { LOT_WARPNODE,                  sWarpNodeFields,                  LUA_WARP_NODE_FIELD_COUNT                    },
     { LOT_WARPTRANSITION,            sWarpTransitionFields,            LUA_WARP_TRANSITION_FIELD_COUNT              },

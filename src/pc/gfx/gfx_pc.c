@@ -1852,7 +1852,7 @@ void gfx_run(Gfx *commands) {
         return;
     }
     dropped_frame = false;
-    
+   
     //double t0 = gfx_wapi->get_time();
     gfx_rapi->start_frame();
     gfx_run_dl(commands);

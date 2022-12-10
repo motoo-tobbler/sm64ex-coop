@@ -6,7 +6,11 @@
 #include "pc/lua/smlua.h"
 #include "pc/lua/utils/smlua_audio_utils.h"
 #include "pc/mods/mods_utils.h"
+
+#ifdef HAVE_BASS
 #include "bass_audio/bass_audio_helpers.h"
+#endif
+
 #include "pc/debuglog.h"
 
 #define MAX_AUDIO_OVERRIDE 128
@@ -133,6 +137,7 @@ void smlua_audio_utils_replace_sequence(u8 sequenceId, u8 bankId, u8 defaultVolu
  // bass //
 //////////
 
+#ifdef HAVE_BASS
 #define MAX_BASS_FILES 128
 struct BassAudio sBassAudio[MAX_BASS_FILES];
 u32 sBassAudioCount = 0;
@@ -449,3 +454,4 @@ void audio_custom_shutdown(void) {
     }
     sBassAudioCount = 0;
 }
+#endif

@@ -30,8 +30,14 @@ TARGET_N64 = 0
 # Build and optimize for Raspberry Pi(s)
 TARGET_RPI ?= 0
 
+# Build for Android
+TARGET_ANDROID ?= 0
+
 # Makeflag to enable OSX fixes
 OSX_BUILD ?= 0
+
+# Enable -no-pie linker option
+NO_PIE ?= 1
 
 # Specify the target you are building for, TARGET_BITS=0 means native
 TARGET_ARCH ?= native
@@ -133,7 +139,30 @@ ifeq ($(HOST_OS),Windows)
   WINDOWS_BUILD := 1
 endif
 
+OLD_APKSIGNER ?= 0
+
+# Attempt to detect termux android build
+ifneq ($(shell which termux-setup-storage),)
+  TARGET_ANDROID := 1
+  #ifeq ($(shell dpkg -s apksigner | grep Version | sed "s/Version: //"),0.7-2)
+  #  OLD_APKSIGNER := 1
+  #endif
+endif
+
 # MXE overrides
+
+TOUCH_CONTROLS ?= 0
+
+ifeq ($(TARGET_ANDROID),1)
+  RENDER_API := GL
+  WINDOW_API := SDL2
+  AUDIO_API := SDL2
+  CONTROLLER_API := SDL2
+  DISCORD_SDK := 0
+  NO_PIE := 0
+
+  TOUCH_CONTROLS := 1
+endif
 
 ifeq ($(WINDOWS_BUILD),1)
   ifeq ($(CROSS),i686-w64-mingw32.static-)
@@ -310,6 +339,8 @@ endif
 
 ifeq ($(TARGET_RPI),1) # Define RPi to change SDL2 title & GLES2 hints
      DEFINES += USE_GLES=1
+#else ifeq ($(TARGET_ANDROID),1)
+#  DEFINES += TARGET_ANDROID=1 USE_GLES=1 _LANGUAGE_C=1
 endif
 
 ifeq ($(OSX_BUILD),1) # Modify GFX & SDL2 for OSX GL
@@ -423,6 +454,8 @@ endif
 
 TOOLS_DIR := tools
 
+LIBLUA_DIR := lib/src/lua
+
 # (This is a bit hacky, but a lot of rules implicitly depend
 # on tools and assets, and we use directory globs further down
 # in the makefile that we want should cover assets.)
@@ -448,6 +481,14 @@ ifeq ($(filter clean distclean print-%,$(MAKECMDGOALS)),)
       ifeq ($(DUMMY),FAIL)
         $(error Failed to build tools)
       endif
+  endif
+
+  # Make liblua
+  ifeq ($(TARGET_ANDROID),1)
+    DUMMY != $(MAKE) -C $(LIBLUA_DIR) linux >&2 || echo FAIL
+    ifeq ($(DUMMY),FAIL)
+      $(error Failed to build lua)
+    endif
   endif
 
   $(info Building Game...)
@@ -480,6 +521,10 @@ BUILD_DIR := $(BUILD_DIR_BASE)/$(VERSION)_pc
 
 ifeq ($(WINDOWS_BUILD),1)
 	EXE := $(BUILD_DIR)/$(TARGET_STRING).exe
+#else ifeq ($(TARGET_ANDROID),1)
+#  EXE := $(BUILD_DIR)/libmain.so
+#  APK := $(BUILD_DIR)/$(TARGET).unsigned.apk
+#  APK_SIGNED := $(BUILD_DIR)/$(TARGET).apk
 else # Linux builds/binary namer
 	ifeq ($(TARGET_RPI),1)
 		EXE := $(BUILD_DIR)/$(TARGET_STRING).arm
@@ -498,7 +543,7 @@ ACTOR_DIR      := actors
 LEVEL_DIRS     := $(patsubst levels/%,%,$(dir $(wildcard levels/*/header.h)))
 
 # Directories containing source files
-SRC_DIRS := src src/engine src/game src/audio src/bass_audio src/menu src/buffers actors levels bin data assets asm lib sound
+SRC_DIRS := src src/engine src/game src/audio src/menu src/buffers actors levels bin data assets asm lib sound
 BIN_DIRS := bin bin/$(VERSION)
 
 # PC files
@@ -507,6 +552,12 @@ SRC_DIRS += src/pc src/pc/gfx src/pc/audio src/pc/controller src/pc/fs src/pc/fs
 #ifeq ($(DISCORDRPC),1)
 #  SRC_DIRS += src/pc/discord
 #endif
+
+ifeq ($(TARGET_ANDROID),1)
+  #SRC_DIRS += platform/android
+else
+  SRC_DIRS += src/bass_audio
+endif
 
 ifeq ($(DISCORD_SDK),1)
   SRC_DIRS += src/pc/network/discord
@@ -625,11 +676,13 @@ else ifeq ($(OSX_BUILD),1)
   # This really shouldn't be required, but I got tired of trying to do it the "right way"
   BASS_LIBS := lib/bass/bass.dylib lib/bass/libbass.dylib lib/bass/bass_fx.dylib lib/bass/libbass_fx.dylib
 else ifeq ($(TARGET_RPI),1)
-	ifneq (,$(findstring aarch64,$(machine)))
+  ifneq (,$(findstring aarch64,$(machine)))
     BASS_LIBS := lib/bass/arm/aarch64/libbass.so lib/bass/arm/aarch64/libbass_fx.so
   else
     BASS_LIBS := lib/bass/arm/libbass.so lib/bass/arm/libbass_fx.so
   endif
+else ifeq ($(TARGET_ANDROID),1)
+  BASS_LIBS :=
 else
   BASS_LIBS := lib/bass/libbass.so lib/bass/libbass_fx.so
 endif
@@ -698,15 +751,23 @@ else
 endif
 
 ifeq ($(WINDOWS_BUILD),1) # fixes compilation in MXE on Linux and WSL
-  CPP := cpp -P
+  CPP := cpp
   OBJCOPY := objcopy
   OBJDUMP := $(CROSS)objdump
 else ifeq ($(OSX_BUILD),1)
-  CPP := cpp-9 -P
+  CPP := cpp-9
   OBJDUMP := i686-w64-mingw32-objdump
   OBJCOPY := i686-w64-mingw32-objcopy
+else ifeq ($(TARGET_ANDROID),1) # Termux has clang
+  ifneq ($(shell which termux-setup-storage),)
+    CPP      := clang
+  else
+    CPP      := cpp
+  endif
+  OBJCOPY := $(CROSS)objcopy
+  OBJDUMP := $(CROSS)objdump
 else ifeq ($(TARGET_N64),0) # Linux & other builds
-  CPP := $(CROSS)cpp -P
+  CPP := $(CROSS)cpp
   OBJCOPY := $(CROSS)objcopy
   OBJDUMP := $(CROSS)objdump
 else
@@ -760,7 +821,11 @@ else
   INCLUDE_DIRS += sound lib/lua/include $(EXTRA_INCLUDES)
 endif
 
-# Connfigure backend flags
+#ifeq ($(TARGET_ANDROID),1)
+#  INCLUDE_DIRS += platform/android/SDL/include
+#endif
+
+# Configure backend flags
 
 SDLCONFIG := $(CROSS)sdl2-config
 
@@ -783,6 +848,8 @@ ifeq ($(WINDOW_API),DXGI)
 else ifeq ($(findstring SDL,$(WINDOW_API)),SDL)
   ifeq ($(WINDOWS_BUILD),1)
     BACKEND_LDFLAGS += -lglew32 -lglu32 -lopengl32
+#  else ifeq ($(TARGET_ANDROID),1)
+#    BACKEND_LDFLAGS += -lGLESv2
   else ifeq ($(TARGET_RPI),1)
     BACKEND_LDFLAGS += -lGLESv2
   else ifeq ($(OSX_BUILD),1)
@@ -816,18 +883,20 @@ else ifeq ($(SDL1_USED),1)
 endif
 
 ifneq ($(SDL1_USED)$(SDL2_USED),00)
-  ifeq ($(OSX_BUILD),1)
+  ifeq ($(TARGET_ANDROID),1)
+    #BACKEND_LDFLAGS += -lhidapi -lSDL2
+    BACKEND_LDFLAGS += $(shell $(SDLCONFIG) --libs)
+  else ifeq ($(OSX_BUILD),1)
     # on OSX at least the homebrew version of sdl-config gives include path as `.../include/SDL2` instead of `.../include`
     OSX_PREFIX := $(shell $(SDLCONFIG) --prefix)
     BACKEND_CFLAGS += -I$(OSX_PREFIX)/include $(shell $(SDLCONFIG) --cflags)
   else
-    BACKEND_CFLAGS += `$(SDLCONFIG) --cflags`
-  endif
-
-  ifeq ($(WINDOWS_BUILD),1)
-    BACKEND_LDFLAGS += `$(SDLCONFIG) --static-libs` -lsetupapi -luser32 -limm32 -lole32 -loleaut32 -lshell32 -lwinmm -lversion
-  else
-    BACKEND_LDFLAGS += `$(SDLCONFIG) --libs`
+    BACKEND_CFLAGS += $(shell $(SDLCONFIG) --cflags)
+    ifeq ($(WINDOWS_BUILD),1)
+      BACKEND_LDFLAGS += $(shell $(SDLCONFIG) --static-libs) -lsetupapi -luser32 -limm32 -lole32 -loleaut32 -lshell32 -lwinmm -lversion
+    else
+      BACKEND_LDFLAGS += $(shell $(SDLCONFIG) --libs)
+    endif
   endif
 endif
 
@@ -868,6 +937,12 @@ endif
 # C preprocessor flags
 CPPFLAGS := -P -Wno-trigraphs $(DEF_INC_CFLAGS)
 
+ifeq ($(TARGET_ANDROID),1)
+  ifneq ($(shell which termux-setup-storage),) # Termux has clang
+    CPPFLAGS := -E -P -x c -Wno-trigraphs $(DEF_INC_CFLAGS)
+  endif
+endif
+
 ifeq ($(TARGET_N64),1)
   ifeq ($(shell getconf LONG_BIT), 32)
     # Work around memory allocation bug in QEMU
@@ -888,12 +963,27 @@ ifeq ($(WINDOWS_BUILD),1)
   endif
 else ifeq ($(TARGET_RPI),1)
   LDFLAGS := $(OPT_FLAGS) -lm $(BACKEND_LDFLAGS) -no-pie
+#else ifeq ($(TARGET_ANDROID),1)
+#  ifneq ($(shell uname -m | grep "i.86"),)
+#    ARCH_APK := x86
+#  else ifeq ($(shell uname -m),x86_64)
+#    ARCH_APK := x86_64
+#  else ifeq ($(shell getconf LONG_BIT),64)
+#    ARCH_APK := arm64-v8a
+#  else
+#    ARCH_APK := armeabi-v7a
+#  endif
+#  CFLAGS  += -fPIC
+#  LDFLAGS := -L ./platform/android/android/lib/$(ARCH_APK)/ -lm $(BACKEND_LDFLAGS) -shared
 else ifeq ($(OSX_BUILD),1)
   LDFLAGS := -lm $(BACKEND_LDFLAGS) -lpthread
 else
-  LDFLAGS := $(BITS) -march=$(TARGET_ARCH) -lm $(BACKEND_LDFLAGS) -no-pie -lpthread
+  LDFLAGS := $(BITS) -march=$(TARGET_ARCH) -lm $(BACKEND_LDFLAGS) -lpthread -ldl
+  ifeq ($(NO_PIE), 1)
+    LDFLAGS += -no-pie
+  endif
 #  ifeq ($(DISCORDRPC),1)
-#    LDFLAGS += -ldl -Wl,-rpath .
+#    LDFLAGS += -Wl,-rpath .
 #  endif
 endif
 
@@ -925,11 +1015,13 @@ ifeq ($(WINDOWS_BUILD),1)
 else ifeq ($(OSX_BUILD),1)
   LDFLAGS += -L./lib/lua/mac/ -l lua53
 else ifeq ($(TARGET_RPI),1)
-	ifneq (,$(findstring aarch64,$(machine)))
+  ifneq (,$(findstring aarch64,$(machine)))
     LDFLAGS += -Llib/lua/linux -l:liblua53-arm64.a
   else
     LDFLAGS += -Llib/lua/linux -l:liblua53-arm.a
   endif
+else ifeq ($(TARGET_ANDROID),1)
+  LDFLAGS += -L$(LIBLUA_DIR)/src -l:liblua.a
 else
   LDFLAGS += -Llib/lua/linux -l:liblua53.a
 endif
@@ -948,6 +1040,7 @@ else
   else
     ifeq ($(TARGET_RPI),1)
       LDFLAGS += -lbass -lbass_fx -Wl,-rpath . -Wl,-rpath lib/bass/arm
+    else ifeq ($(TARGET_ANDROID),1)
     else
       LDFLAGS += -lbass -lbass_fx -Wl,-rpath . -Wl,-rpath lib/bass
     endif
@@ -1009,6 +1102,19 @@ endif
   CC_CHECK_CFLAGS += -DNODRAWINGDISTANCE
   CFLAGS += -DNODRAWINGDISTANCE
 #endif
+
+ifeq ($(TARGET_ANDROID),0)
+  CC_CHECK_CFLAGS += -DHAVE_BASS
+  CFLAGS += -DHAVE_BASS
+endif
+
+ifeq ($(WINDOW_API),SDL2)
+  # Check for SDL2 touch controls
+  ifeq ($(TOUCH_CONTROLS),1)
+    CC_CHECK_CFLAGS += -DTOUCH_CONTROLS
+    CFLAGS += -DTOUCH_CONTROLS
+  endif
+endif
 
 # Check for Discord Rich Presence option
 #ifeq ($(DISCORDRPC),1)
@@ -1131,7 +1237,14 @@ endef
 # Main Targets                                                                 #
 #==============================================================================#
 
-
+#all: $(ROM)
+#ifeq ($(TARGET_ANDROID),1)
+#all: $(APK_SIGNED)
+#EXE_DEPEND := $(APK_SIGNED)
+#else
+all: $(EXE)
+EXE_DEPEND := $(EXE)
+#endif
 
 ifeq ($(EXTERNAL_DATA),1)
 
@@ -1145,7 +1258,7 @@ all: $(BASEPACK_PATH)
 res: $(BASEPACK_PATH)
 
 # prepares the basepack.lst
-$(BASEPACK_LST): $(EXE)
+$(BASEPACK_LST): $(EXE_DEPEND)
 	@$(PRINT) "$(GREEN)Making basepack list.$(NO_COL)\n"
 	@mkdir -p $(BUILD_DIR)/$(BASEDIR)
 	@echo -n > $(BASEPACK_LST)
@@ -1165,8 +1278,6 @@ $(BASEPACK_PATH): $(BASEPACK_LST)
 
 endif
 
-#all: $(ROM)
-all: $(EXE)
 
 ifeq ($(WINDOWS_BUILD),1)
 exemap: $(EXE)
@@ -1181,6 +1292,7 @@ endif
 
 clean:
 	$(RM) -r $(BUILD_DIR_BASE)
+	$(MAKE) -s -C $(LIBLUA_DIR) clean
 
 cleantools:
 	$(MAKE) -s -C $(TOOLS_DIR) clean
@@ -1571,6 +1683,29 @@ ifeq ($(TARGET_N64),1)
   $(BUILD_DIR)/$(TARGET).objdump: $(ELF)
 	$(OBJDUMP) -D $< > $@
 else
+
+#ifeq ($(TARGET_ANDROID),1)
+#APK_FILES := $(shell find platform/android/ -type f)
+#
+#$(APK): $(EXE) $(APK_FILES)
+#	cp -r platform/android $(BUILD_DIR)/platform/ && \
+#	cp $(PREFIX)/lib/libc++_shared.so $(BUILD_DIR)/platform/android/android/lib/$(ARCH_APK)/ && \
+#	cp $(EXE) $(BUILD_DIR)/platform/android/android/lib/$(ARCH_APK)/ && \
+#	cd $(BUILD_DIR)/platform/android/android && \
+#	zip -r ../../../../../$@ ./* && \
+#	cd - && \
+#	rm -rf $(BUILD_DIR)/platform/android/android
+#
+#ifeq ($(OLD_APKSIGNER),1)
+#$(APK_SIGNED): $(APK)
+#	apksigner $(BUILD_DIR)/keystore $< $@
+#else
+#$(APK_SIGNED): $(APK)
+#	cp $< $@
+#	apksigner sign --cert platform/android/certificate.pem --key platform/android/key.pk8 $@
+#endif
+#endif
+
   $(EXE): $(O_FILES) $(MIO0_FILES:.mio0=.o) $(ULTRA_O_FILES) $(GODDARD_O_FILES) $(BUILD_DIR)/$(RPC_LIBS) $(BUILD_DIR)/$(DISCORD_SDK_LIBS) $(BUILD_DIR)/$(BASS_LIBS) $(BUILD_DIR)/$(MOD_DIR)
 	@$(PRINT) "$(GREEN)Linking executable: $(BLUE)$@ $(NO_COL)\n"
 	$(V)$(LD) $(PROF_FLAGS) -L $(BUILD_DIR) -o $@ $(O_FILES) $(ULTRA_O_FILES) $(GODDARD_O_FILES) $(LDFLAGS) $(EXTRA_INCLUDES)

@@ -103,3 +103,8 @@ todo-old.txt
 sound/samples/sfx_custom_luigi*/*.aiff
 sound/samples/sfx_custom_wario*/*.aiff
 
+# Android files
+!/textures/touchcontrols/*.png
+platform/android/SDL/include
+!platform/android/android/**/*.so
+platform/android/android/lib/*/libc++_shared.so

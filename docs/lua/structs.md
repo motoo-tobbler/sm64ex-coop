@@ -141,20 +141,6 @@
 
 <br />
 
-## [BassAudio](#BassAudio)
-
-| Field | Type | Access |
-| ----- | ---- | ------ |
-| file | [ModFile](structs.md#ModFile) | read-only |
-| handle | `integer` | read-only |
-| isStream | `boolean` | read-only |
-| loaded | `boolean` | read-only |
-| rawData | `string` | read-only |
-
-[:arrow_up_small:](#)
-
-<br />
-
 ## [BehaviorDialogs](#BehaviorDialogs)
 
 | Field | Type | Access |
@@ -952,6 +938,18 @@
 | pitch | `integer` |  |
 | pos | [Vec3f](structs.md#Vec3f) | read-only |
 | yaw | `integer` |  |
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [MarioAnimDmaRelatedThing](#MarioAnimDmaRelatedThing)
+
+| Field | Type | Access |
+| ----- | ---- | ------ |
+| anim | [OffsetSizePair](structs.md#OffsetSizePair) | read-only |
+| count | `integer` |  |
+| srcAddr | `Pointer` <`integer`> | read-only |
 
 [:arrow_up_small:](#)
 
@@ -2055,6 +2053,16 @@
 
 <br />
 
+## [SPTask](#SPTask)
+
+| Field | Type | Access |
+| ----- | ---- | ------ |
+| state | [enum SpTaskState](constants.md#enum-SpTaskState) |  |
+
+[:arrow_up_small:](#)
+
+<br />
+
 ## [ServerSettings](#ServerSettings)
 
 | Field | Type | Access |
@@ -2234,6 +2242,29 @@
 | posDist | `number` |  |
 | posPitch | `integer` |  |
 | posYaw | `integer` |  |
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [UnusedArea28](#UnusedArea28)
+
+| Field | Type | Access |
+| ----- | ---- | ------ |
+| unk00 | `integer` |  |
+| unk02 | `integer` |  |
+| unk04 | `integer` |  |
+| unk06 | `integer` |  |
+| unk08 | `integer` |  |
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [VblankHandler](#VblankHandler)
+
+| Field | Type | Access |
+| ----- | ---- | ------ |
 
 [:arrow_up_small:](#)
 

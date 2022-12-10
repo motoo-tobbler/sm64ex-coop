@@ -43,13 +43,6 @@
 --- @field public terrainType integer
 --- @field public warpNodes ObjectWarpNode
 
---- @class BassAudio
---- @field public file ModFile
---- @field public handle integer
---- @field public isStream boolean
---- @field public loaded boolean
---- @field public rawData string
-
 --- @class BehaviorDialogs
 --- @field public BobombBuddyBob1Dialog DialogId
 --- @field public BobombBuddyBob2Dialog DialogId
@@ -650,6 +643,11 @@
 --- @field public pitch integer
 --- @field public pos Vec3f
 --- @field public yaw integer
+
+--- @class MarioAnimDmaRelatedThing
+--- @field public anim OffsetSizePair
+--- @field public count integer
+--- @field public srcAddr Pointer_integer
 
 --- @class MarioAnimation
 --- @field public currentAnimAddr Pointer_integer
@@ -1622,6 +1620,9 @@
 --- @field public hitPos Vec3f
 --- @field public surface Surface
 
+--- @class SPTask
+--- @field public state SpTaskState
+
 --- @class ServerSettings
 --- @field public bubbleDeath integer
 --- @field public enableCheats integer
@@ -1735,6 +1736,15 @@
 --- @field public posDist number
 --- @field public posPitch integer
 --- @field public posYaw integer
+
+--- @class UnusedArea28
+--- @field public unk00 integer
+--- @field public unk02 integer
+--- @field public unk04 integer
+--- @field public unk06 integer
+--- @field public unk08 integer
+
+--- @class VblankHandler
 
 --- @class WallCollisionData
 --- @field public normalAddition Vec3f

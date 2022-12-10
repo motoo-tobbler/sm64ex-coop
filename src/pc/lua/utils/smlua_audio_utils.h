@@ -9,6 +9,7 @@ void smlua_audio_utils_replace_sequence(u8 sequenceId, u8 bankId, u8 defaultVolu
  // bass //
 //////////
 
+#ifdef HAVE_BASS
 struct BassAudio {
     struct ModFile* file;
     char* rawData;
@@ -40,5 +41,6 @@ void audio_sample_destroy(struct BassAudio* audio);
 void audio_sample_play(struct BassAudio* audio, Vec3f position, f32 volume);
 
 void audio_custom_shutdown(void);
+#endif
 
 #endif

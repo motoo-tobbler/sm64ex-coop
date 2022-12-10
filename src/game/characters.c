@@ -10,7 +10,10 @@
 #include "pc/configfile.h"
 #include "audio/external.h"
 #include "engine/graph_node.h"
+
+#ifdef HAVE_BASS
 #include "characters_bass_sounds.h"
+#endif
 
 extern Gfx mario_cap_seg3_dl_03022F48[];
 extern Gfx luigi_cap_seg3_dl_03022F48[];
@@ -87,8 +90,10 @@ struct Character gCharacters[CT_MAX] = {
         .soundSnoring3         = SOUND_MARIO_SNORING3,
         .soundSoLongaBowser    = SOUND_MARIO_SO_LONGA_BOWSER,
         .soundImaTired         = SOUND_MARIO_IMA_TIRED,
+#ifdef HAVE_BASS
         .soundLetsAGo          = CHAR_BASS_SOUND(SOUND_MARIO_LETS_A_GO),
         .soundOkeyDokey        = CHAR_BASS_SOUND(SOUND_MARIO_OKEY_DOKEY),
+#endif
     },
 
     [CT_LUIGI] = {
@@ -152,8 +157,10 @@ struct Character gCharacters[CT_MAX] = {
         .soundSnoring3         = SOUND_LUIGI_SNORING3,
         .soundSoLongaBowser    = SOUND_LUIGI_SO_LONGA_BOWSER,
         .soundImaTired         = SOUND_LUIGI_IMA_TIRED,
+#ifdef HAVE_BASS
         .soundLetsAGo          = CHAR_BASS_SOUND(SOUND_LUIGI_LETS_A_GO),
         .soundOkeyDokey        = CHAR_BASS_SOUND(SOUND_LUIGI_OKEY_DOKEY),
+#endif
     },
 
     [CT_TOAD] = {
@@ -217,8 +224,10 @@ struct Character gCharacters[CT_MAX] = {
         .soundSnoring3         = SOUND_MARIO_SNORING3,
         .soundSoLongaBowser    = SOUND_MARIO_SO_LONGA_BOWSER,
         .soundImaTired         = SOUND_MARIO_IMA_TIRED,
+#ifdef HAVE_BASS
         .soundLetsAGo          = CHAR_BASS_SOUND(SOUND_MARIO_LETS_A_GO),
         .soundOkeyDokey        = CHAR_BASS_SOUND(SOUND_MARIO_OKEY_DOKEY),
+#endif
     },
 
     [CT_WALUIGI] = {
@@ -285,8 +294,10 @@ struct Character gCharacters[CT_MAX] = {
         .soundSnoring3         = SOUND_LUIGI_SNORING3,
         .soundSoLongaBowser    = SOUND_LUIGI_SO_LONGA_BOWSER,
         .soundImaTired         = SOUND_LUIGI_IMA_TIRED,
+#ifdef HAVE_BASS
         .soundLetsAGo          = CHAR_BASS_SOUND(SOUND_LUIGI_LETS_A_GO),
         .soundOkeyDokey        = CHAR_BASS_SOUND(SOUND_LUIGI_OKEY_DOKEY),
+#endif
     },
 
     [CT_WARIO] = {
@@ -350,8 +361,10 @@ struct Character gCharacters[CT_MAX] = {
         .soundSnoring3         = SOUND_WARIO_SNORING3,
         .soundSoLongaBowser    = SOUND_WARIO_SO_LONGA_BOWSER,
         .soundImaTired         = SOUND_WARIO_IMA_TIRED,
+#ifdef HAVE_BASS
         .soundLetsAGo          = CHAR_BASS_SOUND(SOUND_WARIO_LETS_A_GO),
         .soundOkeyDokey        = CHAR_BASS_SOUND(SOUND_WARIO_OKEY_DOKEY),
+#endif
     },
 };
 
@@ -511,14 +524,18 @@ static void play_character_sound_internal(struct MarioState *m, enum CharacterSo
         if (sound != 0) {
             struct Character* character = get_character(m);
             f32 *pos = (m->marioObj != NULL ? m->marioObj->header.gfx.cameraToObject : gGlobalSoundSource);
+#ifdef HAVE_BASS
             if ((u32) (sound & CHAR_BASS_MAGIC) == CHAR_BASS_MAGIC) {
                 CharacterBassSound *cbs = get_character_bass_sound(sound);
                 if (cbs != NULL) {
                     play_character_bass_sound(cbs, pos, character->soundFreqScale);
                 }
             } else {
+#endif
                 play_sound_with_freq_scale(sound + offset, pos, character->soundFreqScale);
+#ifdef HAVE_BASS
             }
+#endif
         }
         m->flags |= flags;
     }

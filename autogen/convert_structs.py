@@ -94,6 +94,10 @@ override_allowed_structs = {
     "src/pc/network/network.h": [ 'ServerSettings' ],
 }
 
+exclude_structs = [
+    "BassAudio"
+]
+
 sLuaManuallyDefinedStructs = [{
     'path': 'n/a',
     'structs': [

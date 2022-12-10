@@ -3,6 +3,10 @@
 #include <string.h>
 #include <signal.h>
 
+#ifdef __ANDROID__DISABLED
+#include <sys/stat.h>
+#endif
+
 #include "sm64.h"
 
 #include "pc/lua/smlua.h"
@@ -32,6 +36,7 @@
 #include "configfile.h"
 #include "controller/controller_api.h"
 #include "controller/controller_keyboard.h"
+#include "controller/controller_touchscreen.h"
 #include "fs/fs.h"
 
 #include "game/display.h" // for gGlobalTimer
@@ -39,9 +44,12 @@
 #include "game/main.h"
 #include "game/rumble_init.h"
 
+#ifdef HAVE_BASS
 #include "include/bass/bass.h"
 #include "include/bass/bass_fx.h"
 #include "src/bass_audio/bass_audio_helpers.h"
+#endif
+
 #include "pc/lua/utils/smlua_audio_utils.h"
 
 #ifdef DISCORDRPC
@@ -233,7 +241,9 @@ void produce_one_frame(void) {
 }
 
 void audio_shutdown(void) {
+#ifdef HAVE_BASS
     audio_custom_shutdown();
+#endif
     if (audio_api) {
         if (audio_api->shutdown) audio_api->shutdown();
         audio_api = NULL;
@@ -246,7 +256,9 @@ void game_deinit(void) {
 #endif
     configfile_save(configfile_name());
     controller_shutdown();
+#ifdef HAVE_BASS
     audio_custom_shutdown();
+#endif
     audio_shutdown();
     gfx_shutdown();
     network_shutdown(true, true, false);
@@ -265,8 +277,45 @@ void inthand(UNUSED int signum) {
     game_exit();
 }
 
+#ifdef __ANDROID__DISABLED
+#include "platform.h"
+extern const char* SDL_AndroidGetInternalStoragePath();
+extern const char* SDL_AndroidGetExternalStoragePath();
+
+void move_to_new_dir(char* file) {
+    const char *basedir = SDL_AndroidGetExternalStoragePath();
+    char original_loc[SYS_MAX_PATH];
+    char new_loc[SYS_MAX_PATH];
+    snprintf(original_loc, sizeof(original_loc), "%s/%s", basedir, file);
+    snprintf(new_loc, sizeof(new_loc), "%s/%s/%s", basedir, gCLIOpts.GameDir[0] ? gCLIOpts.GameDir : FS_BASEDIR, file);
+    rename(original_loc, new_loc);
+}
+
+void move_to_new_dir_user(char* file) {
+    const char *basedir = SDL_AndroidGetExternalStoragePath();
+    char original_loc[SYS_MAX_PATH];
+    char new_loc[SYS_MAX_PATH];
+    snprintf(original_loc, sizeof(original_loc), "%s/%s", basedir, file);
+    snprintf(new_loc, sizeof(new_loc), "%s/%s/%s", basedir, gCLIOpts.GameDir[0] ? gCLIOpts.GameDir : FS_BASEDIR, file);
+    rename(original_loc, new_loc);
+}
+#endif
+
 void main_func(void) {
+#ifdef __ANDROID__DISABLED
+    //Move old stuff to new path
+    const char *basedir = SDL_AndroidGetExternalStoragePath();
+    char gamedir[SYS_MAX_PATH];
+    snprintf(gamedir, sizeof(gamedir), "%s/%s", basedir, gCLIOpts.GameDir[0] ? gCLIOpts.GameDir : FS_BASEDIR);
+    if (stat(gamedir, NULL) == -1) {
+        mkdir(gamedir, 0770);
+    }
+    move_to_new_dir("sound");
+    move_to_new_dir("gfx");
+    move_to_new_dir("base.zip");
+#else
     const char *gamedir = gCLIOpts.GameDir[0] ? gCLIOpts.GameDir : FS_BASEDIR;
+#endif
     const char *userpath = gCLIOpts.SavePath[0] ? gCLIOpts.SavePath : sys_user_path();
     fs_init(sys_ropaths, gamedir, userpath);
 
@@ -327,6 +376,10 @@ void main_func(void) {
     gfx_init(wm_api, rendering_api, window_title);
     wm_api->set_keyboard_callbacks(keyboard_on_key_down, keyboard_on_key_up, keyboard_on_all_keys_up, keyboard_on_text_input);
 
+    #ifdef TOUCH_CONTROLS
+    wm_api->set_touchscreen_callbacks((void *)touch_down, (void *)touch_motion, (void *)touch_up);
+    #endif
+
     #if defined(AAPI_SDL1) || defined(AAPI_SDL2)
     if (audio_api == NULL && audio_sdl.init())
         audio_api = &audio_sdl;
@@ -355,7 +408,11 @@ void main_func(void) {
 
     audio_init();
     sound_init();
+
+#ifdef HAVE_BASS
     bassh_init();
+#endif
+
     network_player_init();
 
     thread5_game_loop(NULL);
@@ -386,7 +443,9 @@ void main_func(void) {
 #endif
     }
 
+#ifdef HAVE_BASS
     bassh_deinit();
+#endif
 }
 
 int main(int argc, char *argv[]) {

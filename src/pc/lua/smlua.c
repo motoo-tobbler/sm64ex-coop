@@ -186,7 +186,9 @@ void smlua_shutdown(void) {
     hardcoded_reset_default_values();
     smlua_text_utils_reset_all();
     smlua_audio_utils_reset_all();
+#ifdef HAVE_BASS
     audio_custom_shutdown();
+#endif
     smlua_cobject_allowlist_shutdown();
     smlua_cpointer_allowlist_shutdown();
     smlua_clear_hooks();
