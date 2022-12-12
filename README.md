@@ -8,6 +8,10 @@ Run `./extract_assets.py --clean && make clean` or `make distclean` to remove RO
 
 [Click here to read the guide](README_android.md).
 
+What this can do:
+
+[![demo](https://i.ytimg.com/vi/jv2kotnoX10/maxresdefault.jpg)](https://www.youtube.com/watch?v=jv2kotnoX10 "sm64ex-coop android (zink + Xwayland)")
+
 What works:
 
 ✅ NO root, chroot, or proot required
@@ -15,6 +19,8 @@ What works:
 ✅ Direct connection - client and server
 
 ✅ GPU acceleration*
+
+✅ Normal Audio
 
 ✅ Texture, Model, and Lua mods
 
