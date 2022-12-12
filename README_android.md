@@ -323,8 +323,8 @@ channel-xml/xfwm4.xml
 > With Zink, performance can be unpredictable and scale differently from what you might expect. The primary bottleneck is that every frame is copied many times after it leaves the GPU to get it onto the Xwayland screen. This means that higher resolution lowers performance, but you can use more intensive graphics settings at the same resolution without losing performance, unlike what you would expect with a rasterization bottleneck.
 
 ```bash
-cd
-sm64ex-coop/launch-sm64ex-coop.sh
+cd ~/sm64ex-coop
+./launch-sm64ex-coop.sh
 ```
 
 > Credit to Thundersnow#7929 and RICK#7270 for helping a lot with parts of this guide, especially the Zink patches
