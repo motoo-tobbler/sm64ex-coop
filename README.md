@@ -1,8 +1,38 @@
 # sm64ex-coop
-Online multiplayer mod for SM64 that synchronizes all entities and every level for multiple players. Fork of [sm64pc/sm64ex](https://github.com/sm64pc/sm64ex). 
+Unsanctioned WIP fork for Android. Online multiplayer mod for SM64 that synchronizes all entities and every level for multiple players. Fork of [sm64pc/sm64ex](https://github.com/sm64pc/sm64ex). Contains code copied from [AloXado320/sm64ex-alo](https://github.com/AloXado320/sm64ex-alo), [VDavid003/sm64-port-android](https://github.com/VDavid003/sm64-port-android), and [porcino/sm64-port-android](https://github.com/porcino/sm64-port-android).
 
 Feel free to report bugs and contribute, but remember, there must be **no upload of any copyrighted asset**. 
 Run `./extract_assets.py --clean && make clean` or `make distclean` to remove ROM-originated content.
+
+## How to Play on Android
+
+[Click here to read the guide](README_android.md).
+
+What works:
+
+✅ NO root, chroot, or proot required
+
+✅ Direct connection - client and server
+
+✅ GPU acceleration*
+
+✅ Texture, Model, and Lua mods
+
+✅ Touch controls (buggy)
+
+*YMMV
+
+What doesn't work:
+
+❌ Discord
+
+❌ BASS Audio
+
+❌ SurfaceFlinger SDL2 backend
+
+❌ External gamepads
+
+❌ Fullscreen
 
 ## How to Play
 
