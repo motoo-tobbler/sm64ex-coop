@@ -326,3 +326,5 @@ channel-xml/xfwm4.xml
 cd
 sm64ex-coop/launch-sm64ex-coop.sh
 ```
+
+> Credit to Thundersnow#7929 and RICK#7270 for helping a lot with parts of this guide, especially the Zink patches
