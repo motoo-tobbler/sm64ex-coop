@@ -76,7 +76,7 @@ The following steps will help you determine which class your device falls into, 
 
 11. You might see a warning very similar to the one covered in steps 5-7. If you trust Termux, repeat that process.
 
-12. Also from F-Droid, another app you will need much later is "Hacker's Keyboard". You don't need to switch your touch keyboard to it right now, but it might be convenient to install it now. Search for it in F-Droid and install it.
+12. Also from F-Droid, another app you will need much later is "Hacker's Keyboard" ([source code](https://github.com/klausw/hackerskeyboard)). You don't need to switch your touch keyboard to it right now, but it might be convenient to install it now. Search for it in F-Droid and install it.
 
 13. Open Termux and wait until the "installing bootstrap packages" message disappears. Then, the first thing you need to do is type `pkg update` and press Enter (or "Go" as some touch keyboards label it):
 
