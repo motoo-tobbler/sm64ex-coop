@@ -119,5 +119,5 @@ cd platform/android/ && ./getkhrplatform.sh && ./getSDL.sh && cd ../..
 
 ```bash
 make -j$(nproc)
-xdg-open build/us_android/sm64.us.f3dex2e.apk
+xdg-open build/us_pc/sm64.us.f3dex2e.apk
 ```
