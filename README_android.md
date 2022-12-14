@@ -96,8 +96,6 @@
 
 21. Type "`yes`" to confirm connecting to a new device, then type the password you chose in step 20, and press Enter. You should now see the Termux MOTD (welcome message) and `~ $`. From this point, commands for running in Termux will be placed in code blocks, so that Github gives them copy buttons for easily pasting into this window. Unfortunately, the button to paste into terminal varies wildly by client OS, but on Windows you can try right click.
 
-![image](https://user-images.githubusercontent.com/31490854/207105668-f6b8f2c5-7c21-4cd3-999e-c7c3702674e7.png)
-
 22. Install dependencies:
 
 ```bash
