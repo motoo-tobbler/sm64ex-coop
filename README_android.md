@@ -108,15 +108,15 @@ termux-setup-storage
 
 ```bash
 pkg install git wget make python getconf zip apksigner clang binutils aapt
-cd platform/android/ && ./getkhrplatform.sh && ./getSDL.sh && cd ../..
 ```
 
-24. Clone this repository and place your `baserom.us.z64` in it. If you don't already have a `baserom.us.z64`, [here's the guide to obtain one](https://github.com/sanni/cartreader/wiki/What-to-order):
+24. Clone this repository and place your `baserom.us.z64` in it, then download SDL2 and KHR platform headers. If you don't already have a `baserom.us.z64`, [here's the guide to obtain one](https://github.com/sanni/cartreader/wiki/What-to-order):
 
 ```bash
 git clone https://github.com/robertkirkman/sm64ex-coop.git
 cd sm64ex-coop
 cp /storage/emulated/0/baserom.us.z64 .
+cd platform/android/ && ./getkhrplatform.sh && ./getSDL.sh && cd ../..
 ```
 
 25. Build this `sm64ex-coop` fork. This will take a while. When it is finished, you can install the `.apk`:
