@@ -713,15 +713,15 @@ T *CopyBytes(const T *aPtr, u64 aSize) {
 
 template <typename... Args>
 void PrintNoNewLine(const char *aFmt, Args... aArgs) {
-    printf(aFmt, aArgs...);
-    fflush(stdout);
+    //printf(aFmt, aArgs...);
+    //fflush(stdout);
 }
 
 template <typename... Args>
 void Print(const char *aFmt, Args... aArgs) {
-    printf(aFmt, aArgs...);
-    printf("\r\n");
-    fflush(stdout);
+    //printf(aFmt, aArgs...);
+    //printf("\r\n");
+    //fflush(stdout);
 }
 
 #define PrintError(...) { \

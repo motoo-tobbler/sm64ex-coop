@@ -204,7 +204,12 @@ static void gfx_sdl_fingerup(SDL_TouchFingerEvent sdl_event) {
 #endif
 
 static void gfx_sdl_handle_events(void) {
+// disable on Android for now, this activates
+// the Android keyboard so it will need to be
+// moved to a conditional somewhere
+#ifndef __ANDROID__
     SDL_StartTextInput();
+#endif
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         switch (event.type) {

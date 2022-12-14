@@ -3,7 +3,7 @@
 #include <string.h>
 #include <signal.h>
 
-#ifdef __ANDROID__DISABLED
+#ifdef __ANDROID__
 #include <sys/stat.h>
 #endif
 
@@ -277,7 +277,7 @@ void inthand(UNUSED int signum) {
     game_exit();
 }
 
-#ifdef __ANDROID__DISABLED
+#ifdef __ANDROID__
 #include "platform.h"
 extern const char* SDL_AndroidGetInternalStoragePath();
 extern const char* SDL_AndroidGetExternalStoragePath();
@@ -302,7 +302,7 @@ void move_to_new_dir_user(char* file) {
 #endif
 
 void main_func(void) {
-#ifdef __ANDROID__DISABLED
+#ifdef __ANDROID__
     //Move old stuff to new path
     const char *basedir = SDL_AndroidGetExternalStoragePath();
     char gamedir[SYS_MAX_PATH];
@@ -459,6 +459,7 @@ int main(int argc, char *argv[]) {
     signal(SIGTERM, inthand);
 #endif
     parse_cli_opts(argc, argv);
+    DynOS_Init();
     main_func();
     return 0;
 }

@@ -86,7 +86,7 @@ void sys_fatal(const char *fmt, ...) {
 #include <SDL2/SDL.h>
 
 
-#ifdef __ANDROID__DISABLED
+#ifdef __ANDROID__
 extern const char* SDL_AndroidGetInternalStoragePath();
 extern const char* SDL_AndroidGetExternalStoragePath();
 

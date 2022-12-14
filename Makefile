@@ -144,9 +144,9 @@ OLD_APKSIGNER ?= 0
 # Attempt to detect termux android build
 ifneq ($(shell which termux-setup-storage),)
   TARGET_ANDROID := 1
-  #ifeq ($(shell dpkg -s apksigner | grep Version | sed "s/Version: //"),0.7-2)
-  #  OLD_APKSIGNER := 1
-  #endif
+  ifeq ($(shell dpkg -s apksigner | grep Version | sed "s/Version: //"),0.7-2)
+    OLD_APKSIGNER := 1
+  endif
 endif
 
 # MXE overrides
@@ -159,7 +159,6 @@ ifeq ($(TARGET_ANDROID),1)
   AUDIO_API := SDL2
   CONTROLLER_API := SDL2
   DISCORD_SDK := 0
-  NO_PIE := 0
 
   TOUCH_CONTROLS := 1
 endif
@@ -339,8 +338,8 @@ endif
 
 ifeq ($(TARGET_RPI),1) # Define RPi to change SDL2 title & GLES2 hints
      DEFINES += USE_GLES=1
-#else ifeq ($(TARGET_ANDROID),1)
-#  DEFINES += TARGET_ANDROID=1 USE_GLES=1 _LANGUAGE_C=1
+else ifeq ($(TARGET_ANDROID),1)
+  DEFINES += TARGET_ANDROID=1 USE_GLES=1 _LANGUAGE_C=1
 endif
 
 ifeq ($(OSX_BUILD),1) # Modify GFX & SDL2 for OSX GL
@@ -456,6 +455,8 @@ TOOLS_DIR := tools
 
 LIBLUA_DIR := lib/src/lua
 
+ZLIB_DIR := lib/src/zlib
+
 # (This is a bit hacky, but a lot of rules implicitly depend
 # on tools and assets, and we use directory globs further down
 # in the makefile that we want should cover assets.)
@@ -491,6 +492,14 @@ ifeq ($(filter clean distclean print-%,$(MAKECMDGOALS)),)
     endif
   endif
 
+  # Make zlib
+  ifeq ($(TARGET_ANDROID),1)
+    DUMMY != $(MAKE) -C $(ZLIB_DIR) libz.a >&2 || echo FAIL
+    ifeq ($(DUMMY),FAIL)
+      $(error Failed to build zlib)
+    endif
+  endif
+
   $(info Building Game...)
 
 endif
@@ -521,10 +530,10 @@ BUILD_DIR := $(BUILD_DIR_BASE)/$(VERSION)_pc
 
 ifeq ($(WINDOWS_BUILD),1)
 	EXE := $(BUILD_DIR)/$(TARGET_STRING).exe
-#else ifeq ($(TARGET_ANDROID),1)
-#  EXE := $(BUILD_DIR)/libmain.so
-#  APK := $(BUILD_DIR)/$(TARGET).unsigned.apk
-#  APK_SIGNED := $(BUILD_DIR)/$(TARGET).apk
+else ifeq ($(TARGET_ANDROID),1)
+  EXE := $(BUILD_DIR)/libmain.so
+  APK := $(BUILD_DIR)/$(TARGET).unsigned.apk
+  APK_SIGNED := $(BUILD_DIR)/$(TARGET).apk
 else # Linux builds/binary namer
 	ifeq ($(TARGET_RPI),1)
 		EXE := $(BUILD_DIR)/$(TARGET_STRING).arm
@@ -554,7 +563,7 @@ SRC_DIRS += src/pc src/pc/gfx src/pc/audio src/pc/controller src/pc/fs src/pc/fs
 #endif
 
 ifeq ($(TARGET_ANDROID),1)
-  #SRC_DIRS += platform/android
+  SRC_DIRS += platform/android
 else
   SRC_DIRS += src/bass_audio
 endif
@@ -821,9 +830,9 @@ else
   INCLUDE_DIRS += sound lib/lua/include $(EXTRA_INCLUDES)
 endif
 
-#ifeq ($(TARGET_ANDROID),1)
-#  INCLUDE_DIRS += platform/android/SDL/include
-#endif
+ifeq ($(TARGET_ANDROID),1)
+  INCLUDE_DIRS += platform/android/SDL/include
+endif
 
 # Configure backend flags
 
@@ -848,8 +857,8 @@ ifeq ($(WINDOW_API),DXGI)
 else ifeq ($(findstring SDL,$(WINDOW_API)),SDL)
   ifeq ($(WINDOWS_BUILD),1)
     BACKEND_LDFLAGS += -lglew32 -lglu32 -lopengl32
-#  else ifeq ($(TARGET_ANDROID),1)
-#    BACKEND_LDFLAGS += -lGLESv2
+  else ifeq ($(TARGET_ANDROID),1)
+    BACKEND_LDFLAGS += -lGLESv2
   else ifeq ($(TARGET_RPI),1)
     BACKEND_LDFLAGS += -lGLESv2
   else ifeq ($(OSX_BUILD),1)
@@ -884,8 +893,7 @@ endif
 
 ifneq ($(SDL1_USED)$(SDL2_USED),00)
   ifeq ($(TARGET_ANDROID),1)
-    #BACKEND_LDFLAGS += -lhidapi -lSDL2
-    BACKEND_LDFLAGS += $(shell $(SDLCONFIG) --libs)
+    BACKEND_LDFLAGS += -lhidapi -lSDL2
   else ifeq ($(OSX_BUILD),1)
     # on OSX at least the homebrew version of sdl-config gives include path as `.../include/SDL2` instead of `.../include`
     OSX_PREFIX := $(shell $(SDLCONFIG) --prefix)
@@ -963,18 +971,18 @@ ifeq ($(WINDOWS_BUILD),1)
   endif
 else ifeq ($(TARGET_RPI),1)
   LDFLAGS := $(OPT_FLAGS) -lm $(BACKEND_LDFLAGS) -no-pie
-#else ifeq ($(TARGET_ANDROID),1)
-#  ifneq ($(shell uname -m | grep "i.86"),)
-#    ARCH_APK := x86
-#  else ifeq ($(shell uname -m),x86_64)
-#    ARCH_APK := x86_64
-#  else ifeq ($(shell getconf LONG_BIT),64)
-#    ARCH_APK := arm64-v8a
-#  else
-#    ARCH_APK := armeabi-v7a
-#  endif
-#  CFLAGS  += -fPIC
-#  LDFLAGS := -L ./platform/android/android/lib/$(ARCH_APK)/ -lm $(BACKEND_LDFLAGS) -shared
+else ifeq ($(TARGET_ANDROID),1)
+  ifneq ($(shell uname -m | grep "i.86"),)
+    ARCH_APK := x86
+  else ifeq ($(shell uname -m),x86_64)
+    ARCH_APK := x86_64
+  else ifeq ($(shell getconf LONG_BIT),64)
+    ARCH_APK := arm64-v8a
+  else
+    ARCH_APK := armeabi-v7a
+  endif
+  CFLAGS  += -fPIC
+  LDFLAGS := -L ./platform/android/android/lib/$(ARCH_APK)/ -lm $(BACKEND_LDFLAGS) -shared
 else ifeq ($(OSX_BUILD),1)
   LDFLAGS := -lm $(BACKEND_LDFLAGS) -lpthread
 else
@@ -1003,7 +1011,11 @@ endif
 # Coop specific libraries
 
 # Zlib
-LDFLAGS += -lz
+ifeq ($(TARGET_ANDROID),1)
+  LDFLAGS += -L$(ZLIB_DIR) -l:libz.a
+else
+  LDFLAGS += -lz
+endif
 
 # Lua
 ifeq ($(WINDOWS_BUILD),1)
@@ -1238,13 +1250,13 @@ endef
 #==============================================================================#
 
 #all: $(ROM)
-#ifeq ($(TARGET_ANDROID),1)
-#all: $(APK_SIGNED)
-#EXE_DEPEND := $(APK_SIGNED)
-#else
+ifeq ($(TARGET_ANDROID),1)
+all: $(APK_SIGNED)
+EXE_DEPEND := $(APK_SIGNED)
+else
 all: $(EXE)
 EXE_DEPEND := $(EXE)
-#endif
+endif
 
 ifeq ($(EXTERNAL_DATA),1)
 
@@ -1293,6 +1305,7 @@ endif
 clean:
 	$(RM) -r $(BUILD_DIR_BASE)
 	$(MAKE) -s -C $(LIBLUA_DIR) clean
+	$(MAKE) -s -C $(ZLIB_DIR) clean
 
 cleantools:
 	$(MAKE) -s -C $(TOOLS_DIR) clean
@@ -1684,27 +1697,32 @@ ifeq ($(TARGET_N64),1)
 	$(OBJDUMP) -D $< > $@
 else
 
-#ifeq ($(TARGET_ANDROID),1)
-#APK_FILES := $(shell find platform/android/ -type f)
-#
-#$(APK): $(EXE) $(APK_FILES)
-#	cp -r platform/android $(BUILD_DIR)/platform/ && \
-#	cp $(PREFIX)/lib/libc++_shared.so $(BUILD_DIR)/platform/android/android/lib/$(ARCH_APK)/ && \
-#	cp $(EXE) $(BUILD_DIR)/platform/android/android/lib/$(ARCH_APK)/ && \
-#	cd $(BUILD_DIR)/platform/android/android && \
-#	zip -r ../../../../../$@ ./* && \
-#	cd - && \
-#	rm -rf $(BUILD_DIR)/platform/android/android
-#
-#ifeq ($(OLD_APKSIGNER),1)
-#$(APK_SIGNED): $(APK)
-#	apksigner $(BUILD_DIR)/keystore $< $@
-#else
-#$(APK_SIGNED): $(APK)
-#	cp $< $@
-#	apksigner sign --cert platform/android/certificate.pem --key platform/android/key.pk8 $@
-#endif
-#endif
+ifeq ($(TARGET_ANDROID),1)
+APK_FILES := $(shell find platform/android/ -type f)
+
+$(APK): $(EXE) $(APK_FILES)
+	cp -r platform/android $(BUILD_DIR)/platform/ && \
+	cp $(PREFIX)/lib/libc++_shared.so $(BUILD_DIR)/platform/android/android/lib/$(ARCH_APK)/ && \
+	cp $(EXE) $(BUILD_DIR)/platform/android/android/lib/$(ARCH_APK)/ && \
+	cd $(BUILD_DIR)/platform/android/android && \
+	aapt package -f -M ./AndroidManifest.xml -S res -F ../../../../../$@ && \
+	aapt add -f ../../../../../$@ lib/$(ARCH_APK)/libmain.so && \
+	aapt add -f ../../../../../$@ lib/$(ARCH_APK)/libSDL2.so && \
+	aapt add -f ../../../../../$@ lib/$(ARCH_APK)/libhidapi.so && \
+	aapt add -f ../../../../../$@ lib/$(ARCH_APK)/libc++_shared.so && \
+	aapt add -f ../../../../../$@ classes.dex && \
+	cd - && \
+	rm -rf $(BUILD_DIR)/platform/android/android
+
+ifeq ($(OLD_APKSIGNER),1)
+$(APK_SIGNED): $(APK)
+	apksigner $(BUILD_DIR)/keystore $< $@
+else
+$(APK_SIGNED): $(APK)
+	cp $< $@
+	apksigner sign --cert platform/android/certificate.pem --key platform/android/key.pk8 $@
+endif
+endif
 
   $(EXE): $(O_FILES) $(MIO0_FILES:.mio0=.o) $(ULTRA_O_FILES) $(GODDARD_O_FILES) $(BUILD_DIR)/$(RPC_LIBS) $(BUILD_DIR)/$(DISCORD_SDK_LIBS) $(BUILD_DIR)/$(BASS_LIBS) $(BUILD_DIR)/$(MOD_DIR)
 	@$(PRINT) "$(GREEN)Linking executable: $(BLUE)$@ $(NO_COL)\n"
