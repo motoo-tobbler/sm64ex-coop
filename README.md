@@ -1,5 +1,5 @@
 # sm64ex-coop
-Unsanctioned WIP fork for Android. Online multiplayer mod for SM64 that synchronizes all entities and every level for multiple players. Fork of [sm64pc/sm64ex](https://github.com/sm64pc/sm64ex). Contains code copied from [AloXado320/sm64ex-alo](https://github.com/AloXado320/sm64ex-alo), [VDavid003/sm64-port-android](https://github.com/VDavid003/sm64-port-android), and [porcino/sm64-port-android](https://github.com/porcino/sm64-port-android).
+Unsanctioned WIP fork for Android. Online multiplayer mod for SM64 that synchronizes all entities and every level for multiple players. Fork of [sm64pc/sm64ex](https://github.com/sm64pc/sm64ex). Contains code copied from [AloXado320/sm64ex-alo](https://github.com/AloXado320/sm64ex-alo), [VDavid003/sm64-port-android](https://github.com/VDavid003/sm64-port-android), [VDavid003/sm64-port-android-base](https://github.com/VDavid003/sm64-port-android-base), and [porcino/sm64-port-android](https://github.com/porcino/sm64-port-android).
 
 Feel free to report bugs and contribute, but remember, there must be **no upload of any copyrighted asset**. 
 Run `./extract_assets.py --clean && make clean` or `make distclean` to remove ROM-originated content.
@@ -8,17 +8,19 @@ Run `./extract_assets.py --clean && make clean` or `make distclean` to remove RO
 
 [Click here to read the guide](README_android.md).
 
-What this can do:
+What this can do (build featured in video is old):
 
 [![demo](https://i.ytimg.com/vi/jv2kotnoX10/maxresdefault.jpg)](https://www.youtube.com/watch?v=jv2kotnoX10 "sm64ex-coop android (zink + Xwayland)")
 
 What works:
 
-✅ NO root, chroot, or proot required
+✅ NO root, chroot, proot or custom graphics driver required
 
 ✅ Direct connection - client and server
 
-✅ GPU acceleration*
+✅ GPU acceleration
+
+✅ SurfaceFlinger SDL2 backend
 
 ✅ Normal Audio
 
@@ -26,7 +28,7 @@ What works:
 
 ✅ Touch controls (buggy)
 
-*YMMV
+✅ Fullscreen
 
 What doesn't work:
 
@@ -34,11 +36,7 @@ What doesn't work:
 
 ❌ BASS Audio
 
-❌ SurfaceFlinger SDL2 backend
-
 ❌ External gamepads
-
-❌ Fullscreen
 
 ## How to Play
 
