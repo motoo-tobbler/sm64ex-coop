@@ -96,21 +96,15 @@
 
 21. Type "`yes`" to confirm connecting to a new device, then type the password you chose in step 20, and press Enter. You should now see the Termux MOTD (welcome message) and `~ $`. From this point, commands for running in Termux will be placed in code blocks, so that Github gives them copy buttons for easily pasting into this window. Unfortunately, the button to paste into terminal varies wildly by client OS, but on Windows you can try right click.
 
-22. Give software running as Termux's Android-assigned user permission to access `/storage/emulated/0`. A popup will appear; touch "ALLOW":
-
-```bash
-termux-setup-storage
-```
-
 ![image](https://user-images.githubusercontent.com/31490854/207105668-f6b8f2c5-7c21-4cd3-999e-c7c3702674e7.png)
 
-23. Install dependencies:
+22. Install dependencies:
 
 ```bash
 pkg install git wget make python getconf zip apksigner clang binutils aapt
 ```
 
-24. Clone this repository and place your `baserom.us.z64` in it, then download SDL2 and KHR platform headers. If you don't already have a `baserom.us.z64`, [here's the guide to obtain one](https://github.com/sanni/cartreader/wiki/What-to-order):
+23. Clone this repository and place your `baserom.us.z64` in it, then download SDL2 and KHR platform headers. If you don't already have a `baserom.us.z64`, [here's the guide to obtain one](https://github.com/sanni/cartreader/wiki/What-to-order):
 
 ```bash
 git clone https://github.com/robertkirkman/sm64ex-coop.git
@@ -119,11 +113,11 @@ cp /storage/emulated/0/baserom.us.z64 .
 cd platform/android/ && ./getkhrplatform.sh && ./getSDL.sh && cd ../..
 ```
 
-25. Build this `sm64ex-coop` fork. This will take a while. When it is finished, you can install the `.apk`:
+24. Build this `sm64ex-coop` fork. This will take a while. When it is finished, you can install the `.apk`:
 
 > At the moment I see a lot of repeated "This app was built for an older version of Android and may not work properly" warnings when installing the `.apk`, and if you have any other Android `sm64ex` builds installed the installation might fail. Uninstall other builds first (after backing up your data), then accept all the warnings.
 
 ```bash
 make -j$(nproc)
-cp build/us_pc/sm64.us.apk /storage/emulated/0
+xdg-open build/us_android/sm64.us.f3dex2e.apk
 ```
