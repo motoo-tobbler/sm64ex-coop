@@ -32,6 +32,8 @@ What works:
 
 What doesn't work:
 
+❌ Some devices (crash on launch)
+
 ❌ Discord
 
 ❌ BASS Audio
