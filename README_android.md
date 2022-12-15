@@ -108,7 +108,7 @@ termux-setup-storage
 
 ```bash
 pkg install x11-repo
-pkg install git wget make python getconf zip apksigner clang binutils aapt mesa-dev
+pkg install git wget make python getconf zip apksigner clang binutils mesa-dev
 ```
 
 24. Clone this repository and place your `baserom.us.z64` in it, then download SDL2 and KHR platform headers. If you don't already have a `baserom.us.z64`, [here's the guide to obtain one](https://github.com/sanni/cartreader/wiki/What-to-order):
