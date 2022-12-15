@@ -1705,12 +1705,7 @@ $(APK): $(EXE) $(APK_FILES)
 	cp $(PREFIX)/lib/libc++_shared.so $(BUILD_DIR)/platform/android/android/lib/$(ARCH_APK)/ && \
 	cp $(EXE) $(BUILD_DIR)/platform/android/android/lib/$(ARCH_APK)/ && \
 	cd $(BUILD_DIR)/platform/android/android && \
-	aapt package -f -M ./AndroidManifest.xml -S res -F ../../../../../$@ && \
-	aapt add -f ../../../../../$@ lib/$(ARCH_APK)/libmain.so && \
-	aapt add -f ../../../../../$@ lib/$(ARCH_APK)/libSDL2.so && \
-	aapt add -f ../../../../../$@ lib/$(ARCH_APK)/libhidapi.so && \
-	aapt add -f ../../../../../$@ lib/$(ARCH_APK)/libc++_shared.so && \
-	aapt add -f ../../../../../$@ classes.dex && \
+	zip -r ../../../../../$@ ./* && \
 	cd - && \
 	rm -rf $(BUILD_DIR)/platform/android/android
 
