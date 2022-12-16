@@ -108,3 +108,5 @@ sound/samples/sfx_custom_wario*/*.aiff
 platform/android/SDL/include
 !platform/android/android/**/*.so
 platform/android/android/lib/*/libc++_shared.so
+lib/src/lua/src/lua
+lib/src/lua/src/luac

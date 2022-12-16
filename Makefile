@@ -139,14 +139,9 @@ ifeq ($(HOST_OS),Windows)
   WINDOWS_BUILD := 1
 endif
 
-OLD_APKSIGNER ?= 0
-
 # Attempt to detect termux android build
 ifneq ($(shell which termux-setup-storage),)
   TARGET_ANDROID := 1
-  ifeq ($(shell dpkg -s apksigner | grep Version | sed "s/Version: //"),0.7-2)
-    OLD_APKSIGNER := 1
-  endif
 endif
 
 # MXE overrides
@@ -532,7 +527,8 @@ ifeq ($(WINDOWS_BUILD),1)
 	EXE := $(BUILD_DIR)/$(TARGET_STRING).exe
 else ifeq ($(TARGET_ANDROID),1)
   EXE := $(BUILD_DIR)/libmain.so
-  APK := $(BUILD_DIR)/$(TARGET).unsigned.apk
+  ZIP_UNCOMPRESSED := $(BUILD_DIR)/$(TARGET).uncompressed.zip
+  APK_ALIGNED := $(BUILD_DIR)/$(TARGET).aligned.apk
   APK_SIGNED := $(BUILD_DIR)/$(TARGET).apk
 else # Linux builds/binary namer
 	ifeq ($(TARGET_RPI),1)
@@ -1700,23 +1696,21 @@ else
 ifeq ($(TARGET_ANDROID),1)
 APK_FILES := $(shell find platform/android/ -type f)
 
-$(APK): $(EXE) $(APK_FILES)
+$(ZIP_UNCOMPRESSED): $(EXE) $(APK_FILES)
 	cp -r platform/android $(BUILD_DIR)/platform/ && \
 	cp $(PREFIX)/lib/libc++_shared.so $(BUILD_DIR)/platform/android/android/lib/$(ARCH_APK)/ && \
 	cp $(EXE) $(BUILD_DIR)/platform/android/android/lib/$(ARCH_APK)/ && \
 	cd $(BUILD_DIR)/platform/android/android && \
-	zip -r ../../../../../$@ ./* && \
+	zip -0 -r ../../../../../$@ ./* && \
 	cd - && \
 	rm -rf $(BUILD_DIR)/platform/android/android
 
-ifeq ($(OLD_APKSIGNER),1)
-$(APK_SIGNED): $(APK)
-	apksigner $(BUILD_DIR)/keystore $< $@
-else
-$(APK_SIGNED): $(APK)
-	cp $< $@
+$(APK_ALIGNED): $(ZIP_UNCOMPRESSED)
+	zipalign -p 4 $< $@
+
+$(APK_SIGNED): $(APK_ALIGNED)
+	cp $< $@ && \
 	apksigner sign --cert platform/android/certificate.pem --key platform/android/key.pk8 $@
-endif
 endif
 
   $(EXE): $(O_FILES) $(MIO0_FILES:.mio0=.o) $(ULTRA_O_FILES) $(GODDARD_O_FILES) $(BUILD_DIR)/$(RPC_LIBS) $(BUILD_DIR)/$(DISCORD_SDK_LIBS) $(BUILD_DIR)/$(BASS_LIBS) $(BUILD_DIR)/$(MOD_DIR)
