@@ -108,7 +108,7 @@ termux-setup-storage
 
 ```bash
 pkg install x11-repo
-pkg install git wget make python getconf zip apksigner clang binutils mesa-dev
+pkg install git wget make python getconf zip apksigner clang binutils mesa-dev aapt
 ```
 
 24. Clone this repository and place your `baserom.us.z64` in it, then download SDL2 and KHR platform headers. If you don't already have a `baserom.us.z64`, [here's the guide to obtain one](https://github.com/sanni/cartreader/wiki/What-to-order):
@@ -121,8 +121,6 @@ cd platform/android/ && ./getkhrplatform.sh && ./getSDL.sh && cd ../..
 ```
 
 25. Build this `sm64ex-coop` fork. This will take a while. When it is finished, you can install the `.apk`:
-
-> At the moment I see a lot of repeated "This app was built for an older version of Android and may not work properly" warnings when installing the `.apk`, and if you have any other Android `sm64ex` builds installed the installation might fail. Uninstall other builds first (after backing up your data), then accept all the warnings.
 
 ```bash
 make -j$(nproc)
