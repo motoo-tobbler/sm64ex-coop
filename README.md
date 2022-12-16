@@ -32,7 +32,7 @@ What works:
 
 What doesn't work:
 
-❌ Some devices (app crashes on launch) (example: Redmi Note 9 Pro)
+❌ Some devices (app crashes on launch) (examples: Redmi Note 9 Pro, Redmi 8A)
 
 ❌ In-game chat (no button/binding for it yet)
 
