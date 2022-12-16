@@ -448,7 +448,15 @@ void main_func(void) {
 #endif
 }
 
+// I don't really understand how calling main() from the SDL Java wrapper
+// worked in Android before and doesn't now, but it has started to not work,
+// possibly because the Android NDK is stripping or mangling main(), 
+// so I've switched it to SDL_main 
+#ifdef __ANDROID__
+int SDL_main(int argc, char** argv) {
+#else
 int main(int argc, char *argv[]) {
+#endif
 #ifdef SIGINT
     signal(SIGINT, inthand);
 #endif

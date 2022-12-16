@@ -107,7 +107,7 @@ static void gfx_sdl_init(const char *window_title) {
     SDL_Init(SDL_INIT_VIDEO);
 
     #ifdef __ANDROID__
-    //SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
+    SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
     #endif
 
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
