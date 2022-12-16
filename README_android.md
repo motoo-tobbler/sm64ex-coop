@@ -122,6 +122,8 @@ cd platform/android/ && ./getkhrplatform.sh && ./getSDL.sh && cd ../..
 
 25. Build this `sm64ex-coop` fork. This will take a while. When it is finished, you can install the `.apk`:
 
+> If you get a strange error like `make[1]: *** read jobs pipe: Try again.  Stop.`, run `make clean`, then try the build again with `make` instead of `make -j$(nproc)`.
+
 ```bash
 make -j$(nproc)
 xdg-open build/us_pc/sm64.us.apk
