@@ -32,6 +32,8 @@ What works:
 
 What doesn't work:
 
+❌ Some devices crash on launch (example: Redmi Note 9 Pro)
+
 ❌ In-game chat (no button/binding for it yet)
 
 ❌ `EXTERNAL_DATA=1` (for now you have to compile-in texture packs)
