@@ -126,3 +126,7 @@ cd platform/android/ && ./getkhrplatform.sh && ./getSDL.sh && cd ../..
 make -j$(nproc)
 xdg-open build/us_pc/sm64.us.apk
 ```
+
+> To install Lua mods, put them in `/storage/emulated/0/Android/data/com.owokitty.sm64excoop/files/user/mods`
+
+> To install DynOS packs, put them in `/storage/emulated/0/Android/data/com.owokitty.sm64excoop/files/dynos/packs`. Create the folder if it doesn't exist already.
