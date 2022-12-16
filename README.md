@@ -22,9 +22,9 @@ What works:
 
 ✅ SurfaceFlinger SDL2 backend
 
-✅ Normal Audio
+✅ Normal audio
 
-✅ Texture, Model, and Lua mods
+✅ DynOS and Lua mods
 
 ✅ Touch controls (buggy)
 
@@ -32,11 +32,13 @@ What works:
 
 What doesn't work:
 
-❌ Some devices (crash on launch)
+❌ In-game chat (no button/binding for it yet)
+
+❌ `EXTERNAL_DATA=1` (for now you have to compile-in texture packs)
 
 ❌ Discord
 
-❌ BASS Audio
+❌ BASS audio
 
 ❌ External gamepads
 
