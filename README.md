@@ -30,6 +30,8 @@ What works:
 
 ✅ Fullscreen
 
+✅ External gamepads
+
 What doesn't work:
 
 ❌ Some devices (app crashes on launch) (examples: Redmi Note 9 Pro, Redmi 8A)
@@ -41,8 +43,6 @@ What doesn't work:
 ❌ Discord
 
 ❌ BASS audio
-
-❌ External gamepads
 
 ## How to Play
 
