@@ -107,7 +107,6 @@ termux-setup-storage
 23. Install dependencies:
 
 ```bash
-pkg install x11-repo
 pkg install git wget make python getconf zip apksigner clang binutils mesa-dev aapt
 ```
 
