@@ -26,7 +26,7 @@ What works:
 
 ✅ Normal audio
 
-✅ DynOS and Lua mods
+✅ (most) DynOS and Lua mods
 
 ✅ Touch controls (buggy)
 
@@ -35,6 +35,8 @@ What works:
 ✅ External gamepads
 
 What doesn't work:
+
+❌ Shell Rush and Arena
 
 ❌ In-game chat (no button/binding for it yet)
 
