@@ -125,8 +125,21 @@ cd platform/android/ && ./getkhrplatform.sh && ./getSDL.sh && cd ../..
 
 ```bash
 make -j$(nproc)
+```
+
+26. Install the `sm64.us.apk`. If it's too hard to find, try all of the below until you are able to install it:
+
+a. Back up `/storage/emulated/0/Android/data/com.owokitty.sm64excoop/` and uninstall all older `.apk`s built and installed from older versions of this repository.
+
+b.
+```
 xdg-open build/us_pc/sm64.us.apk
 ```
+c.
+```
+cp build/us_pc/sm64.us.apk /storage/emulated/0
+```
+d. [This app](https://play.google.com/store/apps/details?id=com.marc.files).
 
 > To install Lua mods, put them in `/storage/emulated/0/Android/data/com.owokitty.sm64excoop/files/user/mods`
 
