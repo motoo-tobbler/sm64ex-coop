@@ -38,7 +38,7 @@ What doesn't work:
 
 ❌ In-game chat (no button/binding for it yet)
 
-❌ `EXTERNAL_DATA=1` (for now you have to compile-in texture packs)
+❌ Texture packs that are too intensive (like full-res Render96)
 
 ❌ Discord
 
