@@ -6,7 +6,9 @@ Run `./extract_assets.py --clean && make clean` or `make distclean` to remove RO
 
 ## How to Play on Android
 
-[Click here to read the guide](README_android.md).
+[Click here to read the guide for Android](README_android.md).
+
+[Click here to build the `.apk` from a non-Android device](https://github.com/robertkirkman/sm64ex-coop-android-base).
 
 What this can do (build featured in video is old):
 
