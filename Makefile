@@ -889,7 +889,7 @@ endif
 
 ifneq ($(SDL1_USED)$(SDL2_USED),00)
   ifeq ($(TARGET_ANDROID),1)
-    BACKEND_LDFLAGS += -lhidapi -lSDL2
+    BACKEND_LDFLAGS += -lSDL2
   else ifeq ($(OSX_BUILD),1)
     # on OSX at least the homebrew version of sdl-config gives include path as `.../include/SDL2` instead of `.../include`
     OSX_PREFIX := $(shell $(SDLCONFIG) --prefix)
