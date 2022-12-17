@@ -68,7 +68,7 @@
 ![image](https://user-images.githubusercontent.com/31490854/207104260-172db617-cc34-4699-a079-d8320ea6c055.png)
 
 
-15. The `pkg upgrade` will take some time. After it has finished, you will see `~ $` again. These next few steps are aimed towards connecting a desktop or laptop with a large keyboard to your Android device so that you can type, copy, paste, and run the commands in the later steps more quickly. If you have or prefer to use only one device, then you can skip to step 26, and all of the later commands will work the same when typed directly into the Termux app. Type `pkg install openssh -y` and press Enter:
+15. The `pkg upgrade` will take some time. After it has finished, you will see `~ $` again. These next few steps are aimed towards connecting a desktop or laptop with a large keyboard to your Android device so that you can type, copy, paste, and run the commands in the later steps more quickly. **If you have or prefer to use only one device, then you can skip to step 22**, and all of the later commands will work the same when typed directly into the Termux app. Type `pkg install openssh -y` and press Enter:
 
 ![image](https://user-images.githubusercontent.com/31490854/207104319-d51ab7f1-e1bd-4903-8d1e-117acb8aba9e.png)
 
