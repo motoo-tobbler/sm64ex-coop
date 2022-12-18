@@ -6,6 +6,8 @@ This assumes that all players have already followed the [build guide](README_and
 
 ![vpnguide](https://user-images.githubusercontent.com/31490854/208311970-012df922-4295-47a6-b9d5-291828ec7bf8.jpg)
 
+> When connecting over VPN, if clients fail to connect or crash on connect and the host has mods enabled, the guests should download the same mods and preinstall them to `/storage/emulated/0/Android/data/com.owokitty.sm64excoop/files/user/mods` because the VPN has high packet loss and can corrupt the mod files.
+
 > If someone is cross-playing from Windows and wants to host the `sm64ex-coop` game server, tell them to click this button in ZeroTier One for Windows and send that number to the guests as the IP for the "Join" box.
 
 ![image](https://user-images.githubusercontent.com/31490854/208313169-db886198-befd-4409-9867-68dbd3daa93c.png)
