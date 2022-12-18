@@ -112,7 +112,7 @@ pkg install git wget make python getconf zip apksigner clang binutils mesa-dev a
 
 24. Clone this repository and place your `baserom.us.z64` in it, then download SDL2 and KHR platform headers. If you don't already have a `baserom.us.z64`, [here's the guide to obtain one](https://github.com/sanni/cartreader/wiki/What-to-order):
 
-> Replace `/storage/emulated/0/baserom.us.z64` with the current location of your `baserom.us.z64`, or if you can't find that path, try finding it with a file browser and moving it to `/storage/emulated/0/Android/data/com.termux/files/home/sm64ex-coop`.
+> Replace `/storage/emulated/0/baserom.us.z64` with the current location of your `baserom.us.z64`, or if you don't know the full path, try finding it with the "Amaze" file browser from step 26 and moving it to `/storage/emulated/0` before proceeding.
 
 ```bash
 git clone https://github.com/robertkirkman/sm64ex-coop.git
@@ -146,6 +146,8 @@ cp build/us_pc/sm64.us.apk /storage/emulated/0
 ![image](https://user-images.githubusercontent.com/31490854/208279131-903d16e4-d251-486f-bddd-c33a1328c592.png)
 ![image](https://user-images.githubusercontent.com/31490854/208279184-e5fa1e21-2947-4313-b7f2-0e72f1352d4d.png)
 ![image](https://user-images.githubusercontent.com/31490854/208279190-d3204ce8-5030-44ca-a044-9c091ec75ea4.png)
+
+28. To play with others online, tell them to follow this guide first, then either port forward or follow the [VPN guide](README_vpn.md).
 
 > To install Lua mods, put them in `/storage/emulated/0/Android/data/com.owokitty.sm64excoop/files/user/mods`
 
