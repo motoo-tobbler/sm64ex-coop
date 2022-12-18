@@ -112,6 +112,8 @@ pkg install git wget make python getconf zip apksigner clang binutils mesa-dev a
 
 24. Clone this repository and place your `baserom.us.z64` in it, then download SDL2 and KHR platform headers. If you don't already have a `baserom.us.z64`, [here's the guide to obtain one](https://github.com/sanni/cartreader/wiki/What-to-order):
 
+> Replace `/storage/emulated/0/baserom.us.z64` with the current location of your `baserom.us.z64`, or if you can't find that path, try finding it with a file browser and moving it to `/storage/emulated/0/Android/data/com.termux/files/home/sm64ex-coop`.
+
 ```bash
 git clone https://github.com/robertkirkman/sm64ex-coop.git
 cd sm64ex-coop
