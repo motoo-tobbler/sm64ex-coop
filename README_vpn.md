@@ -6,4 +6,9 @@ This assumes that all players have already followed the [build guide](README_and
 
 ![vpnguide](https://user-images.githubusercontent.com/31490854/208311970-012df922-4295-47a6-b9d5-291828ec7bf8.jpg)
 
-> Guide made by me and Redstone#2442
+> If someone is cross-playing from Windows and wants to host the `sm64ex-coop` game server, tell them to click this button in ZeroTier One for Windows and send that number to the guests as the IP for the "Join" box.
+
+![image](https://user-images.githubusercontent.com/31490854/208313169-db886198-befd-4409-9867-68dbd3daa93c.png)
+
+
+> Guide made by me, flipflop bell#4376 and Redstone#2442
