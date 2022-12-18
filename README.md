@@ -42,6 +42,8 @@ What doesn't work:
 
 ❌ Texture packs that are too intensive (like full-res Render96)
 
+❌ Inconsistent crashes in star selects
+
 ❌ Discord
 
 ❌ BASS audio
