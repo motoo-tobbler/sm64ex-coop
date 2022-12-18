@@ -130,7 +130,7 @@ make -j$(nproc)
 cp build/us_pc/sm64.us.apk /storage/emulated/0
 ```
 
-26. Install "Amaze" [(source code)](https://github.com/TeamAmaze/AmazeFileManager) from F-Droid, open it, and allow all permissions:
+26. Install "Amaze" ([source code](https://github.com/TeamAmaze/AmazeFileManager)) from F-Droid, open it, and allow all permissions:
 
 ![image](https://user-images.githubusercontent.com/31490854/208278959-9b990118-b4a8-4430-bbb1-3f3e5ee5a7b4.png)
 ![image](https://user-images.githubusercontent.com/31490854/208278964-68161872-54bd-42d7-ac70-7bc43015a514.png)
