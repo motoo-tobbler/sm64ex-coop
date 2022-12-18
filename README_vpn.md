@@ -5,3 +5,5 @@ This guide is for anyone who can't port forward, like cell data users. A "host" 
 This assumes that all players have already followed the [build guide](README_android.md) to compile and install the `sm64ex-coop` app.
 
 ![vpnguide](https://user-images.githubusercontent.com/31490854/208311970-012df922-4295-47a6-b9d5-291828ec7bf8.jpg)
+
+> Guide made by me and Redstone#2442
