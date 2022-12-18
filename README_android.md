@@ -121,27 +121,31 @@ cp /storage/emulated/0/baserom.us.z64 .
 cd platform/android/ && ./getkhrplatform.sh && ./getSDL.sh && cd ../..
 ```
 
-25. Build this `sm64ex-coop` fork. This will take a while. When it is finished, you can install the `.apk`:
+25. Build this `sm64ex-coop` fork. This will take a while. When it is finished, copy the `.apk` to `/storage/emulated/0`:
 
 > If you get a strange error like `make[1]: *** read jobs pipe: Try again.  Stop.`, run `make clean`, then try the build again with `make` instead of `make -j$(nproc)`.
 
 ```bash
 make -j$(nproc)
-```
-
-26. Install the `sm64.us.apk`. If it's too hard to find, try all of the below until you are able to install it:
-
-a. Back up `/storage/emulated/0/Android/data/com.owokitty.sm64excoop/` and uninstall all older `.apk`s built and installed from older versions of this repository.
-
-b.
-```
-xdg-open build/us_pc/sm64.us.apk
-```
-c.
-```
 cp build/us_pc/sm64.us.apk /storage/emulated/0
 ```
-d. [This app](https://play.google.com/store/apps/details?id=com.marc.files).
+
+26. Install "Amaze" [(source code)](https://github.com/TeamAmaze/AmazeFileManager) from F-Droid, open it, and allow all permissions:
+
+![image](https://user-images.githubusercontent.com/31490854/208278959-9b990118-b4a8-4430-bbb1-3f3e5ee5a7b4.png)
+![image](https://user-images.githubusercontent.com/31490854/208278964-68161872-54bd-42d7-ac70-7bc43015a514.png)
+![image](https://user-images.githubusercontent.com/31490854/208278991-a7626412-a79c-4c69-9955-e90dff263c81.png)
+![image](https://user-images.githubusercontent.com/31490854/208278998-dc4c5917-cbf2-4247-a81f-7617c039425c.png)
+![image](https://user-images.githubusercontent.com/31490854/208279031-d1816791-3ad6-40fc-b1dd-6b89b6ad0f74.png)
+
+27. Install the `sm64.us.apk` by scrolling to the bottom of the `/storage/emulated/0` folder, touching the `sm64.us.apk`, and allowing all permissions:
+
+![image](https://user-images.githubusercontent.com/31490854/208279102-05600d2d-826e-46f4-8414-b85d13a6260e.png)
+![image](https://user-images.githubusercontent.com/31490854/208279123-9065515d-ab40-4422-a260-e12e0c55e0b7.png)
+![image](https://user-images.githubusercontent.com/31490854/208279127-4bbdbf8b-d57c-4f28-a256-8e8085dfb0d3.png)
+![image](https://user-images.githubusercontent.com/31490854/208279131-903d16e4-d251-486f-bddd-c33a1328c592.png)
+![image](https://user-images.githubusercontent.com/31490854/208279184-e5fa1e21-2947-4313-b7f2-0e72f1352d4d.png)
+![image](https://user-images.githubusercontent.com/31490854/208279190-d3204ce8-5030-44ca-a044-9c091ec75ea4.png)
 
 > To install Lua mods, put them in `/storage/emulated/0/Android/data/com.owokitty.sm64excoop/files/user/mods`
 
