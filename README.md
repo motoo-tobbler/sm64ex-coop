@@ -8,7 +8,7 @@ Run `./extract_assets.py --clean && make clean` or `make distclean` to remove RO
 
 [Click here to read the guide for Android](README_android.md).
 
-[Click here to build the `.apk` from a non-Android device](https://github.com/robertkirkman/sm64ex-coop-android-base).
+[Click here to build the `.apk` from a non-Android device](https://github.com/robertkirkman/sm64ex-coop-android-base) (more complicated for now). 
 
 What this can do (build featured in video is old):
 
@@ -18,7 +18,7 @@ What works:
 
 ✅ NO root, chroot, proot or custom graphics driver required
 
-✅ Direct connection - client and server
+✅ Direct connection - client and server ([VPN guide here](README_vpn.md))
 
 ✅ GPU acceleration
 
