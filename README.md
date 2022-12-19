@@ -36,7 +36,7 @@ What works:
 
 What doesn't work:
 
-❌ Shell Rush and Arena
+❌ Some Lua mods (Shell Rush, Arena, Lumoves, Star Road, Star Revenge 1, Character Movesets, Extended Moveset)
 
 ❌ In-game chat (no button/binding for it yet)
 
