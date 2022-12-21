@@ -8,7 +8,7 @@ Run `./extract_assets.py --clean && make clean` or `make distclean` to remove RO
 
 [Click here to read the guide for Android](README_android.md).
 
-[Click here to build the `.apk` from a non-Android device](https://github.com/robertkirkman/sm64ex-coop-android-base) (more complicated for now). 
+[Click here to build the `.apk` from a non-Android device](https://github.com/robertkirkman/sm64ex-coop-android-base). 
 
 What this can do (build featured in video is old):
 
