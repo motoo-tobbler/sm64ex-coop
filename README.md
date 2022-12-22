@@ -48,7 +48,7 @@ What doesn't work:
 
 ❌ BASS audio
 
-## How to Play
+## How to Play on Windows
 
 [Instructions on how to play are available on the wiki.](https://github.com/djoslin0/sm64ex-coop/wiki/How-to-Play)
 
