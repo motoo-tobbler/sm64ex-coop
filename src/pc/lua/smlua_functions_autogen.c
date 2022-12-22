@@ -9469,17 +9469,35 @@ int smlua_func_analog_stick_held_back(lua_State* L) {
 int smlua_func_anim_and_audio_for_heavy_walk(lua_State* L) {
     if(!smlua_functions_valid_param_count(L, 1)) { return 0; }
 
+    struct MarioState* m = (struct MarioState*)smlua_to_cobject(L, 1, LOT_MARIOSTATE);
+    if (!gSmLuaConvertSuccess) { LOG_LUA("Failed to convert parameter 1 for function 'anim_and_audio_for_heavy_walk'"); return 0; }
+
+    extern void anim_and_audio_for_heavy_walk(struct MarioState *m);
+    anim_and_audio_for_heavy_walk(m);
+
     return 1;
 }
 
 int smlua_func_anim_and_audio_for_hold_walk(lua_State* L) {
     if(!smlua_functions_valid_param_count(L, 1)) { return 0; }
 
+    struct MarioState* m = (struct MarioState*)smlua_to_cobject(L, 1, LOT_MARIOSTATE);
+    if (!gSmLuaConvertSuccess) { LOG_LUA("Failed to convert parameter 1 for function 'anim_and_audio_for_hold_walk'"); return 0; }
+
+    extern void anim_and_audio_for_hold_walk(struct MarioState *m);
+    anim_and_audio_for_hold_walk(m);
+
     return 1;
 }
 
 int smlua_func_anim_and_audio_for_walk(lua_State* L) {
     if(!smlua_functions_valid_param_count(L, 1)) { return 0; }
+
+    struct MarioState* m = (struct MarioState*)smlua_to_cobject(L, 1, LOT_MARIOSTATE);
+    if (!gSmLuaConvertSuccess) { LOG_LUA("Failed to convert parameter 1 for function 'anim_and_audio_for_walk'"); return 0; }
+
+    extern void anim_and_audio_for_walk(struct MarioState *m);
+    anim_and_audio_for_walk(m);
 
     return 1;
 }

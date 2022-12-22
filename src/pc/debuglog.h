@@ -1,6 +1,11 @@
 #ifndef DEBUGLOG_H
 #define DEBUGLOG_H
 
+#ifdef __ANDROID__
+#include <android/log.h>
+#define printf(...) __android_log_print(ANDROID_LOG_DEBUG, "sm64ex-coop", __VA_ARGS__)
+#endif
+
 #include <stdio.h>
 #include <time.h>
 #include "pc/network/network.h"
