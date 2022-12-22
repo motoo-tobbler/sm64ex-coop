@@ -42,7 +42,7 @@
 ![image](https://user-images.githubusercontent.com/31490854/207103297-03620115-e5d3-46de-bc69-58c74dfabf4b.png)
 
 
-10. When it is first installed, Termux frequently has outdated mirrors. If you see any errors like these (will have a red `E:`), then type `termux-change-repo` next, and press Enter. If you don't see any errors, skip to step 14:
+10. When it is first installed, Termux frequently has outdated mirrors. If you see any errors like these (will have a red `E:`), then type `termux-change-repo` next, and press Enter. If you don't see any errors, or if you see "The default action is to keep your current version" skip to step 14:
 
 ![image](https://user-images.githubusercontent.com/31490854/207103444-c206ab3d-5245-4ca4-b392-7930e6db65d7.png)
 ![image](https://user-images.githubusercontent.com/31490854/207103521-8658e35f-8d7f-4b36-b416-7eda94bfa53a.png)
