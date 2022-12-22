@@ -233,7 +233,7 @@ struct Character gCharacters[CT_MAX] = {
     [CT_WALUIGI] = {
         .type                  = CT_WALUIGI,
         .name                  = "Waluigi",
-        .hudHead               = 'z',
+        .hudHead               = 'v',
         .hudHeadTexture        = { .texture = (u8*)texture_hud_char_waluigi_head, .bitSize = 8, .width = 16, .height = 16 },
         .cameraHudHead         = GLYPH_CAM_WALUIGI_HEAD,
         .modelId               = MODEL_WALUIGI,

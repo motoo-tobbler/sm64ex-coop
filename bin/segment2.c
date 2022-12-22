@@ -167,6 +167,10 @@ ALIGNED8 const Texture texture_hud_char_Y[] = {
 ALIGNED8 const Texture texture_hud_char_Z[] = {
 #include "textures/segment2/segment2.04600.rgba16.inc.c"
 };
+#else
+ALIGNED8 const Texture texture_hud_char_Z[] = {
+#include "textures/segment2/segment2.04600_custom.rgba16.inc.c"
+};
 #endif
 
 ALIGNED8 const Texture texture_hud_char_apostrophe[] = {
@@ -1855,8 +1859,8 @@ const Texture *const main_hud_lut[] = {
     texture_hud_char_G, texture_hud_char_H, texture_hud_char_I, texture_hud_char_J,
     texture_hud_char_K, texture_hud_char_L, texture_hud_char_M, texture_hud_char_N,
     texture_hud_char_O, texture_hud_char_P,               0x0, texture_hud_char_R,
-    texture_hud_char_S, texture_hud_char_T, texture_hud_char_U,               0x0,
-    texture_hud_char_W, texture_hud_char_wario_head, texture_hud_char_Y, texture_hud_char_waluigi_head,
+    texture_hud_char_S, texture_hud_char_T, texture_hud_char_U, texture_hud_char_waluigi_head,
+    texture_hud_char_W, texture_hud_char_wario_head, texture_hud_char_Y, texture_hud_char_Z,
                   0x0,               0x0,               0x0,               0x0,
                   0x0,               0x0,               0x0,               0x0,
                   0x0,               0x0,               0x0,               0x0,
