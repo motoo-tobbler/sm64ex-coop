@@ -37,9 +37,9 @@
 
 8. You might see a warning very similar to the one covered in steps 5-7. If you trust Termux, repeat that process.
 
-9. Open Termux and wait until the "installing bootstrap packages" message disappears. Then, the first thing you need to do is type `pkg update` and press Enter (or "Go" as some touch keyboards label it):
+9. Open Termux and wait until the "installing bootstrap packages" message disappears. Then, the first thing you need to do is type `pkg upgrade` and press Enter (or "Go" as some touch keyboards label it):
 
-![image](https://user-images.githubusercontent.com/31490854/207103297-03620115-e5d3-46de-bc69-58c74dfabf4b.png)
+![image](https://user-images.githubusercontent.com/31490854/209229669-9463d400-878e-40b0-9689-b013140fef61.png)
 
 
 10. When it is first installed, Termux frequently has outdated mirrors. If you see any errors like these (will have a red `E:`), then type `termux-change-repo` next, and press Enter. If you don't see any errors, or if you see "The default action is to keep your current version" skip to step 14:
