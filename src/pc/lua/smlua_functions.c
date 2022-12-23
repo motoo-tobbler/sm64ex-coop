@@ -36,28 +36,20 @@ bool smlua_functions_valid_param_range(lua_State* L, int min, int max) {
 int smlua_func_sins(lua_State* L) {
     if (!smlua_functions_valid_param_count(L, 1)) { return 0; }
 
-    f32 x = smlua_to_number(L, 1);
+    s16 x = smlua_to_number(L, 1);
     if (!gSmLuaConvertSuccess) { LOG_LUA("Failed to convert parameter 1"); return 0; }
 
-#ifdef __ANDROID__
-    lua_pushnumber(L, sins(abs(x)));
-#else
     lua_pushnumber(L, sins(x));
-#endif
     return 1;
 }
 
 int smlua_func_coss(lua_State* L) {
     if (!smlua_functions_valid_param_count(L, 1)) { return 0; }
 
-    f32 x = smlua_to_number(L, 1);
+    s16 x = smlua_to_number(L, 1);
     if (!gSmLuaConvertSuccess) { LOG_LUA("Failed to convert parameter 1"); return 0; }
 
-#ifdef __ANDROID__
-    lua_pushnumber(L, coss(abs(x)));
-#else
     lua_pushnumber(L, coss(x));
-#endif
     return 1;
 }
 
