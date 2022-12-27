@@ -87,6 +87,19 @@ lua_Integer smlua_to_integer(lua_State* L, int index) {
     return (val == 0) ? lua_tonumber(L, index) : val;
 }
 
+#ifdef __ANDROID__
+u64 smlua_to_unsigned_integer(lua_State* L, int index) {
+    if (lua_type(L, index) == LUA_TBOOLEAN ||
+        lua_type(L, index) != LUA_TNUMBER) {
+        LOG_LUA_LINE("smlua_to_integer received improper type '%d'", lua_type(L, index));
+        gSmLuaConvertSuccess = false;
+        return 0;
+    }
+    gSmLuaConvertSuccess = true;
+    return (u64)(void *)(lua_tointeger(L, index));
+}
+#endif
+
 lua_Number smlua_to_number(lua_State* L, int index) {
     if (lua_type(L, index) == LUA_TBOOLEAN) {
         gSmLuaConvertSuccess = true;

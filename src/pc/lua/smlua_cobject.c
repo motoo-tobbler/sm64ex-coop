@@ -323,11 +323,19 @@ struct LuaObjectField* smlua_get_custom_field(lua_State* L, u32 lot, int keyInde
 static int smlua__get_field(lua_State* L) {
     LUA_STACK_CHECK_BEGIN();
     if (!smlua_functions_valid_param_count(L, 4)) { return 0; }
-
     enum LuaObjectType lot = smlua_to_integer(L, 1);
     if (!gSmLuaConvertSuccess) { return 0; }
 
+    // On Android 11+ on aarch64 CPUs, the memory allocator sometimes creates pointers
+    // containing very large addresses, which were not correctly cast from signed to unsigned
+    // at this line. For example, 0xB4000076C685D3B0 became 0xB4000076C685D400; the
+    // 10 LSB lose precision. To fix this, I explicitly cast in increasingly verbose
+    // ways until the value stopped losing precision:
+#ifdef __ANDROID__
+    u64 pointer = smlua_to_unsigned_integer(L, 2);
+#else
     u64 pointer = smlua_to_integer(L, 2);
+#endif
     if (!gSmLuaConvertSuccess) { return 0; }
 
     const char* key = smlua_to_string(L, 3);
