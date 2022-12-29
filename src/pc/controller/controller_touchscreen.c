@@ -27,6 +27,14 @@
 
 #define JOYSTICK_SIZE 280
 
+s16 before_x;
+s16 before_y;
+s16 touch_x;
+s16 touch_y;
+s16 touch_cam_last_x;
+s16 touch_cam_last_y;
+static u32 timer = 0;
+
 enum ControlElementType {
     Joystick,
     Button
@@ -48,7 +56,7 @@ struct ControlElement {
     int slideTouch;
 };
 
-#include "controller_touchscreen_layouts.inc"
+#include "controller_touchscreen_layouts.inc.h"
 
 static struct ControlElement *ControlElements = ControlElementsDefault;
 static int ControlElementsLength = sizeof(ControlElementsDefault)/sizeof(struct ControlElement);
@@ -81,6 +89,21 @@ void touch_down(struct TouchEvent* event) {
 
 void touch_motion(struct TouchEvent* event) {
     struct Position pos;
+    if (timer != gGlobalTimer && 
+        CORRECT_TOUCH_X(event->x) > SCREEN_WIDTH_API / 2 && 
+        CORRECT_TOUCH_Y(event->y) < SCREEN_HEIGHT_API * 7 / 10) {
+        if (before_x > 0)
+            touch_x = CORRECT_TOUCH_X(event->x) - before_x;
+        before_x = CORRECT_TOUCH_X(event->x);
+        if (before_y > 0)
+            touch_y = CORRECT_TOUCH_Y(event->y) - before_y;
+        if (touch_x < configStickDeadzone / 4)
+            touch_x = 0;
+        if (touch_y < configStickDeadzone / 4)
+            touch_y = 0;
+        before_y = CORRECT_TOUCH_Y(event->y);
+        timer = gGlobalTimer;
+    }
     for(int i = 0; i < ControlElementsLength; i++) {
         pos = ControlElements[i].GetPos();
         if (ControlElements[i].touchID == event->touchID) {
@@ -139,6 +162,12 @@ static void handle_touch_up(int i) {//seperated for when the layout changes
 }
 
 void touch_up(struct TouchEvent* event) {
+    if (gGlobalTimer - timer > 1 || 
+        (CORRECT_TOUCH_X(event->x) > SCREEN_WIDTH_API / 2 && 
+         CORRECT_TOUCH_Y(event->y) < SCREEN_HEIGHT_API * 7 / 10)) {
+        touch_x = before_x = 0;
+        touch_y = before_y = 0;
+    }
     for(int i = 0; i < ControlElementsLength; i++) {
         if (ControlElements[i].touchID == event->touchID) {
             handle_touch_up(i);
@@ -203,6 +232,11 @@ void render_touch_controls(void) {
                 pos = ControlElements[i].GetPos();
                 DrawSprite(pos.x, pos.y, 3);
                 DrawSprite(pos.x + 4 + ControlElements[i].joyX, pos.y + 4 + ControlElements[i].joyY, 2);
+                if (before_x > 0 || before_y > 0) {
+                    touch_cam_last_x = before_x > 0 ? before_x : touch_cam_last_x;
+                    touch_cam_last_y = before_y > 0 ? before_y : touch_cam_last_y;
+                    DrawSprite(touch_cam_last_x, touch_cam_last_y, 2);
+                }
                 break;
             case Button:
                 if (ControlElements[i].touchID)

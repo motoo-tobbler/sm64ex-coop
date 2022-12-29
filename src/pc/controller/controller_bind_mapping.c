@@ -2,7 +2,6 @@
 #include <SDL2/SDL.h>
 #else 
 #ifdef HAVE_SDL
-
 #include <SDL/SDL.h>
 #endif
 #endif
