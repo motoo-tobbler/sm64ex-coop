@@ -58,7 +58,7 @@
 ![image](https://user-images.githubusercontent.com/31490854/207103874-9ab3eed7-c2c5-47da-89df-1b9e14cc95da.png)
 
 
-13. The red `E:` should be gone from the black screen with white text; if it's not, repeat steps 14-16 until it's gone. Then, type `pkg upgrade -y` and press Enter:
+13. The red `E:` should be gone from the black screen with white text; if it's not, repeat steps 10-12 until it's gone. Then, type `pkg upgrade -y` and press Enter:
 
 ![image](https://user-images.githubusercontent.com/31490854/207104093-8037ed9f-207d-403b-bc28-262633f167a4.png)
 
