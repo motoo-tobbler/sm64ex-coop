@@ -256,23 +256,23 @@ ALIGNED8 const Texture texture_hud_char_beta_key[] = {
 };
 #endif
 
-ALIGNED8 static const u8 texture_hud_chat[] = {
+ALIGNED8 const u8 texture_hud_chat[] = {
 #include "textures/segment2/custom_hud_chat.rgba16.inc.c"
 };
 
-ALIGNED8 static const u8 texture_hud_up[] = {
+ALIGNED8 const u8 texture_hud_up[] = {
 #include "textures/segment2/custom_hud_up.rgba16.inc.c"
 };
 
-ALIGNED8 static const u8 texture_hud_down[] = {
+ALIGNED8 const u8 texture_hud_down[] = {
 #include "textures/segment2/custom_hud_down.rgba16.inc.c"
 };
 
-ALIGNED8 static const u8 texture_hud_left[] = {
+ALIGNED8 const u8 texture_hud_left[] = {
 #include "textures/segment2/custom_hud_left.rgba16.inc.c"
 };
 
-ALIGNED8 static const u8 texture_hud_right[] = {
+ALIGNED8 const u8 texture_hud_right[] = {
 #include "textures/segment2/custom_hud_right.rgba16.inc.c"
 };
 
