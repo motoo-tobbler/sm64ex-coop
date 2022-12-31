@@ -33,12 +33,12 @@
 #define HIDE_POS -1000
 
 // Mouselook
-s16 before_x;
-s16 before_y;
-s16 touch_x;
-s16 touch_y;
-s16 touch_cam_last_x;
-s16 touch_cam_last_y;
+s16 before_x = 0;
+s16 before_y = 0;
+s16 touch_x = 0;
+s16 touch_y = 0;
+s16 touch_cam_last_x = 0;
+s16 touch_cam_last_y = 0;
 static u32 timer = 0;
 
 enum ControlElementType {
@@ -58,7 +58,7 @@ struct ControlElement {
     int joyX, joyY;
     //Button
     int buttonID;
-    char character;
+    u8 character;
     int slideTouch;
 };
 
@@ -80,10 +80,10 @@ static struct ControlElement ControlElements[CONTROL_ELEMENT_COUNT] = {
 {.type = Button, .character = 'r', .buttonID = R_CBUTTONS},
 {.type = Button, .character = 'q', .buttonID = 0x001C},
 {.type = Button, .character = 'p', .buttonID = 0x000F},
-{.type = Button, .character = 'u', .buttonID = U_JPAD},
-{.type = Button, .character = 'd', .buttonID = D_JPAD},
-{.type = Button, .character = 'l', .buttonID = L_JPAD},
-{.type = Button, .character = 'r', .buttonID = R_JPAD},
+{.type = Button, .character = 132, .buttonID = U_JPAD},
+{.type = Button, .character = 133, .buttonID = D_JPAD},
+{.type = Button, .character = 134, .buttonID = L_JPAD},
+{.type = Button, .character = 135, .buttonID = R_JPAD},
 };
 
 static int ControlElementsLength = sizeof(ControlElements)/sizeof(struct ControlElement);
@@ -325,6 +325,12 @@ void render_touch_controls(void) {
 }
 
 static void touchscreen_init(void) {
+    for (int i = 0; i < ControlElementsLength; i++) {
+        ControlElements[i].touchID = 0;
+        ControlElements[i].joyX = 0;
+        ControlElements[i].joyY = 0;
+        ControlElements[i].slideTouch = 0;
+    }
 }
 
 static void touchscreen_read(OSContPad *pad) {
