@@ -32,6 +32,14 @@ What works:
 
 What doesn't work:
 
+❌ Some Lua mods on some devices
+
+❌ Inconsistent crashes in Peach's Castle on some devices
+
+❌ Chat button on some devices
+
+❌ Crash on rendering touch controls on some devices
+
 ❌ Texture packs that are too intensive (like full-res Render96)
 
 ❌ Discord
