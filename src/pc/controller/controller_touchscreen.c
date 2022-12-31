@@ -68,7 +68,7 @@ static struct ControlElement ControlElements[CONTROL_ELEMENT_COUNT] = {
 {.type = Mouse},
 {.type = Button, .character = 'a', .buttonID = A_BUTTON},
 {.type = Button, .character = 'b', .buttonID = B_BUTTON},
-{.type = Button, .character = 'x', .buttonID = X_BUTTON},
+{.type = Button, .character = 137, .buttonID = X_BUTTON},
 {.type = Button, .character = 'y', .buttonID = Y_BUTTON},
 {.type = Button, .character = 's', .buttonID = START_BUTTON},
 {.type = Button, .character = 'l', .buttonID = L_TRIG},
@@ -344,7 +344,9 @@ static void touchscreen_read(OSContPad *pad) {
             case Mouse:
                 break;
             case Button:
-                if (ControlElements[i].touchID) {
+                if (ControlElements[i].touchID &&
+                    ControlElements[i].buttonID != 0x001C &&
+                    ControlElements[i].buttonID != 0x000F) {
                     pad->button |= ControlElements[i].buttonID;
                 }
                 break;
