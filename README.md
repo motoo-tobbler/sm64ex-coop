@@ -16,13 +16,9 @@ What this can do (build featured in video is old):
 
 What works:
 
-✅ NO root, chroot, proot or custom graphics driver required
-
 ✅ Direct connection - client and server ([VPN guide here](README_vpn.md))
 
 ✅ GPU acceleration
-
-✅ SurfaceFlinger SDL2 backend
 
 ✅ Normal audio
 
@@ -36,13 +32,7 @@ What works:
 
 What doesn't work:
 
-❌ Some Lua mods (Shell Rush, Arena, Lumoves, Star Road, Star Revenge 1, Character Movesets, Extended Moveset)
-
-❌ In-game chat (no button/binding for it yet)
-
 ❌ Texture packs that are too intensive (like full-res Render96)
-
-❌ Inconsistent crashes in star selects and entering Peach's Castle
 
 ❌ Discord
 
