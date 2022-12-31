@@ -78,7 +78,7 @@ static struct ControlElement ControlElements[CONTROL_ELEMENT_COUNT] = {
 {.type = Button, .character = 'd', .buttonID = D_CBUTTONS},
 {.type = Button, .character = 'l', .buttonID = L_CBUTTONS},
 {.type = Button, .character = 'r', .buttonID = R_CBUTTONS},
-{.type = Button, .character = 'c', .buttonID = 0x001C},
+{.type = Button, .character = 'q', .buttonID = 0x001C},
 {.type = Button, .character = 'p', .buttonID = 0x000F},
 {.type = Button, .character = 'u', .buttonID = U_JPAD},
 {.type = Button, .character = 'd', .buttonID = D_JPAD},
