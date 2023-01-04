@@ -423,7 +423,11 @@ static int smlua__set_field(lua_State* L) {
     enum LuaObjectType lot = smlua_to_integer(L, 1);
     if (!gSmLuaConvertSuccess) { return 0; }
 
+#ifdef __ANDROID__
+    u64 pointer = smlua_to_unsigned_integer(L, 2);
+#else
     u64 pointer = smlua_to_integer(L, 2);
+#endif
     if (!gSmLuaConvertSuccess) { return 0; }
 
     const char* key = smlua_to_string(L, 3);

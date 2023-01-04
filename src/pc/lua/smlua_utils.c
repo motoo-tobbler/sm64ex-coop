@@ -96,7 +96,8 @@ u64 smlua_to_unsigned_integer(lua_State* L, int index) {
         return 0;
     }
     gSmLuaConvertSuccess = true;
-    return (u64)(void *)(lua_tointeger(L, index));
+    union ll_to_ull_preserve_bits { s64 from; u64 to; };
+    return (union ll_to_ull_preserve_bits){ .from = lua_tointeger(L, index) }.to;
 }
 #endif
 

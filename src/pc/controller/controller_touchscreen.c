@@ -32,6 +32,9 @@
 
 #define HIDE_POS -1000
 
+#define CHAT_BUTTON 0x001C
+#define PLAYERLIST_BUTTON 0x000F
+
 // Mouselook
 s16 before_x = 0;
 s16 before_y = 0;
@@ -78,8 +81,8 @@ static struct ControlElement ControlElements[CONTROL_ELEMENT_COUNT] = {
 {.type = Button, .character = 'd', .buttonID = D_CBUTTONS},
 {.type = Button, .character = 'l', .buttonID = L_CBUTTONS},
 {.type = Button, .character = 'r', .buttonID = R_CBUTTONS},
-{.type = Button, .character = 'q', .buttonID = 0x001C},
-{.type = Button, .character = 'p', .buttonID = 0x000F},
+{.type = Button, .character = 'q', .buttonID = CHAT_BUTTON},
+{.type = Button, .character = 'p', .buttonID = PLAYERLIST_BUTTON},
 {.type = Button, .character = 132, .buttonID = U_JPAD},
 {.type = Button, .character = 133, .buttonID = D_JPAD},
 {.type = Button, .character = 134, .buttonID = L_JPAD},
@@ -133,7 +136,11 @@ void touch_down(struct TouchEvent* event) {
                 case Button:
                     if (TRIGGER_DETECT(size)) {
                         ControlElements[i].touchID = event->touchID;
-                        djui_interactable_on_key_down(ControlElements[i].buttonID);
+                        // messy
+                        if (ControlElements[i].buttonID == CHAT_BUTTON)
+                            djui_interactable_on_key_down(configKeyChat[0]);
+                        if (ControlElements[i].buttonID == PLAYERLIST_BUTTON)
+                            djui_interactable_on_key_down(configKeyPlayerList[0]);
                     }
                     break;
             }
@@ -201,7 +208,10 @@ void touch_motion(struct TouchEvent* event) {
                     if (TRIGGER_DETECT(size)) {
                         ControlElements[i].slideTouch = 1;
                         ControlElements[i].touchID = event->touchID;
-                        djui_interactable_on_key_down(ControlElements[i].buttonID);
+                        if (ControlElements[i].buttonID == CHAT_BUTTON)
+                            djui_interactable_on_key_down(configKeyChat[0]);
+                        if (ControlElements[i].buttonID == PLAYERLIST_BUTTON)
+                            djui_interactable_on_key_down(configKeyPlayerList[0]);
                     }
                     break;
             }
@@ -222,7 +232,10 @@ static void handle_touch_up(struct TouchEvent* event, int i) { // separated for 
         case Mouse:
             break;
         case Button:
-            djui_interactable_on_key_up(ControlElements[i].buttonID);
+            if (ControlElements[i].buttonID == CHAT_BUTTON)
+                djui_interactable_on_key_up(configKeyChat[0]);
+            if (ControlElements[i].buttonID == PLAYERLIST_BUTTON)
+                djui_interactable_on_key_up(configKeyPlayerList[0]);
             break;
     }
 }
@@ -265,7 +278,7 @@ static void select_button_texture(int dark) {
     gSPDisplayList(gDisplayListHead++, dl_hud_img_load_tex_block);
 }
 
-static void select_char_texture(char num) {
+static void select_char_texture(u8 num) {
     const u8 *const *glyphs = segmented_to_virtual(main_hud_lut);
 
     gDPPipeSync(gDisplayListHead++);
@@ -351,8 +364,8 @@ static void touchscreen_read(OSContPad *pad) {
                 break;
             case Button:
                 if (ControlElements[i].touchID &&
-                    ControlElements[i].buttonID != 0x001C &&
-                    ControlElements[i].buttonID != 0x000F) {
+                    ControlElements[i].buttonID != CHAT_BUTTON &&
+                    ControlElements[i].buttonID != PLAYERLIST_BUTTON) {
                     pad->button |= ControlElements[i].buttonID;
                 }
                 break;
