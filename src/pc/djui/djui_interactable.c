@@ -393,6 +393,10 @@ void djui_interactable_update(void) {
         djui_interactable_on_bind(gInteractableBinding);
     } else if ((padButtons & PAD_BUTTON_A) || (mouseButtons & MOUSE_BUTTON_1)) {
         // cursor down events
+#ifdef TOUCH_CONTROLS
+        if (sMouseDown == NULL)
+            djui_interactable_cursor_update_active(&gDjuiRoot->base);
+#endif
         if (gDjuiHovered != NULL) {
             sMouseDown = gDjuiHovered;
             gDjuiHovered = NULL;

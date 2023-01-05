@@ -29,7 +29,11 @@ f32 djui_gfx_get_scale(void) {
     wm_api->get_dimensions(&windowWidth, &windowHeight);
     if (windowHeight < 720 - 64) {
         return 0.5f;
+#ifdef TOUCH_CONTROLS
+    } else if (windowHeight < 1080 + 64) {
+#else
     } else if (windowHeight < 1440 + 64) {
+#endif
         return 1.0f;
     } else {
         return 2.0f;
