@@ -168,6 +168,11 @@ void djui_panel_join_create(struct DjuiBase* caller) {
     bodyHeight += discordTextHeight + 16;
 #endif
 
+#ifdef TOUCH_CONTROLS
+    // padding to move the text box out from under most touchscreen keyboards
+    bodyHeight += 256;
+#endif
+
     struct DjuiBase* defaultBase = NULL;
     struct DjuiThreePanel* panel = djui_panel_menu_create(bodyHeight, "\\#ff0800\\J\\#1be700\\O\\#00b3ff\\I\\#ffef00\\N");
     struct DjuiFlowLayout* body = (struct DjuiFlowLayout*)djui_three_panel_get_body(panel);
