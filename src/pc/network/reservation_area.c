@@ -130,6 +130,18 @@ static void reservation_area_refresh_ids(struct NetworkPlayer* np) {
 }
 
 static void reservation_area_unload(struct ReservationArea* unloadRa) {
+#ifdef __ANDROID__
+    // I have no idea what I'm doing or what is happening,
+    // but when I do this, entering Peach's Castle stops
+    // crashing when hosting a server
+    // on Samsung Galaxy S III with LineageOS 14,
+    // and the players don't seem to desync as far as I've
+    // been able to tell
+    if (sReservationAreas != NULL &&
+        sReservationAreas->next == (struct ReservationArea *)-1) {
+        sReservationAreas = sReservationAreas + 0x80;
+    }
+#endif
     struct ReservationArea* ra = sReservationAreas;
     struct ReservationArea* lastRa = NULL;
     while (ra != NULL) {
@@ -185,6 +197,12 @@ void reservation_area_change(struct NetworkPlayer* np) {
     reservation_area_player_left(np);
 
     // find the reservation area
+#ifdef __ANDROID__
+    if (sReservationAreas != NULL &&
+        sReservationAreas->next == (struct ReservationArea *)-1) {
+        sReservationAreas = sReservationAreas + 0x80;
+    }
+#endif
     ra = sReservationAreas;
     struct ReservationArea* lastRa = ra;
     while (ra != NULL) {

@@ -107,6 +107,7 @@ struct Position get_pos(ConfigControlElement *config, u32 idx) {
             ret.y = config->y[idx];
             break;
         case CONTROL_ELEMENT_HIDDEN:
+        default:
             ret.x = HIDE_POS;
             ret.y = HIDE_POS;
             break;
