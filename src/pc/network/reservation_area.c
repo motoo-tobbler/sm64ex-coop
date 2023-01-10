@@ -130,18 +130,6 @@ static void reservation_area_refresh_ids(struct NetworkPlayer* np) {
 }
 
 static void reservation_area_unload(struct ReservationArea* unloadRa) {
-#ifdef __ANDROID__
-    // I have no idea what I'm doing or what is happening,
-    // but when I do this, entering Peach's Castle stops
-    // crashing when hosting a server
-    // on Samsung Galaxy S III with LineageOS 14,
-    // and the players don't seem to desync as far as I've
-    // been able to tell
-    if (sReservationAreas != NULL &&
-        sReservationAreas->next == (struct ReservationArea *)-1) {
-        sReservationAreas = sReservationAreas + 0x80;
-    }
-#endif
     struct ReservationArea* ra = sReservationAreas;
     struct ReservationArea* lastRa = NULL;
     while (ra != NULL) {
@@ -197,12 +185,6 @@ void reservation_area_change(struct NetworkPlayer* np) {
     reservation_area_player_left(np);
 
     // find the reservation area
-#ifdef __ANDROID__
-    if (sReservationAreas != NULL &&
-        sReservationAreas->next == (struct ReservationArea *)-1) {
-        sReservationAreas = sReservationAreas + 0x80;
-    }
-#endif
     ra = sReservationAreas;
     struct ReservationArea* lastRa = ra;
     while (ra != NULL) {
@@ -218,7 +200,46 @@ void reservation_area_change(struct NetworkPlayer* np) {
     }
 
     // allocate the reservation area
+#ifdef __ANDROID__
+    // try to get an address with the LSB 0x00
+    // if it's not, the pointer somehow gets corrupted
+    // on some devices when entering the castle
+    // I'm having difficulty breaking on variable
+    // watchpoints in my debugger so I haven't found
+    // the root cause yet
+    u64 mask = ~(~0U << 8);
+    struct ReservationArea *tmp_root = NULL;
+    struct ReservationArea *tmp_last = NULL;
+    struct ReservationArea *tmp = NULL;
+    bool valid = false;
+    while (!valid) {
+        tmp = malloc(sizeof(struct ReservationArea));
+        if (tmp_root == NULL) tmp_root = tmp;
+        if (!((u64)tmp & mask)) {
+            // valid address found
+            valid = true;
+            ra = tmp;
+            tmp = tmp_root;
+            if (tmp_last != NULL) {
+                tmp_last->next = NULL;
+            }
+            while (tmp != NULL && ra != tmp_root) {
+                tmp_root = tmp;
+                tmp = tmp->next;
+                free(tmp_root);
+            }
+        }
+        else {
+            // keep memory leaking in an infinite loop
+            // until the memory allocator maybe gives
+            // the address bit pattern needed
+            tmp_last = tmp;
+            tmp = tmp->next;
+        }
+    }
+#else
     ra = malloc(sizeof(struct ReservationArea));
+#endif
     ra->courseNum = np->currCourseNum;
     ra->actNum    = np->currActNum;
     ra->levelNum  = np->currLevelNum;
