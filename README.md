@@ -38,7 +38,7 @@ What doesn't work:
 
 ❌ External gamepads on some devices
 
-❌ Occasional crash when loading HD texture packs - try restarting app until they load
+❌ Occasional crash when loading HD texture packs - try restarting app
 
 ❌ Discord
 
