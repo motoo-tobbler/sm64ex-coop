@@ -37,7 +37,7 @@
 
 8. You might see a warning very similar to the one covered in steps 5-7. If you trust Termux, repeat that process.
 
-9. Open Termux and wait until the "installing bootstrap packages" message disappears. Then, the first thing you need to do is type `pkg upgrade` and press Enter (or "Go" as some touch keyboards label it):
+9. Open Termux and wait until the "installing bootstrap packages" message disappears. Then, the first thing you need to do is type `pkg upgrade -y` and press Enter (or "Go" as some touch keyboards label it):
 
 ![image](https://user-images.githubusercontent.com/31490854/209229669-9463d400-878e-40b0-9689-b013140fef61.png)
 
@@ -68,35 +68,7 @@
 ![image](https://user-images.githubusercontent.com/31490854/207104260-172db617-cc34-4699-a079-d8320ea6c055.png)
 
 
-15. The `pkg upgrade` will take some time. After it has finished, you will see `~ $` again. These next few steps are aimed towards connecting a desktop or laptop with a large keyboard to your Android device so that you can type, copy, paste, and run the commands in the later steps more quickly. **If you have or prefer to use only one device, then you can skip to step 22**, and all of the later commands will work the same when typed directly into the Termux app. Type `pkg install openssh -y` and press Enter:
-
-![image](https://user-images.githubusercontent.com/31490854/207104319-d51ab7f1-e1bd-4903-8d1e-117acb8aba9e.png)
-
-
-16. When you can see `~ $` again, type `passwd` and press Enter. You should now type and confirm a new password that you can remember. This is the password you will type to connect from the other device. **`passwd` (and for later, `ssh` too) do not show the characters you type, so if you think you mistyped, you should try pressing backspace a lot of times and start over, before pressing Enter**:
-
-![image](https://user-images.githubusercontent.com/31490854/207104403-2a6583aa-d54e-4e69-9652-f36dea53b0ec.png)
-![image](https://user-images.githubusercontent.com/31490854/207104636-e8a4a0b8-8f7a-4f23-a11d-dc53f54d7937.png)
-
-
-
-17. There are a few ways you can connect. If you want to connect over **Wi-Fi**, you just need to be connected to the same router on both devices, or if your Android device supports it you could enable "Mobile Hotspot" in Android settings and connect your other device to the resulting network. If you want to connect over **USB**, you can use either RNDIS or ADB protocol, and the connection might be less stuttery, but you will have to keep the Android device plugged into the other device. For RNDIS, you would need to enable "USB tethering" in Android settings, and for ADB, you would have to enable Android Developer Mode, enable USB Debugging, install [ADB Tools](https://developer.android.com/studio/command-line/adb) onto the other device, and run the `adb forward tcp:8022 tcp:8022` command on that device. **To keep this guide from being even longer, I will only cover the Wi-Fi connection here**.
-
-18. Install the `ip` command with `pkg install iproute2 -y`, then type `ip a` and swipe down to scroll up slightly. You need to look for an IPv4 address of the form `X.X.X.X` located in between two instances of a string that may or may not be "`wlan0`". Unfortunately it can be a bit hard to find here, so if you can't find it, check that you are connected to Wi-Fi, and you should also be able to see it in Android Settings -> Connections -> Wi-Fi -> Gear icon near the connected SSID -> IP Address. This is the IP address you will type to connect from the other device (pictured is my local IP Address, yours is different):
-
-![image](https://user-images.githubusercontent.com/31490854/207105158-fee645a1-e2fe-4dea-a4db-527e0b947202.png)
-
-
-19. On the other device, open a terminal that has access to the `ssh` command. If the other device has Windows 10 or 11, MacOS or GNU/Linux, it is probably already installed and easily accessible by opening a PowerShell or XTerm window. If it has an older version of Windows, you can use [PuTTY](https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html) ([source code](https://git.tartarus.org/?p=simon/putty.git;a=tree)), which has different syntax but is compatible with OpenSSH servers and isn't too hard to figure out.
-
-20. Type `sshd` on the Termux app, then on the other device, type `ssh -p 8022 X.X.X.X` where you replace "`X.X.X.X`" with the IP Address you found in step 22, then press Enter.
-
-![image](https://user-images.githubusercontent.com/31490854/207105585-f5dfc528-cfce-4be9-b78b-72dd109ca913.png)
-
-
-21. Type "`yes`" to confirm connecting to a new device, then type the password you chose in step 20, and press Enter. You should now see the Termux MOTD (welcome message) and `~ $`. From this point, commands for running in Termux will be placed in code blocks, so that Github gives them copy buttons for easily pasting into this window. Unfortunately, the button to paste into terminal varies wildly by client OS, but on Windows you can try right click.
-
-22. Give software running as Termux's Android-assigned user permission to access `/storage/emulated/0`. A popup will appear; touch "ALLOW":
+15. The `pkg upgrade` will take some time. After it has finished, you will see `~ $` again. Give software running as Termux's Android-assigned user permission to access `/storage/emulated/0`. A popup will appear; touch "ALLOW":
 
 ```bash
 termux-setup-storage
@@ -104,24 +76,23 @@ termux-setup-storage
 
 ![image](https://user-images.githubusercontent.com/31490854/207105668-f6b8f2c5-7c21-4cd3-999e-c7c3702674e7.png)
 
-23. Install dependencies:
+16. Install dependencies:
 
 ```bash
 pkg install git wget make python getconf zip apksigner clang binutils mesa-dev aapt
 ```
 
-24. Clone this repository and place your `baserom.us.z64` in it, then download SDL2 and KHR platform headers. If you don't already have a `baserom.us.z64`, [here's the guide to obtain one](https://github.com/sanni/cartreader/wiki/What-to-order):
+17. Clone this repository and place your `baserom.us.z64` in it. If you don't already have a `baserom.us.z64`, [here's the guide to obtain one](https://github.com/sanni/cartreader/wiki/What-to-order):
 
 > Replace `/storage/emulated/0/baserom.us.z64` with the current location of your `baserom.us.z64`, or if you don't know the full path, try finding it with the "Amaze" file browser from step 26 and moving it to `/storage/emulated/0` before proceeding.
 
 ```bash
 git clone https://github.com/robertkirkman/sm64ex-coop.git
+cp /storage/emulated/0/baserom.us.z64 sm64ex-coop/baserom.us.z64
 cd sm64ex-coop
-cp /storage/emulated/0/baserom.us.z64 .
-cd platform/android/ && ./getkhrplatform.sh && ./getSDL.sh && cd ../..
 ```
 
-25. Build this `sm64ex-coop` fork. This will take a while. When it is finished, copy the `.apk` to `/storage/emulated/0`:
+18. Build this `sm64ex-coop` fork. This will take a while. When it is finished, copy the `.apk` to `/storage/emulated/0`:
 
 > If you get a strange error like `make[1]: *** read jobs pipe: Try again.  Stop.`, run `make clean`, then try the build again with `make` instead of `make -j$(nproc)`.
 
@@ -130,7 +101,7 @@ make -j$(nproc)
 cp build/us_pc/sm64.us.apk /storage/emulated/0
 ```
 
-26. Install "Amaze" ([source code](https://github.com/TeamAmaze/AmazeFileManager)) from F-Droid, open it, and allow all permissions:
+19. Install "Amaze" ([source code](https://github.com/TeamAmaze/AmazeFileManager)) from F-Droid, open it, and allow all permissions:
 
 ![image](https://user-images.githubusercontent.com/31490854/208278959-9b990118-b4a8-4430-bbb1-3f3e5ee5a7b4.png)
 ![image](https://user-images.githubusercontent.com/31490854/208278964-68161872-54bd-42d7-ac70-7bc43015a514.png)
@@ -138,7 +109,7 @@ cp build/us_pc/sm64.us.apk /storage/emulated/0
 ![image](https://user-images.githubusercontent.com/31490854/208278998-dc4c5917-cbf2-4247-a81f-7617c039425c.png)
 ![image](https://user-images.githubusercontent.com/31490854/208279031-d1816791-3ad6-40fc-b1dd-6b89b6ad0f74.png)
 
-27. Install the `sm64.us.apk` by scrolling to the bottom of the `/storage/emulated/0` folder, touching the `sm64.us.apk`, and allowing all permissions:
+20. Install the `sm64.us.apk` by scrolling to the bottom of the `/storage/emulated/0` folder, touching the `sm64.us.apk`, and allowing all permissions:
 
 ![image](https://user-images.githubusercontent.com/31490854/208279102-05600d2d-826e-46f4-8414-b85d13a6260e.png)
 ![image](https://user-images.githubusercontent.com/31490854/208279123-9065515d-ab40-4422-a260-e12e0c55e0b7.png)
@@ -147,8 +118,8 @@ cp build/us_pc/sm64.us.apk /storage/emulated/0
 ![image](https://user-images.githubusercontent.com/31490854/208279184-e5fa1e21-2947-4313-b7f2-0e72f1352d4d.png)
 ![image](https://user-images.githubusercontent.com/31490854/208279190-d3204ce8-5030-44ca-a044-9c091ec75ea4.png)
 
-28. To play with others online, tell them to follow this guide first, then either port forward or follow the [VPN guide](README_vpn.md).
+21. To play with others online, tell them to follow this guide first, then either port forward or follow the [VPN guide](README_vpn.md).
 
-> To install Lua mods, put them in `/storage/emulated/0/Android/data/com.owokitty.sm64excoop/files/user/mods`
+> To install Lua mods, put them in `/storage/emulated/0/com.owokitty.sm64excoop/user/mods`, or `/storage/emulated/0/Android/data/com.owokitty.sm64excoop/files/user/mods` if you don't accept the storage permission request.
 
-> To install DynOS packs, put them in `/storage/emulated/0/Android/data/com.owokitty.sm64excoop/files/dynos/packs`. Texture packs' `gfx` folders also work here as long as they are not too intensive. Create the folder if it doesn't exist already.
+> To install DynOS packs, put them in `/storage/emulated/0/com.owokitty.sm64excoop/dynos/packs`, or `/storage/emulated/0/Android/data/com.owokitty.sm64excoop/files/dynos/packs` if you don't accept the storage permission request. Texture packs' `gfx` folders also work here as long as they are not too intensive. Create the folder if it doesn't exist already.
