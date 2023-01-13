@@ -479,7 +479,7 @@ ifeq ($(filter clean distclean print-%,$(MAKECMDGOALS)),)
       endif
   endif
 
-  # Make liblua
+  # Make libluA
   ifeq ($(TARGET_ANDROID),1)
     DUMMY != $(MAKE) -C $(LIBLUA_DIR) linux >&2 || echo FAIL
     ifeq ($(DUMMY),FAIL)
@@ -1759,7 +1759,7 @@ $(ZIP_UNCOMPRESSED): $(EXE) $(APK_FILES)
 	rm -rf $(BUILD_DIR)/platform/android/android
 
 $(APK_ALIGNED): $(ZIP_UNCOMPRESSED)
-	zipalign -p 4 $< $@
+	zipalign -f -p 4 $< $@
 
 $(APK_SIGNED): $(APK_ALIGNED)
 	cp $< $@ && \
