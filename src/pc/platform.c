@@ -100,6 +100,7 @@ extern SDL_bool SDL_AndroidRequestPermission(const char *permission);
 // frequently switch between the cross-compilation and the Termux build on
 // the same device, which necessitates uninstalling the other build's app.
 const char* get_gamedir(void) {
+    SDL_bool privileged_write = SDL_FALSE, privileged_manage = SDL_FALSE;
     char gamedir_privileged[SYS_MAX_PATH] = ".";
     const char *basedir_unprivileged = SDL_AndroidGetExternalStoragePath();
     const char *basedir_privileged = SDL_AndroidGetTopExternalStoragePath();
@@ -107,8 +108,11 @@ const char* get_gamedir(void) {
     snprintf(gamedir_privileged, sizeof(gamedir_privileged), 
              "%s/%s", basedir_privileged, ANDROID_APPNAME);
 
-    SDL_bool privileged = SDL_AndroidRequestPermission("android.permission.WRITE_EXTERNAL_STORAGE");
-    return privileged ? gamedir_privileged : basedir_unprivileged;
+    //Android 10 and below
+    privileged_write = SDL_AndroidRequestPermission("android.permission.WRITE_EXTERNAL_STORAGE");
+    //Android 11 and up
+    privileged_manage = SDL_AndroidRequestPermission("android.permission.MANAGE_EXTERNAL_STORAGE");
+    return (privileged_write || privileged_manage) ? gamedir_privileged : basedir_unprivileged;
 }
 
 const char *sys_user_path(void) {
