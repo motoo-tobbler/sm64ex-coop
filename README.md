@@ -28,7 +28,7 @@ What works:
 
 ✅ Fullscreen
 
-✅ External gamepads
+✅ External gamepads (on most devices)
 
 What doesn't work:
 
@@ -36,11 +36,9 @@ What doesn't work:
 
 ❌ Inconsistent crashes in Peach's Castle on some devices
 
-❌ Chat button on some devices
+❌ External gamepads on some devices
 
-❌ Crash on rendering touch controls on some devices
-
-❌ Texture packs that are too intensive (like full-res Render96)
+❌ Occasional crash when loading HD texture packs - try restarting app until they load
 
 ❌ Discord
 
