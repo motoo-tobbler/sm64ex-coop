@@ -5,6 +5,7 @@
 
 #ifdef __ANDROID__
 #include <sys/stat.h>
+#include "platform.h"
 #endif
 
 #include "sm64.h"
@@ -277,42 +278,15 @@ void inthand(UNUSED int signum) {
     game_exit();
 }
 
-#ifdef __ANDROID__
-#include "platform.h"
-extern const char* SDL_AndroidGetInternalStoragePath();
-extern const char* SDL_AndroidGetExternalStoragePath();
-
-void move_to_new_dir(char* file) {
-    const char *basedir = SDL_AndroidGetExternalStoragePath();
-    char original_loc[SYS_MAX_PATH];
-    char new_loc[SYS_MAX_PATH];
-    snprintf(original_loc, sizeof(original_loc), "%s/%s", basedir, file);
-    snprintf(new_loc, sizeof(new_loc), "%s/%s/%s", basedir, gCLIOpts.GameDir[0] ? gCLIOpts.GameDir : FS_BASEDIR, file);
-    rename(original_loc, new_loc);
-}
-
-void move_to_new_dir_user(char* file) {
-    const char *basedir = SDL_AndroidGetExternalStoragePath();
-    char original_loc[SYS_MAX_PATH];
-    char new_loc[SYS_MAX_PATH];
-    snprintf(original_loc, sizeof(original_loc), "%s/%s", basedir, file);
-    snprintf(new_loc, sizeof(new_loc), "%s/%s/%s", basedir, gCLIOpts.GameDir[0] ? gCLIOpts.GameDir : FS_BASEDIR, file);
-    rename(original_loc, new_loc);
-}
-#endif
-
 void main_func(void) {
 #ifdef __ANDROID__
-    //Move old stuff to new path
-    const char *basedir = SDL_AndroidGetExternalStoragePath();
-    char gamedir[SYS_MAX_PATH];
-    snprintf(gamedir, sizeof(gamedir), "%s/%s", basedir, gCLIOpts.GameDir[0] ? gCLIOpts.GameDir : FS_BASEDIR);
+    char gamedir[SYS_MAX_PATH] = ".";
+    const char *basedir = get_gamedir();
+    snprintf(gamedir, sizeof(gamedir), "%s/%s", 
+             basedir, gCLIOpts.GameDir[0] ? gCLIOpts.GameDir : FS_BASEDIR);
     if (stat(gamedir, NULL) == -1) {
         mkdir(gamedir, 0770);
     }
-    move_to_new_dir("sound");
-    move_to_new_dir("gfx");
-    move_to_new_dir("base.zip");
 #else
     const char *gamedir = gCLIOpts.GameDir[0] ? gCLIOpts.GameDir : FS_BASEDIR;
 #endif

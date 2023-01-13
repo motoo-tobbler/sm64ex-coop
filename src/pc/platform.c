@@ -85,85 +85,49 @@ void sys_fatal(const char *fmt, ...) {
 // we can just ask SDL for most of this shit if we have it
 #include <SDL2/SDL.h>
 
-
 #ifdef __ANDROID__
-extern const char* SDL_AndroidGetInternalStoragePath();
+#include "platform.h"
 extern const char* SDL_AndroidGetExternalStoragePath();
+extern const char* SDL_AndroidGetTopExternalStoragePath();
+extern SDL_bool SDL_AndroidRequestPermission(const char *permission);
 
-static inline bool copy_userdata(const char *userdir) {
-    char oldpath[SYS_MAX_PATH] = { 0 };
-    char path[SYS_MAX_PATH] = { 0 };
-    bool fileFound = false;
+// The purpose of this code is to store/use the game data in /storage/emulated/0
+// instead of /storage/emulated/0/Android/data if the user permits it, which
+// results in Android not deleting the game data when the app is uninstalled
+// This feature was written to accomodate a user who "is unable to install
+// updates to apps without first uninstalling the older version, no matter
+// which app it is". It is also very useful for people (like me) who 
+// frequently switch between the cross-compilation and the Termux build on
+// the same device, which necessitates uninstalling the other build's app.
+const char* get_gamedir(void) {
+    char gamedir_privileged[SYS_MAX_PATH] = ".";
+    const char *basedir_unprivileged = SDL_AndroidGetExternalStoragePath();
+    const char *basedir_privileged = SDL_AndroidGetTopExternalStoragePath();
 
-    // check if a save already exists in the new folder
-    snprintf(path, sizeof(path), "%s/" SAVE_FILENAME, userdir);
-    if (fs_sys_file_exists(path)) return false;
-    snprintf(path, sizeof(path), "%s/sm64_save_file_0.sav", userdir);
-    if (fs_sys_file_exists(path)) return false;
-    snprintf(path, sizeof(path), "%s/sm64_save_file_1.sav", userdir);
-    if (fs_sys_file_exists(path)) return false;
-    snprintf(path, sizeof(path), "%s/sm64_save_file_2.sav", userdir);
-    if (fs_sys_file_exists(path)) return false;
-    snprintf(path, sizeof(path), "%s/sm64_save_file_3.sav", userdir);
-    if (fs_sys_file_exists(path)) return false;
+    snprintf(gamedir_privileged, sizeof(gamedir_privileged), 
+             "%s/%s", basedir_privileged, ANDROID_APPNAME);
 
-    // check if a save exists in the old folder
-    bool ret = false;
-    snprintf(oldpath, sizeof(oldpath), "%s/" SAVE_FILENAME, SDL_AndroidGetInternalStoragePath());
-    if (fs_sys_file_exists(oldpath)) {
-        fileFound = true;
-        snprintf(path, sizeof(path), "%s/" SAVE_FILENAME, userdir);
-        ret = fs_sys_copy_file(oldpath, path);
-    }
-    snprintf(oldpath, sizeof(oldpath), "%s/sm64_save_file_0.sav", SDL_AndroidGetInternalStoragePath());
-    if (fs_sys_file_exists(oldpath)) {
-        fileFound = true;
-        snprintf(path, sizeof(path), "%s/sm64_save_file_0.sav", userdir);
-        ret = fs_sys_copy_file(oldpath, path);
-    }
-    snprintf(oldpath, sizeof(oldpath), "%s/sm64_save_file_1.sav", SDL_AndroidGetInternalStoragePath());
-    if (fs_sys_file_exists(oldpath)) {
-        fileFound = true;
-        snprintf(path, sizeof(path), "%s/sm64_save_file_1.sav", userdir);
-        ret = fs_sys_copy_file(oldpath, path);
-    }
-    snprintf(oldpath, sizeof(oldpath), "%s/sm64_save_file_2.sav", SDL_AndroidGetInternalStoragePath());
-    if (fs_sys_file_exists(oldpath)) {
-        fileFound = true;
-        snprintf(path, sizeof(path), "%s/sm64_save_file_2.sav", userdir);
-        ret = fs_sys_copy_file(oldpath, path);
-    }
-    snprintf(oldpath, sizeof(oldpath), "%s/sm64_save_file_3.sav", SDL_AndroidGetInternalStoragePath());
-    if (fs_sys_file_exists(oldpath)) {
-        fileFound = true;
-        snprintf(path, sizeof(path), "%s/sm64_save_file_3.sav", userdir);
-        ret = fs_sys_copy_file(oldpath, path);
-    }
-    if (!fileFound) return false;
-
-    // also try to copy the config
-    snprintf(path, sizeof(path), "%s/" CONFIGFILE_DEFAULT, userdir);
-    snprintf(oldpath, sizeof(oldpath), "%s/" CONFIGFILE_DEFAULT, SDL_AndroidGetInternalStoragePath());
-    fs_sys_copy_file(oldpath, path);
-
-    return ret;
+    SDL_bool privileged = SDL_AndroidRequestPermission("android.permission.WRITE_EXTERNAL_STORAGE");
+    return privileged ? gamedir_privileged : basedir_unprivileged;
 }
 
 const char *sys_user_path(void) {
-    static char path[SYS_MAX_PATH] = ".";
+    char path[SYS_MAX_PATH] = ".";
 
-    const char *basedir = SDL_AndroidGetExternalStoragePath();
+    const char *basedir = get_gamedir();
     snprintf(path, sizeof(path), "%s/user", basedir);
 
     if (!fs_sys_dir_exists(path) && !fs_sys_mkdir(path))
         path[0] = 0; // somehow failed, we got no user path
-    else
-        copy_userdata(path); // TEMPORARY: try to copy old saves, if any
     return path;
 }
 
 const char *sys_exe_path(void) {
-    return SDL_AndroidGetExternalStoragePath();
+    char *path = get_gamedir();
+
+    if (!fs_sys_dir_exists(path) && !fs_sys_mkdir(path))
+        path[0] = 0; // somehow failed, we got no exe path
+    return path;
 }
 #else
 // TEMPORARY: check the old save folder and copy contents to the new path

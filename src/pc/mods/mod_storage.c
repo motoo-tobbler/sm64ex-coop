@@ -52,19 +52,20 @@ u32 key_count(char* filename) {
     file = fopen(filename, "r");
     if (file == NULL) { return 0; }
 
-    u32 lines = 1;
 #ifdef __ANDROID__
     // something is wrong with the original
     // implementation of this function (seen below
     // in the else block) on Android, so copy the
     // logic used in mod.c which seems to work
     // better
+    u32 lines = 0;
     char buffer[512] = { 0 };
     while (!feof(file)) {
         file_get_line(buffer, 512, file);
         lines++;
     }
 #else
+    u32 lines = 1;
     char c;
     do {
         c = fgetc(file);
