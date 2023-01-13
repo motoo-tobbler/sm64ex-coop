@@ -1,4 +1,7 @@
 #include <stdio.h>
+#ifdef __ANDROID__
+#include <malloc.h>
+#endif
 #include "reservation_area.h"
 #include "network.h"
 #include "object_fields.h"
@@ -207,36 +210,7 @@ void reservation_area_change(struct NetworkPlayer* np) {
     // I'm having difficulty breaking on variable
     // watchpoints in my debugger so I haven't found
     // the root cause yet
-    u64 mask = ~(~0U << 8);
-    struct ReservationArea *tmp_root = NULL;
-    struct ReservationArea *tmp_last = NULL;
-    struct ReservationArea *tmp = NULL;
-    bool valid = false;
-    while (!valid) {
-        tmp = malloc(sizeof(struct ReservationArea));
-        if (tmp_root == NULL) tmp_root = tmp;
-        if (!((u64)tmp & mask)) {
-            // valid address found
-            valid = true;
-            ra = tmp;
-            tmp = tmp_root;
-            if (tmp_last != NULL) {
-                tmp_last->next = NULL;
-            }
-            while (tmp != NULL && ra != tmp_root) {
-                tmp_root = tmp;
-                tmp = tmp->next;
-                free(tmp_root);
-            }
-        }
-        else {
-            // keep memory leaking in an infinite loop
-            // until the memory allocator maybe gives
-            // the address bit pattern needed
-            tmp_last = tmp;
-            tmp = tmp->next;
-        }
-    }
+    ra = memalign(256, sizeof(struct ReservationArea));
 #else
     ra = malloc(sizeof(struct ReservationArea));
 #endif
