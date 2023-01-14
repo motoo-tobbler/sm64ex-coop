@@ -827,7 +827,7 @@ else
 endif
 
 ifeq ($(TARGET_ANDROID),1)
-  INCLUDE_DIRS += platform/android/SDL/include
+  INCLUDE_DIRS += platform/android/include
 endif
 
 # Configure backend flags
