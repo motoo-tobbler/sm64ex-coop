@@ -9,3 +9,6 @@ void djui_panel_add(struct DjuiBase* caller, struct DjuiBase* panelBase, struct 
 void djui_panel_back(void);
 void djui_panel_update(void);
 void djui_panel_shutdown(void);
+#ifdef TOUCH_CONTROLS
+void djui_panel_shutdown_touchconfig(void);
+#endif

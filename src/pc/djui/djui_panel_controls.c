@@ -10,6 +10,9 @@ void djui_panel_controls_value_change(UNUSED struct DjuiBase* caller) {
 
 void djui_panel_controls_create(struct DjuiBase* caller) {
     f32 bodyHeight = 16 * 6 + 32 * 2 + 64 * 4;
+#ifdef TOUCH_CONTROLS
+    bodyHeight += 16 + 64;
+#endif
 
     struct DjuiBase* defaultBase = NULL;
     struct DjuiThreePanel* panel = djui_panel_menu_create(bodyHeight, "\\#ff0800\\C\\#1be700\\O\\#00b3ff\\N\\#ffef00\\T\\#ff0800\\R\\#1be700\\O\\#00b3ff\\L\\#ffef00\\S");
@@ -25,6 +28,13 @@ void djui_panel_controls_create(struct DjuiBase* caller) {
         djui_base_set_size_type(&button2->base, DJUI_SVT_RELATIVE, DJUI_SVT_ABSOLUTE);
         djui_base_set_size(&button2->base, 1.0f, 64);
         djui_interactable_hook_click(&button2->base, djui_panel_controls_extra_create);
+
+#ifdef TOUCH_CONTROLS
+        struct DjuiButton* button3 = djui_button_create(&body->base, "Touch Binds");
+        djui_base_set_size_type(&button3->base, DJUI_SVT_RELATIVE, DJUI_SVT_ABSOLUTE);
+        djui_base_set_size(&button3->base, 1.0f, 64);
+        djui_interactable_hook_click(&button3->base, djui_panel_shutdown_touchconfig);
+#endif
 
         struct DjuiCheckbox* checkboxGB = djui_checkbox_create(&body->base, "Background Gamepad (must restart)", &configBackgroundGamepad);
         djui_base_set_size_type(&checkboxGB->base, DJUI_SVT_RELATIVE, DJUI_SVT_ABSOLUTE);

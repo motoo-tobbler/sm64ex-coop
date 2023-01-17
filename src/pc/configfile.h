@@ -24,45 +24,6 @@ typedef struct {
     bool settings_changed;
 } ConfigWindow;
 
-#ifdef TOUCH_CONTROLS
-#define CONTROL_ELEMENT_COUNT 20
-
-enum ConfigControlElementAnchor {
-    CONTROL_ELEMENT_LEFT,
-    CONTROL_ELEMENT_RIGHT,
-    CONTROL_ELEMENT_CENTER,
-    CONTROL_ELEMENT_HIDDEN,
-};
-
-enum ConfigControlElementIndex {
-    TOUCH_STICK,
-    TOUCH_MOUSE,
-    TOUCH_A,
-    TOUCH_B,
-    TOUCH_X,
-    TOUCH_Y,
-    TOUCH_START,
-    TOUCH_L,
-    TOUCH_R,
-    TOUCH_Z,
-    TOUCH_CUP,
-    TOUCH_CDOWN,
-    TOUCH_CLEFT,
-    TOUCH_CRIGHT,
-    TOUCH_CHAT,
-    TOUCH_PLAYERLIST,
-    TOUCH_DUP,
-    TOUCH_DDOWN,
-    TOUCH_DLEFT,
-    TOUCH_DRIGHT,
-};
-
-typedef struct {
-    u32 x[MAX_BINDS], y[MAX_BINDS], size[MAX_BINDS];
-    enum ConfigControlElementAnchor anchor[MAX_BINDS];
-} ConfigControlElement;
-#endif
-
 extern ConfigWindow configWindow;
 extern unsigned int configFiltering;
 extern unsigned int configMasterVolume;
@@ -142,9 +103,6 @@ extern bool         configDisableDevPause;
 #endif
 extern bool         configDisableDownloadedModels;
 extern unsigned int configInterpolationMode;
-#ifdef TOUCH_CONTROLS
-extern ConfigControlElement configControlElements[];
-#endif
 
 void configfile_load(const char *filename);
 void configfile_save(const char *filename);

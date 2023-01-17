@@ -3,6 +3,9 @@
 #include "sounds.h"
 #include "audio/external.h"
 #include "src/game/bettercamera.h"
+#ifdef TOUCH_CONTROLS
+#include "pc/controller/controller_touchscreen.h"
+#endif
 
 struct DjuiPanel {
     struct DjuiBase* base;
@@ -171,3 +174,36 @@ void djui_panel_shutdown(void) {
         newcam_init_settings();
     }
 }
+
+#ifdef TOUCH_CONTROLS
+void djui_panel_shutdown_touchconfig(void) {
+    struct DjuiPanel* panel = sPanelList;
+    while (panel != NULL) {
+        struct DjuiPanel* next = panel->parent;
+        djui_base_destroy(panel->base);
+        free(panel);
+        panel = next;
+    }
+
+    if (sPanelRemoving != NULL) {
+        djui_base_destroy(sPanelRemoving->base);
+        free(sPanelRemoving);
+    }
+
+    sPanelList = NULL;
+    sPanelRemoving = NULL;
+    sMoveAmount = 0;
+    gInteractableOverridePad = false;
+    gDjuiPanelJoinMessageVisible = false;
+    gDjuiPanelMainCreated = false;
+    gDjuiPanelPauseCreated = false;
+    djui_cursor_set_visible(false);
+    for (u32 i = 0; i < CONTROL_ELEMENT_COUNT; i++) {
+        configControlElementsLast[i].x[0] = configControlElements[i].x[0];
+        configControlElementsLast[i].y[0] = configControlElements[i].y[0];
+        configControlElementsLast[i].size[0] = configControlElements[i].size[0];
+        configControlElementsLast[i].anchor[0] = configControlElements[i].anchor[0];
+    }
+    gInTouchConfig = true;
+}
+#endif

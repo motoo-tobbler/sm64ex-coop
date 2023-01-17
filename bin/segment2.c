@@ -276,6 +276,38 @@ ALIGNED8 const u8 texture_hud_right[] = {
 #include "textures/segment2/custom_hud_right.rgba16.inc.c"
 };
 
+ALIGNED8 const u8 texture_hud_check[] = {
+#include "textures/segment2/custom_hud_check.rgba16.inc.c"
+};
+
+ALIGNED8 const u8 texture_hud_cross[] = {
+#include "textures/segment2/custom_hud_cross.rgba16.inc.c"
+};
+
+ALIGNED8 const u8 texture_hud_reset[] = {
+#include "textures/segment2/custom_hud_reset.rgba16.inc.c"
+};
+
+ALIGNED8 const u8 texture_hud_trash[] = {
+#include "textures/segment2/custom_hud_trash.rgba16.inc.c"
+};
+
+ALIGNED8 const u8 texture_hud_cup[] = {
+#include "textures/segment2/custom_hud_cup.rgba16.inc.c"
+};
+
+ALIGNED8 const u8 texture_hud_cdown[] = {
+#include "textures/segment2/custom_hud_cdown.rgba16.inc.c"
+};
+
+ALIGNED8 const u8 texture_hud_cleft[] = {
+#include "textures/segment2/custom_hud_cleft.rgba16.inc.c"
+};
+
+ALIGNED8 const u8 texture_hud_cright[] = {
+#include "textures/segment2/custom_hud_cright.rgba16.inc.c"
+};
+
 ALIGNED8 const Texture texture_credits_char_3[] = {
 #include "textures/segment2/segment2.06200.rgba16.inc.c"
 };
@@ -1880,9 +1912,9 @@ const Texture *const main_hud_lut[] = {
     texture_hud_char_O, texture_hud_char_P, texture_hud_chat,   texture_hud_char_R,
     texture_hud_char_S, texture_hud_char_T, texture_hud_char_U, texture_hud_char_waluigi_head,
     texture_hud_char_W, texture_hud_char_wario_head, texture_hud_char_Y, texture_hud_char_Z,
-                   0x0,                0x0,                0x0,                0x0,
-                   0x0,                0x0,                0x0,                0x0,
-                   0x0, texture_hud_up,     texture_hud_down,   texture_hud_left,
+    texture_hud_cup,    texture_hud_cdown,  texture_hud_cleft,  texture_hud_cright,
+                   0x0, texture_hud_check,  texture_hud_cross,  texture_hud_reset,
+    texture_hud_trash,  texture_hud_up,     texture_hud_down,   texture_hud_left,
     texture_hud_right,  texture_hud_char_slash, texture_hud_char_multiply, texture_hud_char_coin,
     texture_hud_char_mario_head, texture_hud_char_star, texture_hud_char_luigi_head, texture_hud_char_toad_head,
     texture_hud_char_apostrophe, texture_hud_char_double_quote,
