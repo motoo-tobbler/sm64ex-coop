@@ -12,5 +12,9 @@ This assumes that all players have already followed the [build guide](README_and
 
 ![image](https://user-images.githubusercontent.com/31490854/208313169-db886198-befd-4409-9867-68dbd3daa93c.png)
 
+> To host the game server, people with Windows probably also have to disable Windows Firewall in this menu, because Windows Firewall is uncooperative and frequently blocks the game server
+
+![image](https://user-images.githubusercontent.com/31490854/212804094-8a9fc5b9-6ead-48a3-9850-aa3ccc34640e.png)
+
 
 > Guide made by me, flipflop bell#4376 and Redstone#2442
