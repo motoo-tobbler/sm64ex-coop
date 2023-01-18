@@ -9,12 +9,14 @@
 #define CONFIRM_BUTTON 0x0001
 #define CANCEL_BUTTON 0x0002
 #define RESET_BUTTON 0x0003
+#define SNAP_BUTTON 0x0004
 
 #define HUD_CHAT 113
 #define HUD_CUP 123
 #define HUD_CDOWN 124
 #define HUD_CLEFT 125
 #define HUD_CRIGHT 126
+#define HUD_SNAP 127
 #define HUD_CHECK 128
 #define HUD_CROSS 129
 #define HUD_RESET 130
@@ -26,7 +28,7 @@
 #define HUD_MULTIPLY 137
 
 #define CONTROL_ELEMENT_COUNT 20
-#define CONTROL_CONFIG_ELEMENT_COUNT 3
+#define CONTROL_CONFIG_ELEMENT_COUNT 4
 
 #define SCREEN_WIDTH_API 1280
 #define SCREEN_HEIGHT_API 960
@@ -76,6 +78,7 @@ enum ConfigControlConfigElementIndex {
     TOUCH_CONFIRM,
     TOUCH_CANCEL,
     TOUCH_RESET,
+    TOUCH_SNAP,
 };
 
 typedef struct {
@@ -90,7 +93,7 @@ extern struct ControllerAPI controller_touchscreen;
 extern s16 touch_x;
 extern s16 touch_y;
 
-extern bool gInTouchConfig;
+extern bool gInTouchConfig, configSlideTouch, configElementSnap;
 
 struct TouchEvent {
     int touchID; //Should not be 0

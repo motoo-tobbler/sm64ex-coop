@@ -60,7 +60,7 @@ EXTERNAL_DATA ?= 0
 # Enable Discord Rich Presence (outdated, no longer supported)
 DISCORDRPC ?= 0
 # Enable Discord Game SDK (used for Discord server hosting)
-DISCORD_SDK ?= 1
+DISCORD_SDK ?= 0
 # Enable docker build workarounds
 DOCKERBUILD ?= 0
 # Enable compiling with more debug info.

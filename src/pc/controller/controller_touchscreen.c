@@ -18,8 +18,6 @@
 #include "controller_api.h"
 #include "controller_touchscreen.h"
 
-bool gInTouchConfig = false;
-
 // Mouselook
 s16 before_x = 0;
 s16 before_y = 0;
@@ -27,15 +25,19 @@ s16 touch_x = 0;
 s16 touch_y = 0;
 s16 touch_cam_last_x = 0;
 s16 touch_cam_last_y = 0;
-static u32 timer = 0;
+static u32 touch_cam_timer = 0;
 
 // Config
 // TOUCH_MOUSE used as None
-enum ConfigControlConfigElementIndex lastElementGrabbed = TOUCH_MOUSE;
+enum ConfigControlElementIndex lastElementGrabbed = TOUCH_MOUSE;
+u32 double_tap_timer = 0, double_tap_timer_last = 0;
+bool gInTouchConfig = false,
+     configSlideTouch = true, 
+     configElementSnap = false;
 
 // these are the default screen positions and sizes of the touch controls 
 // in the order of ConfigControlElementIndex
-// right now only the first element of each array of each element of each
+// right now only the first element of each array of each member of each
 // struct in the array is used, I'm on the fence about whether to change
 // that
 ConfigControlElement configControlElementsDefault[CONTROL_ELEMENT_COUNT] = {
@@ -51,24 +53,7 @@ ConfigControlElement configControlElementsLast[CONTROL_ELEMENT_COUNT] = {
 };
 
 ConfigControlElement configControlConfigElements[CONTROL_CONFIG_ELEMENT_COUNT] = {
-    [TOUCH_CONFIRM] = {.x =      {160, 50 , 50 },
-                       .y =      {700, 410, 410},
-                       .size =   {120, 120, 120},
-                       .anchor = {CONTROL_ELEMENT_LEFT,
-                                  CONTROL_ELEMENT_HIDDEN,
-                                  CONTROL_ELEMENT_HIDDEN}},
-    [TOUCH_CANCEL] =  {.x =      {240, 80 , 80 },
-                       .y =      {700, 290, 290},
-                       .size =   {120, 120, 120},
-                       .anchor = {CONTROL_ELEMENT_LEFT,
-                                  CONTROL_ELEMENT_HIDDEN,
-                                  CONTROL_ELEMENT_HIDDEN}},
-    [TOUCH_RESET] =   {.x =      {200, 20 , 20 },
-                       .y =      {700, 290, 290},
-                       .size =   {120, 120, 120},
-                       .anchor = {CONTROL_ELEMENT_LEFT,
-                                  CONTROL_ELEMENT_HIDDEN,
-                                  CONTROL_ELEMENT_HIDDEN}},
+#include "controller_touchscreen_config_layouts.inc"
 };
 
 // This order must match configControlElements and ConfigControlElementIndex
@@ -97,9 +82,10 @@ static struct ControlElement ControlElements[CONTROL_ELEMENT_COUNT] = {
 
 // config-only elements
 static struct ControlElement ControlConfigElements[CONTROL_CONFIG_ELEMENT_COUNT] = {
-{.type = Button, .character = HUD_CHECK,    .buttonID = CONFIRM_BUTTON},
-{.type = Button, .character = HUD_CROSS,    .buttonID = CANCEL_BUTTON},
-{.type = Button, .character = HUD_RESET,    .buttonID = RESET_BUTTON},
+[TOUCH_CONFIRM] =    {.type = Button, .character = HUD_CHECK,    .buttonID = CONFIRM_BUTTON},
+[TOUCH_CANCEL] =     {.type = Button, .character = HUD_CROSS,    .buttonID = CANCEL_BUTTON},
+[TOUCH_RESET] =      {.type = Button, .character = HUD_RESET,    .buttonID = RESET_BUTTON},
+[TOUCH_SNAP] =       {.type = Button, .character = HUD_SNAP,     .buttonID = SNAP_BUTTON},
 };
 
 static int ControlElementsLength = sizeof(ControlElements)/sizeof(struct ControlElement);
@@ -130,15 +116,19 @@ struct Position get_pos(ConfigControlElement *config, u32 idx) {
             break;
         case CONTROL_ELEMENT_HIDDEN:
         default:
-            if (!gInTouchConfig) {
-                ret.x = HIDE_POS;
-                ret.y = HIDE_POS;
-            }
-            else {
+            if (gInTouchConfig) {
                 ret.x = SCREEN_WIDTH_API / 2;
                 ret.y = SCREEN_HEIGHT_API / 2;
             }
+            else {
+                ret.x = HIDE_POS;
+                ret.y = HIDE_POS;
+            }
             break;
+    }
+    if (configElementSnap) {
+        ret.x = 50 * ((ret.x + 49) / 50) - 50; 
+        ret.y = 50 * ((ret.y + 49) / 50) - 50; 
     }
     if (djui_panel_is_active()) ret.y = HIDE_POS;
     return ret;
@@ -155,6 +145,8 @@ void touch_down(struct TouchEvent* event) {
             size = configControlConfigElements[i].size[0];
             if (TRIGGER_DETECT(size)) {
                 ControlConfigElements[i].touchID = event->touchID;
+                if (ControlConfigElements[i].buttonID == SNAP_BUTTON) 
+                    configElementSnap = !configElementSnap;
             }
         }
     }
@@ -164,13 +156,11 @@ void touch_down(struct TouchEvent* event) {
             pos = get_pos(&configControlElements[i], 0);
             if (pos.y == HIDE_POS) continue;
             size = configControlElements[i].size[0];
-            if (TRIGGER_DETECT(size)) {
-                lastElementGrabbed = i;
-            }
             switch (ControlElements[i].type) {
                 case Joystick:
                     if (TRIGGER_DETECT(size)) {
                         ControlElements[i].touchID = event->touchID;
+                        lastElementGrabbed = i;
                         if (!gInTouchConfig) {
                             ControlElements[i].joyX = CORRECT_TOUCH_X(event->x) - pos.x;
                             ControlElements[i].joyY = CORRECT_TOUCH_Y(event->y) - pos.y;
@@ -182,6 +172,7 @@ void touch_down(struct TouchEvent* event) {
                 case Button:
                     if (TRIGGER_DETECT(size)) {
                         ControlElements[i].touchID = event->touchID;
+                        lastElementGrabbed = i;
                         // messy
                         if (ControlElements[i].buttonID == CHAT_BUTTON && !gInTouchConfig)
                             djui_interactable_on_key_down(configKeyChat[0]);
@@ -198,7 +189,7 @@ void touch_motion(struct TouchEvent* event) {
     // Mouselook
     struct Position pos = get_pos(&configControlElements[TOUCH_MOUSE], 0);
     s32 size = configControlElements[TOUCH_MOUSE].size[0];
-    if (timer != gGlobalTimer && TRIGGER_DETECT(size) && !gInTouchConfig) {
+    if (touch_cam_timer != gGlobalTimer && TRIGGER_DETECT(size)) {
         if (before_x > 0)
             touch_x = CORRECT_TOUCH_X(event->x) - before_x;
         before_x = CORRECT_TOUCH_X(event->x);
@@ -209,7 +200,7 @@ void touch_motion(struct TouchEvent* event) {
         if (touch_y < configStickDeadzone / 4)
             touch_y = 0;
         before_y = CORRECT_TOUCH_Y(event->y);
-        timer = gGlobalTimer;
+        touch_cam_timer = gGlobalTimer;
     }
     // Everything else
     for(int i = 0; i < ControlElementsLength; i++) {
@@ -226,13 +217,13 @@ void touch_motion(struct TouchEvent* event) {
                 x_raw = CORRECT_TOUCH_X(event->x);
                 y = CORRECT_TOUCH_Y(event->y);
                 if (x_raw < SCREEN_WIDTH_API / 2 - 30) {
-                    // algebraic inversion of get_pos() (definition shown in the following comment line)
+                    // algebraic inversion of get_pos()'s definition (shown in the following comment line)
                     //((int) floorf((320 / 2 - 240 / 2 * gfx_current_dimensions.aspect_ratio + (x)))) << 2
                     x = (x_raw >> 2) - 320 / 2 + 240 / 2 * gfx_current_dimensions.aspect_ratio;
                     anchor = CONTROL_ELEMENT_LEFT;
                 }
                 else if (x_raw > SCREEN_WIDTH_API / 2 + 30) {
-                    // algebraic inversion of get_pos() (definition shown in the following comment line)
+                    // algebraic inversion of get_pos()'s definition (shown in the following comment line)
                     //((int) ceilf((320 / 2 + 240 / 2 * gfx_current_dimensions.aspect_ratio - (x)))) << 2
                     x = 320 / 2 + 240 / 2 * gfx_current_dimensions.aspect_ratio - (x_raw >> 2);
                     anchor = CONTROL_ELEMENT_RIGHT;
@@ -287,7 +278,7 @@ void touch_motion(struct TouchEvent* event) {
                     case Mouse:
                         break;
                     case Button:
-                        if (TRIGGER_DETECT(size)) {
+                        if (TRIGGER_DETECT(size) && configSlideTouch) {
                             ControlElements[i].slideTouch = 1;
                             ControlElements[i].touchID = event->touchID;
                             if (ControlElements[i].buttonID == CHAT_BUTTON)
@@ -318,6 +309,14 @@ static void handle_touch_up(struct TouchEvent* event, int i) { // separated for 
                 djui_interactable_on_key_up(configKeyChat[0]);
             if (ControlElements[i].buttonID == PLAYERLIST_BUTTON && !gInTouchConfig)
                 djui_interactable_on_key_up(configKeyPlayerList[0]);
+            if (gInTouchConfig) {
+                // toggle size of buttons on double-tap
+                if (double_tap_timer - double_tap_timer_last < 10) {
+                    double_tap_timer_last = 0;
+                    u32 *size = &configControlElements[i].size[0];
+                    *size = *size > 120 ? 120 : 220;
+                }
+            }
             break;
     }
 }
@@ -328,12 +327,14 @@ void touch_up(struct TouchEvent* event) {
         for(u32 i = 0; i < ControlConfigElementsLength; i++) {
             ControlConfigElements[i].touchID = 0;
         }
+        double_tap_timer_last = double_tap_timer;
+        double_tap_timer = gGlobalTimer;
     }
     else {
         // Mouselook
         struct Position pos = get_pos(&configControlElements[TOUCH_MOUSE], 0);
         s32 size = configControlElements[TOUCH_MOUSE].size[0];
-        if (gGlobalTimer - timer > 1 || TRIGGER_DETECT(size)) {
+        if (gGlobalTimer - touch_cam_timer > 1 || TRIGGER_DETECT(size)) {
             touch_x = before_x = 0;
             touch_y = before_y = 0;
         }
@@ -432,7 +433,8 @@ void render_touch_controls(void) {
             if (pos.y == HIDE_POS) continue;
             size = configControlConfigElements[i].size[0];
             select_button_texture(0);
-            if (ControlConfigElements[i].touchID)
+            if (ControlConfigElements[i].touchID || 
+                (i == TOUCH_SNAP && configElementSnap))
                 select_button_texture(1);
             DrawSprite(pos.x - 8, pos.y, 1 + size / 100);
             select_char_texture(ControlConfigElements[i].character);
@@ -468,13 +470,14 @@ static void touchscreen_read(OSContPad *pad) {
     if (gInTouchConfig) {
         for(u32 i = 0; i < ControlConfigElementsLength; i++) {
             if (ControlConfigElements[i].touchID) {
-                ControlConfigElements[i].touchID = 0;
                 switch (ControlConfigElements[i].buttonID) {
                     case CONFIRM_BUTTON:
+                        ControlConfigElements[i].touchID = 0;
                         configfile_save(configfile_name());
                         exit_control_config();
                         break;
                     case CANCEL_BUTTON:
+                        ControlConfigElements[i].touchID = 0;
                         for (u32 i = 0; i < CONTROL_ELEMENT_COUNT; i++) {
                             configControlElements[i].x[0] = configControlElementsLast[i].x[0];
                             configControlElements[i].y[0] = configControlElementsLast[i].y[0];
@@ -490,6 +493,7 @@ static void touchscreen_read(OSContPad *pad) {
                             configControlElements[i].size[0] = configControlElementsDefault[i].size[0];
                             configControlElements[i].anchor[0] = configControlElementsDefault[i].anchor[0];
                         }
+                    case SNAP_BUTTON:
                     default:
                         break;
                 }

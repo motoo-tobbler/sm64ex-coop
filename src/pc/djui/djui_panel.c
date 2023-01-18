@@ -193,7 +193,6 @@ void djui_panel_shutdown_touchconfig(void) {
     sPanelList = NULL;
     sPanelRemoving = NULL;
     sMoveAmount = 0;
-    gInteractableOverridePad = false;
     gDjuiPanelJoinMessageVisible = false;
     gDjuiPanelMainCreated = false;
     gDjuiPanelPauseCreated = false;
