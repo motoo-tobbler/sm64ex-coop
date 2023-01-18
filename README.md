@@ -10,9 +10,11 @@ Run `./extract_assets.py --clean && make clean` or `make distclean` to remove RO
 
 [Click here to build the `.apk` from a non-Android device](https://github.com/robertkirkman/sm64ex-coop-android-base). 
 
-What this can do (build featured in video is old):
+Recording showcasing new touch controls features:
 
-[![demo](https://i.ytimg.com/vi/jv2kotnoX10/maxresdefault.jpg)](https://www.youtube.com/watch?v=jv2kotnoX10 "sm64ex-coop android (zink + Xwayland)")
+[sm64ex-coop-android.webm](https://user-images.githubusercontent.com/31490854/213303280-b4a160a6-f711-4497-b9e1-d463546048e1.webm)
+
+All custom icons by **xLuigiGamerx#6999**!
 
 What works:
 
@@ -24,19 +26,19 @@ What works:
 
 ✅ (most) DynOS and Lua mods
 
-✅ Touch controls (buggy)
+✅ Touch controls
 
 ✅ Fullscreen
 
-✅ External gamepads (on most devices)
+✅ External gamepads
 
 What doesn't work:
 
 ❌ Some Lua mods on some devices
 
-❌ Inconsistent crashes in Peach's Castle on some devices
+❌ Crash when "skip intro cutscene" option is used on some devices
 
-❌ External gamepads on some devices
+❌ Inconsistent crashes in Peach's Castle on some devices
 
 ❌ Occasional crash when loading HD texture packs - try restarting app
 
