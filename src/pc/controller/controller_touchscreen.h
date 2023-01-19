@@ -96,7 +96,11 @@ extern s16 touch_y;
 extern bool gInTouchConfig, configSlideTouch, configElementSnap;
 
 struct TouchEvent {
-    int touchID; //Should not be 0
+    // Note to VDavid003: In Xorg, touchID became large!
+    // SurfaceFlinger SDL2 only populated this with 1-255. 
+    // But X11 SDL2 populated this with 699!
+    // For X11 compatibility, I matched the types.
+    SDL_TouchID touchID; //Should not be 0
     float x, y; //Should be from 0 to 1
 };
 
@@ -112,7 +116,7 @@ enum ControlElementType {
 
 struct ControlElement {
     enum ControlElementType type;
-    u8 touchID; //0 = not being touched, 1-255 = Finger being used
+    SDL_TouchID touchID; //0 = not being touched, 1+ = Finger being used
     //Joystick
     int joyX, joyY;
     //Button

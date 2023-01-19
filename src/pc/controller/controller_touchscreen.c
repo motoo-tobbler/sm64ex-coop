@@ -294,7 +294,7 @@ void touch_motion(struct TouchEvent* event) {
     }
 }
 
-static void handle_touch_up(struct TouchEvent* event, int i) { // separated for when the layout changes
+static void handle_touch_up(u32 i) { // separated for when the layout changes
     ControlElements[i].touchID = 0;
     struct Position pos = get_pos(&configControlElements[i], 0);
     if (pos.y == HIDE_POS) return;
@@ -341,9 +341,9 @@ void touch_up(struct TouchEvent* event) {
         }
     }
     // Everything else
-    for(int i = 0; i < ControlElementsLength; i++) {
+    for(u32 i = 0; i < ControlElementsLength; i++) {
         if (ControlElements[i].touchID == event->touchID) {
-            handle_touch_up(event, i);
+            handle_touch_up(i);
         }
     }
 }
