@@ -409,7 +409,6 @@ void render_touch_controls(void) {
             case Joystick:
                 DrawSprite(pos.x, pos.y, 3);
                 DrawSprite(pos.x + 4 + ControlElements[i].joyX, pos.y + 4 + ControlElements[i].joyY, 2);
-                printf("%d%d", pos.x, pos.y);
                 break;
             case Mouse:
                 if ((before_x > 0 || before_y > 0) && !gInTouchConfig) {
