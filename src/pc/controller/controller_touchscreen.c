@@ -127,11 +127,38 @@ struct Position get_pos(ConfigControlElement *config, u32 idx) {
             break;
     }
     if (configElementSnap) {
-        ret.x = 50 * ((ret.x + 49) / 50) - 50; 
-        ret.y = 50 * ((ret.y + 49) / 50) - 50; 
+        ret.x = 50 * ((ret.x + 49) / 50) - 25; 
+        ret.y = 50 * ((ret.y + 49) / 50) - 25; 
     }
     if (djui_panel_is_active()) ret.y = HIDE_POS;
     return ret;
+}
+
+void move_touch_element(struct TouchEvent * event, enum ConfigControlElementIndex i) {
+    s32 x_raw, x, y;
+    enum ConfigControlElementAnchor anchor;
+    x_raw = CORRECT_TOUCH_X(event->x);
+    y = CORRECT_TOUCH_Y(event->y);
+    if (x_raw < SCREEN_WIDTH_API / 2 - 30) {
+        // algebraic inversion
+        x = -GFX_DIMENSIONS_RECT_FROM_LEFT_EDGE(-(x_raw >> 2));
+        anchor = CONTROL_ELEMENT_LEFT;
+    }
+    else if (x_raw > SCREEN_WIDTH_API / 2 + 30) {
+        x = GFX_DIMENSIONS_RECT_FROM_RIGHT_EDGE(x_raw >> 2);
+        anchor = CONTROL_ELEMENT_RIGHT;
+    }
+    else {
+        x = SCREEN_WIDTH_API / 2;
+        anchor = CONTROL_ELEMENT_CENTER;
+    }
+    if (anchor == CONTROL_ELEMENT_CENTER &&
+        y > 400 && y < 560) {
+        anchor = CONTROL_ELEMENT_HIDDEN;
+    }
+    configControlElements[i].x[0] = x;
+    configControlElements[i].y[0] = y;
+    configControlElements[i].anchor[0] = anchor;
 }
 
 void touch_down(struct TouchEvent* event) {
@@ -203,7 +230,7 @@ void touch_motion(struct TouchEvent* event) {
         touch_cam_timer = gGlobalTimer;
     }
     // Everything else
-    for(int i = 0; i < ControlElementsLength; i++) {
+    for(u32 i = 0; i < ControlElementsLength; i++) {
         pos = get_pos(&configControlElements[i], 0);
         if (pos.y == HIDE_POS) continue;
         size = configControlElements[i].size[0];
@@ -212,33 +239,7 @@ void touch_motion(struct TouchEvent* event) {
             if (ControlElements[i].touchID == event->touchID &&
                 ControlElements[i].type != Mouse &&
                 i == lastElementGrabbed) {
-                s32 x_raw, x, y;
-                enum ConfigControlElementAnchor anchor;
-                x_raw = CORRECT_TOUCH_X(event->x);
-                y = CORRECT_TOUCH_Y(event->y);
-                if (x_raw < SCREEN_WIDTH_API / 2 - 30) {
-                    // algebraic inversion of get_pos()'s definition (shown in the following comment line)
-                    //((int) floorf((320 / 2 - 240 / 2 * gfx_current_dimensions.aspect_ratio + (x)))) << 2
-                    x = (x_raw >> 2) - 320 / 2 + 240 / 2 * gfx_current_dimensions.aspect_ratio;
-                    anchor = CONTROL_ELEMENT_LEFT;
-                }
-                else if (x_raw > SCREEN_WIDTH_API / 2 + 30) {
-                    // algebraic inversion of get_pos()'s definition (shown in the following comment line)
-                    //((int) ceilf((320 / 2 + 240 / 2 * gfx_current_dimensions.aspect_ratio - (x)))) << 2
-                    x = 320 / 2 + 240 / 2 * gfx_current_dimensions.aspect_ratio - (x_raw >> 2);
-                    anchor = CONTROL_ELEMENT_RIGHT;
-                }
-                else {
-                    x = SCREEN_WIDTH_API / 2;
-                    anchor = CONTROL_ELEMENT_CENTER;
-                }
-                if (anchor == CONTROL_ELEMENT_CENTER &&
-                    y > 400 && y < 560) {
-                    anchor = CONTROL_ELEMENT_HIDDEN;
-                }
-                configControlElements[i].x[0] = x;
-                configControlElements[i].y[0] = y;
-                configControlElements[i].anchor[0] = anchor;
+                    move_touch_element(event, i);
             }
         }
         // normal use

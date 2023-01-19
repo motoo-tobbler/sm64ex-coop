@@ -33,6 +33,9 @@ TARGET_RPI ?= 0
 # Build for Android
 TARGET_ANDROID ?= 0
 
+# Disable linking to BASS and enable building Lua from source
+TARGET_FOSS ?= 1
+
 # Makeflag to enable OSX fixes
 OSX_BUILD ?= 0
 
@@ -73,6 +76,8 @@ HEADLESS ?= 0
 ICON ?= 1
 # Use .app (mac only)
 USE_APP ?= 1
+# Enable touchscreen controls
+TOUCH_CONTROLS ?= 0
 # Various workarounds for weird toolchains
 
 NO_BZERO_BCOPY ?= 0
@@ -146,16 +151,13 @@ endif
 
 # MXE overrides
 
-TOUCH_CONTROLS ?= 0
-
 ifeq ($(TARGET_ANDROID),1)
   RENDER_API := GL
   WINDOW_API := SDL2
   AUDIO_API := SDL2
   CONTROLLER_API := SDL2
-  DISCORD_SDK := 0
-
   TOUCH_CONTROLS := 1
+  TARGET_FOSS := 1
 endif
 
 ifeq ($(WINDOWS_BUILD),1)
@@ -479,8 +481,8 @@ ifeq ($(filter clean distclean print-%,$(MAKECMDGOALS)),)
       endif
   endif
 
-  # Make libluA
-  ifeq ($(TARGET_ANDROID),1)
+  # Make liblua
+  ifeq ($(TARGET_FOSS),1)
     DUMMY != $(MAKE) -C $(LIBLUA_DIR) linux >&2 || echo FAIL
     ifeq ($(DUMMY),FAIL)
       $(error Failed to build lua)
@@ -560,7 +562,9 @@ SRC_DIRS += src/pc src/pc/gfx src/pc/audio src/pc/controller src/pc/fs src/pc/fs
 
 ifeq ($(TARGET_ANDROID),1)
   SRC_DIRS += platform/android
-else
+endif
+
+ifeq ($(TARGET_FOSS),0)
   SRC_DIRS += src/bass_audio
 endif
 
@@ -686,7 +690,7 @@ else ifeq ($(TARGET_RPI),1)
   else
     BASS_LIBS := lib/bass/arm/libbass.so lib/bass/arm/libbass_fx.so
   endif
-else ifeq ($(TARGET_ANDROID),1)
+else ifeq ($(TARGET_FOSS),1)
   BASS_LIBS :=
 else
   BASS_LIBS := lib/bass/libbass.so lib/bass/libbass_fx.so
@@ -1028,7 +1032,7 @@ else ifeq ($(TARGET_RPI),1)
   else
     LDFLAGS += -Llib/lua/linux -l:liblua53-arm.a
   endif
-else ifeq ($(TARGET_ANDROID),1)
+else ifeq ($(TARGET_FOSS),1)
   LDFLAGS += -L$(LIBLUA_DIR)/src -l:liblua.a
 else
   LDFLAGS += -Llib/lua/linux -l:liblua53.a
@@ -1048,8 +1052,7 @@ else
   else
     ifeq ($(TARGET_RPI),1)
       LDFLAGS += -lbass -lbass_fx -Wl,-rpath . -Wl,-rpath lib/bass/arm
-    else ifeq ($(TARGET_ANDROID),1)
-    else
+    else ifeq ($(TARGET_FOSS),0)
       LDFLAGS += -lbass -lbass_fx -Wl,-rpath . -Wl,-rpath lib/bass
     endif
   endif
@@ -1111,7 +1114,7 @@ endif
   CFLAGS += -DNODRAWINGDISTANCE
 #endif
 
-ifeq ($(TARGET_ANDROID),0)
+ifeq ($(TARGET_FOSS),0)
   CC_CHECK_CFLAGS += -DHAVE_BASS
   CFLAGS += -DHAVE_BASS
 endif
