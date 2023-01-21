@@ -180,15 +180,23 @@ static void controller_sdl_read(OSContPad *pad) {
     }
 
 #ifdef BETTERCAMERA
+// something about the way this is causes SDL2 to actually lose input events on X11.
+// so, when touch controls are enabled, I force absolute mouse mode to work around touchup
+// events being lost when the game resumes from pause, which caused buttons to get
+// stuck.
+#ifndef TOUCH_CONTROLS
     if (!gDjuiHudLockMouse) {
         if (newcam_mouse == 1 && (!is_game_paused() || sCurrPlayMode != 2) && !gDjuiInMainMenu) {
             SDL_SetRelativeMouseMode(SDL_TRUE);
             ignore_lock = true;
         } else {
+#endif
             SDL_SetRelativeMouseMode(SDL_FALSE);
+#ifndef TOUCH_CONTROLS
             ignore_lock = false;
         }
     }
+#endif
 
     u32 mouse = SDL_GetRelativeMouseState(&mouse_x, &mouse_y);
 
@@ -202,8 +210,9 @@ static void controller_sdl_read(OSContPad *pad) {
     mouse_buttons = mouse;
 #endif
     if (!ignore_lock && (!is_game_paused() || sCurrPlayMode != 2) && !gDjuiInMainMenu) {
+#ifndef TOUCH_CONTROLS
         SDL_SetRelativeMouseMode(gDjuiHudLockMouse ? SDL_TRUE : SDL_FALSE);
-
+#endif
 #ifndef BETTERCAMERA
         u32 mouse = SDL_GetRelativeMouseState(&mouse_x, &mouse_y);
 
