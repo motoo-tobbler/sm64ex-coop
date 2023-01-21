@@ -1,6 +1,7 @@
 #ifndef CONTROLLER_TOUCHSCREEN_H
 #define CONTROLLER_TOUCHSCREEN_H
 #ifdef TOUCH_CONTROLS
+#include "pc/configfile.h"
 
 #define HIDE_POS -1000
 
@@ -93,7 +94,8 @@ extern struct ControllerAPI controller_touchscreen;
 extern s16 touch_x;
 extern s16 touch_y;
 
-extern bool gInTouchConfig, configSlideTouch, configElementSnap;
+extern bool gInTouchConfig, gGamepadActive,
+            configAutohideTouch, configSlideTouch, configElementSnap;
 
 struct TouchEvent {
     // Note to VDavid003: In Xorg, touchID became large!

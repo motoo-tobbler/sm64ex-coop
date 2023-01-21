@@ -204,9 +204,9 @@ static void gfx_sdl_fingerup(SDL_TouchFingerEvent sdl_event) {
 #endif
 
 static void gfx_sdl_handle_events(void) {
-// disable on Android for now, this activates
-// the Android keyboard so it will need to be
-// moved to a conditional somewhere
+// This causes Android to show the onscreen keyboard
+// Haven't needed this instance elsewhere on Android yet
+// gfx_sdl_start_text_input() gets called when needed
 #ifndef __ANDROID__
     SDL_StartTextInput();
 #endif

@@ -326,6 +326,7 @@ static const struct ConfigOption options[] = {
     {.name = "touch_dright_y",           .type = CONFIG_TYPE_BIND, .uintValue = configControlElements[TOUCH_DRIGHT].y},
     {.name = "touch_dright_size",        .type = CONFIG_TYPE_BIND, .uintValue = configControlElements[TOUCH_DRIGHT].size},
     {.name = "touch_dright_anchor",      .type = CONFIG_TYPE_BIND, .uintValue = configControlElements[TOUCH_DRIGHT].anchor},
+    {.name = "touch_autohide",           .type = CONFIG_TYPE_BOOL, .boolValue = &configAutohideTouch},
     {.name = "touch_slide",              .type = CONFIG_TYPE_BOOL, .boolValue = &configSlideTouch},
     {.name = "touch_snap",               .type = CONFIG_TYPE_BOOL, .boolValue = &configElementSnap},
 #endif

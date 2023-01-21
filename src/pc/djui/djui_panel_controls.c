@@ -14,7 +14,7 @@ void djui_panel_controls_value_change(UNUSED struct DjuiBase* caller) {
 void djui_panel_controls_create(struct DjuiBase* caller) {
     f32 bodyHeight = 16 * 6 + 32 * 2 + 64 * 4;
 #ifdef TOUCH_CONTROLS
-    bodyHeight += 16 * 2 + 64 + 32;
+    bodyHeight += 16 * 3 + 32 * 2 + 64;
 #endif
 
     struct DjuiBase* defaultBase = NULL;
@@ -37,6 +37,10 @@ void djui_panel_controls_create(struct DjuiBase* caller) {
         djui_base_set_size_type(&button3->base, DJUI_SVT_RELATIVE, DJUI_SVT_ABSOLUTE);
         djui_base_set_size(&button3->base, 1.0f, 64);
         djui_interactable_hook_click(&button3->base, djui_panel_shutdown_touchconfig);
+
+        struct DjuiCheckbox* checkboxAH = djui_checkbox_create(&body->base, "Autohide Touch Controls", &configAutohideTouch);
+        djui_base_set_size_type(&checkboxAH->base, DJUI_SVT_RELATIVE, DJUI_SVT_ABSOLUTE);
+        djui_base_set_size(&checkboxAH->base, 1.0f, 32);
 
         struct DjuiCheckbox* checkboxST = djui_checkbox_create(&body->base, "Slide Touch", &configSlideTouch);
         djui_base_set_size_type(&checkboxST->base, DJUI_SVT_RELATIVE, DJUI_SVT_ABSOLUTE);

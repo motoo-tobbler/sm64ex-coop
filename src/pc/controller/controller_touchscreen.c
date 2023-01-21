@@ -32,6 +32,8 @@ static u32 touch_cam_timer = 0;
 enum ConfigControlElementIndex lastElementGrabbed = TOUCH_MOUSE;
 u32 double_tap_timer = 0, double_tap_timer_last = 0;
 bool gInTouchConfig = false,
+     gGamepadActive = false,
+     configAutohideTouch = false,
      configSlideTouch = true, 
      configElementSnap = false;
 
@@ -162,6 +164,7 @@ void move_touch_element(struct TouchEvent * event, enum ConfigControlElementInde
 }
 
 void touch_down(struct TouchEvent* event) {
+    gGamepadActive = false;
     struct Position pos;
     s32 size;
     // config-only elements
@@ -384,6 +387,7 @@ static void DrawSprite(s32 x, s32 y, int scaling) {
 }
 
 void render_touch_controls(void) {
+    if (gGamepadActive && configAutohideTouch) return;
     Mtx *mtx;
 
     mtx = alloc_display_list(sizeof(*mtx));
@@ -527,7 +531,13 @@ static void touchscreen_read(OSContPad *pad) {
     }
 }
 
-static u32 touchscreen_rawkey(void) { //dunno what this does but I'll skip it for now
+// Used by other controller types for setting keybinds
+// Doesn't make a huge amount of sense for a touchscreen,
+// So instead I allow customizing all button positions in
+// an entirely separate construction, which is fine for now
+// until someone wants multiple copies of the same button,
+// at which point I will have to decide how to do that
+static u32 touchscreen_rawkey(void) { 
     return VK_INVALID;
 }
 
