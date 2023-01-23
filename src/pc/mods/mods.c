@@ -157,11 +157,16 @@ void mods_init(void) {
     // load mods
     if (hasUserPath) { mods_load(&gLocalMods, userModPath); }
 
+    // OpenBSD cannot load files relative to the path of the executable
+    // OpenBSD lead dev Theo de Raadt explaining that this will not be supported:
+    // https://marc.info/?l=openbsd-misc&m=144987773230417
+#ifndef __OpenBSD__
     const char* exePath = path_to_executable();
     char defaultModsPath[SYS_MAX_PATH] = { 0 };
     path_get_folder((char*)exePath, defaultModsPath);
     strncat(defaultModsPath, MOD_DIRECTORY, SYS_MAX_PATH-1);
     mods_load(&gLocalMods, defaultModsPath);
+#endif
 
     // sort
     mods_sort(&gLocalMods);

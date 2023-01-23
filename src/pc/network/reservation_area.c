@@ -1,7 +1,4 @@
 #include <stdio.h>
-#ifdef __ANDROID__
-#include <malloc.h>
-#endif
 #include "reservation_area.h"
 #include "network.h"
 #include "object_fields.h"
@@ -210,7 +207,7 @@ void reservation_area_change(struct NetworkPlayer* np) {
     // I'm having difficulty breaking on variable
     // watchpoints in my debugger so I haven't found
     // the root cause yet
-    ra = memalign(256, sizeof(struct ReservationArea));
+    posix_memalign(&ra, 256, sizeof(struct ReservationArea));
 #else
     ra = malloc(sizeof(struct ReservationArea));
 #endif

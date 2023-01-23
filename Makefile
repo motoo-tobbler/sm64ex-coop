@@ -30,11 +30,14 @@ TARGET_N64 = 0
 # Build and optimize for Raspberry Pi(s)
 TARGET_RPI ?= 0
 
+# Disable linking to BASS and enable building Lua from source
+TARGET_FOSS ?= 1
+
 # Build for Android
 TARGET_ANDROID ?= 0
 
-# Disable linking to BASS and enable building Lua from source
-TARGET_FOSS ?= 1
+# Build for BSD
+TARGET_BSD ?= 0
 
 # Makeflag to enable OSX fixes
 OSX_BUILD ?= 0
@@ -144,9 +147,14 @@ ifeq ($(HOST_OS),Windows)
   WINDOWS_BUILD := 1
 endif
 
-# Attempt to detect termux android build
+# Attempt to detect Termux Android build
 ifneq ($(shell which termux-setup-storage),)
   TARGET_ANDROID := 1
+endif
+
+# Attempt to detect BSD
+ifneq ($(shell uname -s | grep BSD),)
+  TARGET_BSD := 1
 endif
 
 # MXE overrides
@@ -452,6 +460,12 @@ TOOLS_DIR := tools
 
 LIBLUA_DIR := lib/src/lua
 
+ifeq ($(TARGET_BSD),1)
+  LUA_PLATFORM := bsd
+else
+  LUA_PLATFORM := linux
+endif
+
 ZLIB_DIR := lib/src/zlib
 
 # (This is a bit hacky, but a lot of rules implicitly depend
@@ -483,7 +497,7 @@ ifeq ($(filter clean distclean print-%,$(MAKECMDGOALS)),)
 
   # Make liblua
   ifeq ($(TARGET_FOSS),1)
-    DUMMY != $(MAKE) -C $(LIBLUA_DIR) linux >&2 || echo FAIL
+    DUMMY != $(MAKE) -C $(LIBLUA_DIR) $(LUA_PLATFORM) >&2 || echo FAIL
     ifeq ($(DUMMY),FAIL)
       $(error Failed to build lua)
     endif
@@ -767,14 +781,6 @@ else ifeq ($(OSX_BUILD),1)
   CPP := cpp-9
   OBJDUMP := i686-w64-mingw32-objdump
   OBJCOPY := i686-w64-mingw32-objcopy
-else ifeq ($(TARGET_ANDROID),1) # Termux has clang
-  ifneq ($(shell which termux-setup-storage),)
-    CPP      := clang
-  else
-    CPP      := cpp
-  endif
-  OBJCOPY := $(CROSS)objcopy
-  OBJDUMP := $(CROSS)objdump
 else ifeq ($(TARGET_N64),0) # Linux & other builds
   CPP := $(CROSS)cpp
   OBJCOPY := $(CROSS)objcopy
@@ -841,7 +847,7 @@ SDLCONFIG := $(CROSS)sdl2-config
 BACKEND_CFLAGS := -DRAPI_$(RENDER_API)=1 -DWAPI_$(WINDOW_API)=1 -DAAPI_$(AUDIO_API)=1
 # can have multiple controller APIs
 BACKEND_CFLAGS += $(foreach capi,$(CONTROLLER_API),-DCAPI_$(capi)=1)
-BACKEND_LDFLAG0S :=
+BACKEND_LDFLAGS :=
 
 SDL1_USED := 0
 SDL2_USED := 0
@@ -864,9 +870,12 @@ else ifeq ($(findstring SDL,$(WINDOW_API)),SDL)
   else ifeq ($(OSX_BUILD),1)
     BACKEND_LDFLAGS += -framework OpenGL `pkg-config --libs glew`
     EXTRA_CPP_FLAGS += -stdlib=libc++ -std=c++0x
+  else ifeq ($(TARGET_BSD),1)
+    BACKEND_CFLAGS += $(shell pkg-config gl --cflags)
+    BACKEND_LDFLAGS += $(shell pkg-config gl --libs)
   else
     BACKEND_LDFLAGS += -lGL
-   endif
+  endif
 endif
 
 ifneq (,$(findstring SDL2,$(AUDIO_API)$(WINDOW_API)$(CONTROLLER_API)))
@@ -898,6 +907,9 @@ ifneq ($(SDL1_USED)$(SDL2_USED),00)
     # on OSX at least the homebrew version of sdl-config gives include path as `.../include/SDL2` instead of `.../include`
     OSX_PREFIX := $(shell $(SDLCONFIG) --prefix)
     BACKEND_CFLAGS += -I$(OSX_PREFIX)/include $(shell $(SDLCONFIG) --cflags)
+  else ifeq ($(TARGET_BSD),1)
+    BACKEND_CFLAGS += $(shell pkg-config sdl2 --cflags)
+    BACKEND_LDFLAGS += $(shell pkg-config sdl2 --libs)
   else
     BACKEND_CFLAGS += $(shell $(SDLCONFIG) --cflags)
     ifeq ($(WINDOWS_BUILD),1)
@@ -984,6 +996,8 @@ else ifeq ($(TARGET_ANDROID),1)
   CFLAGS  += -fPIC
   LDFLAGS := -L ./platform/android/android/lib/$(ARCH_APK)/ -lm $(BACKEND_LDFLAGS) -shared
 else ifeq ($(OSX_BUILD),1)
+  LDFLAGS := -lm $(BACKEND_LDFLAGS) -lpthread
+else ifeq ($(TARGET_BSD),1)
   LDFLAGS := -lm $(BACKEND_LDFLAGS) -lpthread
 else
   LDFLAGS := $(BITS) -march=$(TARGET_ARCH) -lm $(BACKEND_LDFLAGS) -lpthread -ldl
