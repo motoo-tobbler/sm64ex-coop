@@ -126,5 +126,19 @@ cp build/us_pc/sm64.us.apk /storage/emulated/0
 21. To play with others online, tell them to follow this guide first, then either port forward or follow the [VPN guide](README_vpn.md).
 
 > To install Lua mods, put them in `/storage/emulated/0/com.owokitty.sm64excoop/user/mods`, or `/storage/emulated/0/Android/data/com.owokitty.sm64excoop/files/user/mods` if you don't accept the storage permission request.
+* Default mods:
+```bash
+cp -r build/us_pc/mods/* /storage/emulated/0/com.owokitty.sm64excoop/user/mods/
+```
+* Example:
+```bash
+unzip /storage/emulated/0/twisted-adventures.zip -d /storage/emulated/0/com.owokitty.sm64excoop/user/mods/
+```
 
 > To install DynOS packs, put them in `/storage/emulated/0/com.owokitty.sm64excoop/dynos/packs`, or `/storage/emulated/0/Android/data/com.owokitty.sm64excoop/files/dynos/packs` if you don't accept the storage permission request. Texture packs' `gfx` folders also work here as long as they are not too intensive. Create the folder if it doesn't exist already.
+* Example:
+```bash
+pkg install p7zip
+mkdir -p /storage/emulated/0/com.owokitty.sm64excoop/dynos/packs/
+7z x -o/storage/emulated/0/com.owokitty.sm64excoop/dynos/packs/ /storage/emulated/0/Render96_Chars.rar
+```
