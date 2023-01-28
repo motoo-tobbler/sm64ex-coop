@@ -46,9 +46,9 @@ What doesn't work:
 
 ❌ BASS audio
 
-## How to Play on any open-source UNIX-like OS that has X11
+## How to Play on any open-source UNIX-like OS
 
-This repository also contains changes meant to make porting sm64ex-coop to open-source UNIX-like operating systems easier (the normal `sm64ex-coop` only supports GNU/Linux and MacOS at the exclusion of others). On many of them, setting up the dependencies (a C and C++ preprocessor and compiler, GNU Make, binutils, python 3, SDL2, glew, an OpenGL graphics driver, and an X11-compatible display server) can take many steps that vary dramatically, so I've decided not to make a complete walkthrough for every single one like I have for Android. Once you have all of those configured just right, though, you'll be able to compile and play this way, and hopefully you'll only need to make minor adjustments to the `Makefile` to detect the dependencies the way your OS needs it to.
+This repository also contains changes meant to make porting sm64ex-coop to open-source UNIX-like operating systems easier (the normal `sm64ex-coop` only supports GNU/Linux and MacOS at the exclusion of others). On many of them, setting up the dependencies (a C and C++ preprocessor and compiler, GNU Make, binutils, Python 3, SDL2, GLEW, an OpenGL or OpenGL ES graphics driver, and an X11-compatible display server) can take many steps that vary dramatically, so I've decided not to make a complete walkthrough for every single one like I have for Android. Once you have all of those configured just right, though, you'll be able to compile and play this way, and hopefully you'll only need to make minor adjustments to the `Makefile` to detect the dependencies the way your OS needs it to.
 
 ```
 git clone https://github.com/robertkirkman/sm64ex-coop.git
