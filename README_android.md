@@ -97,7 +97,7 @@ cp /storage/emulated/0/baserom.us.z64 sm64ex-coop/baserom.us.z64
 cd sm64ex-coop
 ```
 
-18. Build this `sm64ex-coop` fork. This will take a while. When it is finished, copy the `.apk` to `/storage/emulated/0`:
+18. Build this `sm64ex-coop` fork. This will take a while. **IMPORTANT: When it is finished, copy the `.apk` to `/storage/emulated/0`**:
 
 > If you get a strange error like `make[1]: *** read jobs pipe: Try again.  Stop.`, run `make clean`, then try the build again with `make` instead of `make -j$(nproc)`.
 
