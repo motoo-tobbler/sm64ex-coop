@@ -664,6 +664,24 @@ extern ALIGNED8 const Texture texture_hud_char_wario_head[];
 extern ALIGNED8 const Texture texture_hud_char_star[];
 extern ALIGNED8 const Texture texture_hud_char_decimal_point[];
 extern ALIGNED8 const Texture texture_hud_char_beta_key[];
+#ifdef TOUCH_CONTROLS
+extern ALIGNED8 const Texture texture_hud_chat[];
+extern ALIGNED8 const Texture texture_hud_cup[];
+extern ALIGNED8 const Texture texture_hud_cdown[];
+extern ALIGNED8 const Texture texture_hud_cleft[];
+extern ALIGNED8 const Texture texture_hud_cright[];
+extern ALIGNED8 const Texture texture_hud_snap[];
+extern ALIGNED8 const Texture texture_hud_check[];
+extern ALIGNED8 const Texture texture_hud_cross[];
+extern ALIGNED8 const Texture texture_hud_reset[];
+extern ALIGNED8 const Texture texture_hud_trash[];
+extern ALIGNED8 const Texture texture_hud_up[];
+extern ALIGNED8 const Texture texture_hud_down[];
+extern ALIGNED8 const Texture texture_hud_left[];
+extern ALIGNED8 const Texture texture_hud_right[];
+extern ALIGNED8 const Texture texture_button[];
+extern ALIGNED8 const Texture texture_button_dark[];
+#endif
 extern ALIGNED8 const Texture texture_credits_char_3[];
 extern ALIGNED8 const Texture texture_credits_char_4[];
 extern ALIGNED8 const Texture texture_credits_char_6[];

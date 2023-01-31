@@ -90,8 +90,8 @@ static struct ControlElement ControlConfigElements[CONTROL_CONFIG_ELEMENT_COUNT]
 [TOUCH_SNAP] =       {.type = Button, .character = HUD_SNAP,     .buttonID = SNAP_BUTTON},
 };
 
-static int ControlElementsLength = sizeof(ControlElements)/sizeof(struct ControlElement);
-static int ControlConfigElementsLength = sizeof(ControlConfigElements)/sizeof(struct ControlElement);
+static u32 ControlElementsLength = sizeof(ControlElements)/sizeof(struct ControlElement);
+static u32 ControlConfigElementsLength = sizeof(ControlConfigElements)/sizeof(struct ControlElement);
 
 bool exit_control_config() {
     gInTouchConfig = false;
@@ -169,7 +169,7 @@ void touch_down(struct TouchEvent* event) {
     s32 size;
     // config-only elements
     if (gInTouchConfig) {
-        for(int i = 0; i < ControlConfigElementsLength; i++) {
+        for(u32 i = 0; i < ControlConfigElementsLength; i++) {
             pos = get_pos(&configControlConfigElements[i], 0);
             if (pos.y == HIDE_POS) continue;
             size = configControlConfigElements[i].size[0];
@@ -181,7 +181,7 @@ void touch_down(struct TouchEvent* event) {
         }
     }
     // Everything else
-    for(int i = 0; i < ControlElementsLength; i++) {
+    for(u32 i = 0; i < ControlElementsLength; i++) {
         if (ControlElements[i].touchID == 0) {
             pos = get_pos(&configControlElements[i], 0);
             if (pos.y == HIDE_POS) continue;
@@ -351,11 +351,11 @@ void touch_up(struct TouchEvent* event) {
     }
 }
 
-ALIGNED8 static const u8 texture_button[] = {
+ALIGNED8 const u8 texture_button[] = {
 #include "textures/touchcontrols/touch_button.rgba16.inc.c"
 };
 
-ALIGNED8 static const u8 texture_button_dark[] = {
+ALIGNED8 const u8 texture_button_dark[] = {
 #include "textures/touchcontrols/touch_button_dark.rgba16.inc.c"
 };
 
@@ -404,7 +404,7 @@ void render_touch_controls(void) {
     struct Position pos;
     s32 size;
     // All normal elements
-    for (int i = 0; i < ControlElementsLength; i++) {
+    for (u32 i = 0; i < ControlElementsLength; i++) {
         pos = get_pos(&configControlElements[i], 0);
         if (pos.y == HIDE_POS) continue;
         size = configControlElements[i].size[0];
@@ -432,7 +432,7 @@ void render_touch_controls(void) {
     }
     // Config-only elements
     if (gInTouchConfig) {
-        for (int i = 0; i < ControlConfigElementsLength; i++) {
+        for (u32 i = 0; i < ControlConfigElementsLength; i++) {
             pos = get_pos(&configControlConfigElements[i], 0);
             if (pos.y == HIDE_POS) continue;
             size = configControlConfigElements[i].size[0];
@@ -453,13 +453,13 @@ void render_touch_controls(void) {
 }
 
 static void touchscreen_init(void) {
-    for (int i = 0; i < ControlConfigElementsLength; i++) {
+    for (u32 i = 0; i < ControlConfigElementsLength; i++) {
         ControlConfigElements[i].touchID = 0;
         ControlConfigElements[i].joyX = 0;
         ControlConfigElements[i].joyY = 0;
         ControlConfigElements[i].slideTouch = 0;
     }
-    for (int i = 0; i < ControlElementsLength; i++) {
+    for (u32 i = 0; i < ControlElementsLength; i++) {
         ControlElements[i].touchID = 0;
         ControlElements[i].joyX = 0;
         ControlElements[i].joyY = 0;
@@ -506,7 +506,7 @@ static void touchscreen_read(OSContPad *pad) {
     }
     // normal use
     else {
-        for(int i = 0; i < ControlElementsLength; i++) {
+        for(u32 i = 0; i < ControlElementsLength; i++) {
             pos = get_pos(&configControlElements[i], 0);
             size = configControlElements[i].size[0];
             if (pos.y == HIDE_POS) continue;
