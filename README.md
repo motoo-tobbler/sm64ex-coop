@@ -58,7 +58,7 @@ TOUCH_CONTROLS=1 make -j$(nproc)
 build/us_pc/sm64.us.f3dex2e
 ```
 
-To get you started, I've confirmed my fork to work on the following operating systems (as well as GNU/Linux), and have commited initial changes for them:
+To get you started, I've confirmed my fork to work on the following operating systems (as well as GNU/Linux), and have committed initial changes for them:
 
 ✅ postmarketOS
 
