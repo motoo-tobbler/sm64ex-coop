@@ -18,7 +18,7 @@ Recording showcasing several mods:
 
 [olaiabuttons.webm](https://user-images.githubusercontent.com/31490854/215781008-f83f9659-1ea2-4fbb-bf8d-43a0e0c6a1f6.webm)
 
-* [Render96 models and textures](https://github.com/Render96/Render96ex) (SonicDark The Angel ✪🇨🇱#5827's colored version)
+* [Render96 models and textures](https://github.com/Render96/Render96ex) ([SonicDark The Angel ✪🇨🇱#5827's colored version](https://sm64ex-coopmods.com/render96-characters/))
 
 * [Sharen's Details+ v1.0](https://sm64ex-coopmods.com/sharens-movement-tweaks/)
 
