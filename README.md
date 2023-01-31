@@ -14,6 +14,16 @@ Recording showcasing new touch controls features:
 
 [sm64ex-coop-android.webm](https://user-images.githubusercontent.com/31490854/213303280-b4a160a6-f711-4497-b9e1-d463546048e1.webm)
 
+Recording showcasing several mods:
+
+[olaiabuttons.webm](https://user-images.githubusercontent.com/31490854/215781008-f83f9659-1ea2-4fbb-bf8d-43a0e0c6a1f6.webm)
+
+* [Render96 models and textures](https://github.com/Render96/Render96ex) (SonicDark The Angel ✪🇨🇱#5827's colored version)
+
+* [Sharen's Details+ v1.0](https://sm64ex-coopmods.com/sharens-movement-tweaks/)
+
+* [JustOlaia's HD touchscreen button textures](https://github.com/JustOlaia/sm64ex-coop-apk/tree/coop/textures/touchcontrols)
+
 All custom icons by **xLuigiGamerx#6999**!
 
 What works:
