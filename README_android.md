@@ -142,3 +142,11 @@ pkg install p7zip
 mkdir -p /storage/emulated/0/com.owokitty.sm64excoop/dynos/packs/
 7z x -o/storage/emulated/0/com.owokitty.sm64excoop/dynos/packs/ /storage/emulated/0/Render96_Chars.rar
 ```
+
+* [JustOlaia/sm64ex-coop-apk](https://github.com/JustOlaia/sm64ex-coop-apk)'s HD touchscreen button textures:
+```bash
+mkdir -p /storage/emulated/0/com.owokitty.sm64excoop/dynos/packs/gfx/textures/touchcontrols/
+cd /storage/emulated/0/com.owokitty.sm64excoop/dynos/packs/gfx/textures/touchcontrols/
+wget https://raw.githubusercontent.com/JustOlaia/sm64ex-coop-apk/coop/textures/touchcontrols/touch_button.rgba16.png
+wget https://raw.githubusercontent.com/JustOlaia/sm64ex-coop-apk/coop/textures/touchcontrols/touch_button_dark.rgba16.png
+```
