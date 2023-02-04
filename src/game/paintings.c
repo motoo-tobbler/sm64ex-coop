@@ -880,24 +880,24 @@ void painting_update_floors(struct Painting *painting) {
         \* and sets a bitfield accordingly.                                               */
 
         // check if Mario's current floor is one of the special floors
-        if (floorType == paintingId * 3 + SURFACE_PAINTING_WOBBLE_A6) {
-            rippleLeft = RIPPLE_LEFT;
-        }
-        if (floorType == paintingId * 3 + SURFACE_PAINTING_WOBBLE_A7) {
-            rippleMiddle = RIPPLE_MIDDLE;
-        }
-        if (floorType == paintingId * 3 + SURFACE_PAINTING_WOBBLE_A8) {
-            rippleRight = RIPPLE_RIGHT;
-        }
-        if (floorType == paintingId * 3 + SURFACE_PAINTING_WARP_D3) {
-            enterLeft = ENTER_LEFT;
-        }
-        if (floorType == paintingId * 3 + SURFACE_PAINTING_WARP_D4) {
-            enterMiddle = ENTER_MIDDLE;
-        }
-        if (floorType == paintingId * 3 + SURFACE_PAINTING_WARP_D5) {
-            enterRight = ENTER_RIGHT;
-        }
+        // if (floorType == paintingId * 3 + SURFACE_PAINTING_WOBBLE_A6) {
+        //     rippleLeft = RIPPLE_LEFT;
+        // }
+        // if (floorType == paintingId * 3 + SURFACE_PAINTING_WOBBLE_A7) {
+        //     rippleMiddle = RIPPLE_MIDDLE;
+        // }
+        // if (floorType == paintingId * 3 + SURFACE_PAINTING_WOBBLE_A8) {
+        //     rippleRight = RIPPLE_RIGHT;
+        // }
+        // if (floorType == paintingId * 3 + SURFACE_PAINTING_WARP_D3) {
+        //     enterLeft = ENTER_LEFT;
+        // }
+        // if (floorType == paintingId * 3 + SURFACE_PAINTING_WARP_D4) {
+        //     enterMiddle = ENTER_MIDDLE;
+        // }
+        // if (floorType == paintingId * 3 + SURFACE_PAINTING_WARP_D5) {
+        //     enterRight = ENTER_RIGHT;
+        // }
 
 
         painting->ripples.lastFloors[i] = painting->ripples.currFloors[i];

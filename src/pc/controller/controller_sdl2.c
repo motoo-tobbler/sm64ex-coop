@@ -330,13 +330,31 @@ void controller_sdl_read_mouse_window(void) {
 }
 
 static void controller_sdl_rumble_play(f32 strength, f32 length) {
+#ifdef __ANDROID__
+    if (sdl_cntrl) {
+        // technique copied from Super Tux Kart, this is an attempt to prefer activating the motor 
+        // inside the external gamepad instead of activating the motor inside the android device
+        u16 scaled_strength = strength * pow(2, 16);
+        s32 ret = SDL_GameControllerRumble(sdl_cntrl, scaled_strength, scaled_strength, (u32)(length * 1000.0f));
+        if (ret == -1 && sdl_haptic)
+            SDL_HapticRumblePlay(sdl_haptic, strength, (u32)(length * 1000.0f));
+    }
+#else
     if (sdl_haptic)
         SDL_HapticRumblePlay(sdl_haptic, strength, (u32)(length * 1000.0f));
+#endif    
 }
 
 static void controller_sdl_rumble_stop(void) {
+#ifdef __ANDROID__
+    if (sdl_cntrl) {
+        SDL_GameControllerRumble(sdl_cntrl, 0, 0, 0);
+        if (sdl_haptic) SDL_HapticRumbleStop(sdl_haptic);
+    }
+#else
     if (sdl_haptic)
         SDL_HapticRumbleStop(sdl_haptic);
+#endif
 }
 
 static u32 controller_sdl_rawkey(void) {

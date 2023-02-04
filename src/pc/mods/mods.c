@@ -160,7 +160,9 @@ void mods_init(void) {
     // OpenBSD cannot load files relative to the path of the executable
     // OpenBSD lead dev Theo de Raadt explaining that this will not be supported:
     // https://marc.info/?l=openbsd-misc&m=144987773230417
-#ifndef __OpenBSD__
+    // oh and Android doesn't permit this without root but on Android calling this
+    // ends up producing a handled error instead of crashing like on OpenBSD
+#if !defined(__OpenBSD__) && !defined(__ANDROID__)
     const char* exePath = path_to_executable();
     char defaultModsPath[SYS_MAX_PATH] = { 0 };
     path_get_folder((char*)exePath, defaultModsPath);
