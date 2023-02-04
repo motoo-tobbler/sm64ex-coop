@@ -48,9 +48,9 @@ What doesn't work:
 
 ❌ Crash when "skip intro cutscene" option is used on some devices
 
-❌ Inconsistent crashes in Peach's Castle on some devices
-
 ❌ Occasional crash when loading HD texture packs - try restarting app
+
+❌ Painting rippling
 
 ❌ Discord
 
