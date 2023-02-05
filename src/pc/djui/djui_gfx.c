@@ -27,17 +27,17 @@ const Gfx dl_djui_simple_rect[] = {
 f32 djui_gfx_get_scale(void) {
     u32 windowWidth, windowHeight;
     wm_api->get_dimensions(&windowWidth, &windowHeight);
+#ifdef TOUCH_CONTROLS
+    return windowHeight / 720.0f;
+#else
     if (windowHeight < 720 - 64) {
         return 0.5f;
-#ifdef TOUCH_CONTROLS
-    } else if (windowHeight < 1080 + 64) {
-#else
     } else if (windowHeight < 1440 + 64) {
-#endif
         return 1.0f;
     } else {
         return 2.0f;
     }
+#endif
 }
 /////////////////////////////////////////////
 
