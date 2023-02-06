@@ -162,7 +162,9 @@ void mods_init(void) {
     // https://marc.info/?l=openbsd-misc&m=144987773230417
     // oh and Android doesn't permit this without root but on Android calling this
     // ends up producing a handled error instead of crashing like on OpenBSD
-#if !defined(__OpenBSD__) && !defined(__ANDROID__)
+    // FreeBSD can only do this if /proc is mounted, which is not by default:
+    // https://stackoverflow.com/a/1024937/11708026
+#if !defined(__FreeBSD__) && !defined(__OpenBSD__) && !defined(__ANDROID__)
     const char* exePath = path_to_executable();
     char defaultModsPath[SYS_MAX_PATH] = { 0 };
     path_get_folder((char*)exePath, defaultModsPath);
