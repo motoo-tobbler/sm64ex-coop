@@ -72,9 +72,11 @@ To get you started, I've confirmed my fork to work on the following operating sy
 
 ✅ postmarketOS
 
+✅ FreeBSD
+
 ✅ OpenBSD
 
-There are some bugs when running on them, but I've fixed just enough to get `sm64ex-coop` to compile, launch and host servers with mods in a playable state on them. I strongly suspect that if your device has a non-`amd64` architecture and you find bugs, you'll probably want to look through my "`__ANDROID__`" `#ifdef`s in the code and check whether the code I've placed in them turns out to be architecture-related rather than Android-related.
+There are some bugs when running on them, but I've fixed just enough to get `sm64ex-coop` to compile, launch and host servers with mods in a playable state on them. On OpenBSD and FreeBSD, to build, I install `pkg-config` and temporarily symlink `make` to `gmake`, `gcc` to `clang`, `g++` to `clang++`, and `cpp` to `clang-cpp`. I strongly suspect that if your device has a non-`amd64` architecture and you find bugs, you'll probably want to look through my "`__ANDROID__`" `#ifdef`s in the code and check whether the code I've placed in them turns out to be architecture-related rather than Android-related.
 
 ## How to Play on Windows
 
