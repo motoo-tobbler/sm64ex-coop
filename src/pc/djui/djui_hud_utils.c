@@ -16,6 +16,9 @@
 #include "djui.h"
 #include "djui_hud_utils.h"
 #include "game/camera.h"
+#ifdef TOUCH_CONTROLS
+#include "pc/controller/controller_touchscreen.h"
+#endif
 
 
 static enum HudUtilsResolution sResolution = RESOLUTION_DJUI;
@@ -174,11 +177,19 @@ f32 djui_hud_get_mouse_y(void) {
 }
 
 f32 djui_hud_get_raw_mouse_x(void) {
+#ifdef TOUCH_CONTROLS
+    return touch_x;
+#else
     return mouse_x;
+#endif
 }
 
 f32 djui_hud_get_raw_mouse_y(void) {
+#ifdef TOUCH_CONTROLS
+    return touch_y;
+#else
     return mouse_y;
+#endif
 }
 
 void djui_hud_set_mouse_locked(bool locked) {
