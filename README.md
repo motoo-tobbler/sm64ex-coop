@@ -64,7 +64,7 @@ This repository also contains changes meant to make porting `sm64ex-coop` to ope
 git clone https://github.com/robertkirkman/sm64ex-coop.git
 cp /path/to/baserom.us.z64 sm64ex-coop/baserom.us.z64
 cd sm64ex-coop
-TOUCH_CONTROLS=1 make -j$(nproc)
+TOUCH_CONTROLS=1 make
 build/us_pc/sm64.us.f3dex2e
 ```
 
