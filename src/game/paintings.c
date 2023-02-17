@@ -870,9 +870,12 @@ void painting_update_floors(struct Painting *painting) {
         enterLeft = 0;
         enterMiddle = 0;
         enterRight = 0;
-        struct Surface* surface;
+        struct Surface* surface = NULL;
+        s16 floorType = 0;
         find_floor(m->marioObj->oPosX, m->marioObj->oPosY, m->marioObj->oPosZ, &surface);
-        s16 floorType = surface->type;
+        if (surface != NULL) {
+            floorType = surface->type;
+        }
 
         /* The area in front of every painting in the game (except HMC and CotMC, which   *\
         |* act a little differently) is made up of 3 special floor triangles with special *|
@@ -880,24 +883,24 @@ void painting_update_floors(struct Painting *painting) {
         \* and sets a bitfield accordingly.                                               */
 
         // check if Mario's current floor is one of the special floors
-        // if (floorType == paintingId * 3 + SURFACE_PAINTING_WOBBLE_A6) {
-        //     rippleLeft = RIPPLE_LEFT;
-        // }
-        // if (floorType == paintingId * 3 + SURFACE_PAINTING_WOBBLE_A7) {
-        //     rippleMiddle = RIPPLE_MIDDLE;
-        // }
-        // if (floorType == paintingId * 3 + SURFACE_PAINTING_WOBBLE_A8) {
-        //     rippleRight = RIPPLE_RIGHT;
-        // }
-        // if (floorType == paintingId * 3 + SURFACE_PAINTING_WARP_D3) {
-        //     enterLeft = ENTER_LEFT;
-        // }
-        // if (floorType == paintingId * 3 + SURFACE_PAINTING_WARP_D4) {
-        //     enterMiddle = ENTER_MIDDLE;
-        // }
-        // if (floorType == paintingId * 3 + SURFACE_PAINTING_WARP_D5) {
-        //     enterRight = ENTER_RIGHT;
-        // }
+        if (floorType == paintingId * 3 + SURFACE_PAINTING_WOBBLE_A6) {
+            rippleLeft = RIPPLE_LEFT;
+        }
+        if (floorType == paintingId * 3 + SURFACE_PAINTING_WOBBLE_A7) {
+            rippleMiddle = RIPPLE_MIDDLE;
+        }
+        if (floorType == paintingId * 3 + SURFACE_PAINTING_WOBBLE_A8) {
+            rippleRight = RIPPLE_RIGHT;
+        }
+        if (floorType == paintingId * 3 + SURFACE_PAINTING_WARP_D3) {
+            enterLeft = ENTER_LEFT;
+        }
+        if (floorType == paintingId * 3 + SURFACE_PAINTING_WARP_D4) {
+            enterMiddle = ENTER_MIDDLE;
+        }
+        if (floorType == paintingId * 3 + SURFACE_PAINTING_WARP_D5) {
+            enterRight = ENTER_RIGHT;
+        }
 
 
         painting->ripples.lastFloors[i] = painting->ripples.currFloors[i];
