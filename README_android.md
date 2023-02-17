@@ -128,25 +128,40 @@ cp build/us_pc/sm64.us.apk /storage/emulated/0
 > To install Lua mods, put them in `/storage/emulated/0/com.owokitty.sm64excoop/user/mods`, or `/storage/emulated/0/Android/data/com.owokitty.sm64excoop/files/user/mods` if you don't accept the storage permission request.
 * Default mods:
 ```bash
-cp -r build/us_pc/mods/* /storage/emulated/0/com.owokitty.sm64excoop/user/mods/
+cp -r ~/sm64ex-coop/mods/* /storage/emulated/0/com.owokitty.sm64excoop/user/mods/
 ```
-* Example:
+* Example: [Twisted Adventures](https://sm64ex-coopmods.com/super-mario-64-twisted-adventures/)
 ```bash
-unzip /storage/emulated/0/twisted-adventures.zip -d /storage/emulated/0/com.owokitty.sm64excoop/user/mods/
+wget https://sm64ex-coopmods.com/wp-content/uploads/2023/02/twisted-adventures.zip
+unzip twisted-adventures.zip -d /storage/emulated/0/com.owokitty.sm64excoop/user/mods/
 ```
 
 > To install DynOS packs, put them in `/storage/emulated/0/com.owokitty.sm64excoop/dynos/packs`, or `/storage/emulated/0/Android/data/com.owokitty.sm64excoop/files/dynos/packs` if you don't accept the storage permission request. Texture packs' `gfx` folders also work here as long as they are not too intensive. Create the folder if it doesn't exist already.
-* Example:
+* Example: [Render96 Characters Recolorable Version](https://sm64ex-coopmods.com/render96-characters/)
 ```bash
 pkg install p7zip
+wget https://sm64ex-coopmods.com/wp-content/uploads/2023/01/Render96_Chars.zip
 mkdir -p /storage/emulated/0/com.owokitty.sm64excoop/dynos/packs/
-7z x -o/storage/emulated/0/com.owokitty.sm64excoop/dynos/packs/ /storage/emulated/0/Render96_Chars.rar
+7z x -o/storage/emulated/0/com.owokitty.sm64excoop/dynos/packs/ Render96_Chars.zip
 ```
 
-* [JustOlaia/sm64ex-coop-apk](https://github.com/JustOlaia/sm64ex-coop-apk)'s HD touchscreen button textures:
+* Example: [Render96 HD Texture Pack](https://github.com/pokeheadroom/RENDER96-HD-TEXTURE-PACK/tree/sm64ex-and-others):
+```bash
+pkg install rsync
+mkdir -p /storage/emulated/0/com.owokitty.sm64excoop/dynos/packs
+git clone -b sm64ex-and-others https://github.com/pokeheadroom/RENDER96-HD-TEXTURE-PACK.git
+rsync -r RENDER96-HD-TEXTURE-PACK/gfx /storage/emulated/0/com.owokitty.sm64excoop/dynos/packs
+```
+
+* Example: [JustOlaia/sm64ex-coop-apk](https://github.com/JustOlaia/sm64ex-coop-apk)'s HD touchscreen button textures:
 ```bash
 mkdir -p /storage/emulated/0/com.owokitty.sm64excoop/dynos/packs/gfx/textures/touchcontrols/
 cd /storage/emulated/0/com.owokitty.sm64excoop/dynos/packs/gfx/textures/touchcontrols/
 wget https://raw.githubusercontent.com/JustOlaia/sm64ex-coop-apk/coop/textures/touchcontrols/touch_button.rgba16.png
 wget https://raw.githubusercontent.com/JustOlaia/sm64ex-coop-apk/coop/textures/touchcontrols/touch_button_dark.rgba16.png
+```
+
+> Sometimes, merging another texture pack into the same `gfx` folder after having already used it once will result in the newly added textures not loading. In this situation, delete all the `.tex` files to force them to be regenerated, then keep relaunching the app until all the textures load:
+```bash
+rm -rf /storage/emulated/0/com.owokitty.sm64excoop/dynos/packs/gfx/*.tex
 ```
