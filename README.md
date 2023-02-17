@@ -50,8 +50,6 @@ What doesn't work:
 
 ❌ Occasional crash when loading HD texture packs - try restarting app
 
-❌ Painting rippling
-
 ❌ Discord
 
 ❌ BASS audio
