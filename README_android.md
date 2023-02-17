@@ -130,14 +130,14 @@ cp build/us_pc/sm64.us.apk /storage/emulated/0
 ```bash
 cp -r ~/sm64ex-coop/mods/* /storage/emulated/0/com.owokitty.sm64excoop/user/mods/
 ```
-* Example: [Twisted Adventures](https://sm64ex-coopmods.com/super-mario-64-twisted-adventures/)
+* Example - [Twisted Adventures](https://sm64ex-coopmods.com/super-mario-64-twisted-adventures/):
 ```bash
 wget https://sm64ex-coopmods.com/wp-content/uploads/2023/02/twisted-adventures.zip
 unzip twisted-adventures.zip -d /storage/emulated/0/com.owokitty.sm64excoop/user/mods/
 ```
 
 > To install DynOS packs, put them in `/storage/emulated/0/com.owokitty.sm64excoop/dynos/packs`, or `/storage/emulated/0/Android/data/com.owokitty.sm64excoop/files/dynos/packs` if you don't accept the storage permission request. Texture packs' `gfx` folders also work here as long as they are not too intensive. Create the folder if it doesn't exist already.
-* Example: [Render96 Characters Recolorable Version](https://sm64ex-coopmods.com/render96-characters/)
+* Example - [Render96 Characters Recolorable Version](https://sm64ex-coopmods.com/render96-characters/):
 ```bash
 pkg install p7zip
 wget https://sm64ex-coopmods.com/wp-content/uploads/2023/01/Render96_Chars.zip
@@ -145,7 +145,7 @@ mkdir -p /storage/emulated/0/com.owokitty.sm64excoop/dynos/packs/
 7z x -o/storage/emulated/0/com.owokitty.sm64excoop/dynos/packs/ Render96_Chars.zip
 ```
 
-* Example: [Render96 HD Texture Pack](https://github.com/pokeheadroom/RENDER96-HD-TEXTURE-PACK/tree/sm64ex-and-others):
+* Example - [Render96 HD Texture Pack](https://github.com/pokeheadroom/RENDER96-HD-TEXTURE-PACK/tree/sm64ex-and-others):
 ```bash
 pkg install rsync
 mkdir -p /storage/emulated/0/com.owokitty.sm64excoop/dynos/packs
@@ -153,7 +153,7 @@ git clone -b sm64ex-and-others https://github.com/pokeheadroom/RENDER96-HD-TEXTU
 rsync -r RENDER96-HD-TEXTURE-PACK/gfx /storage/emulated/0/com.owokitty.sm64excoop/dynos/packs
 ```
 
-* Example: [JustOlaia/sm64ex-coop-apk](https://github.com/JustOlaia/sm64ex-coop-apk)'s HD touchscreen button textures:
+* Example - [JustOlaia/sm64ex-coop-apk](https://github.com/JustOlaia/sm64ex-coop-apk)'s HD touchscreen button textures:
 ```bash
 mkdir -p /storage/emulated/0/com.owokitty.sm64excoop/dynos/packs/gfx/textures/touchcontrols/
 cd /storage/emulated/0/com.owokitty.sm64excoop/dynos/packs/gfx/textures/touchcontrols/
