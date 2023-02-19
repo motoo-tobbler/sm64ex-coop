@@ -131,5 +131,7 @@ void touch_down(struct TouchEvent* event);
 void touch_motion(struct TouchEvent* event);
 void touch_up(struct TouchEvent* event);
 
+void render_touch_controls(void);
+
 #endif
 #endif

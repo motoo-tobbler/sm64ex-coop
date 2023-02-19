@@ -199,7 +199,7 @@ const char* path_to_executable(void) {
         LOG_ERROR("unable to retrieve absolute mac path!");
         return NULL;
     }
-#else
+#elif defined(__linux__)
     char procPath[SYS_MAX_PATH] = { 0 };
     snprintf(procPath, SYS_MAX_PATH-1, "/proc/%d/exe", getpid());
     s32 rc = readlink(procPath, exePath, SYS_MAX_PATH-1);
@@ -207,6 +207,16 @@ const char* path_to_executable(void) {
         LOG_ERROR("unable to retrieve absolute linux path!");
         return NULL;
     }
+#else
+    // OpenBSD cannot load files relative to the path of the executable
+    // OpenBSD lead dev Theo de Raadt explaining that this will not be supported:
+    // https://marc.info/?l=openbsd-misc&m=144987773230417
+    // oh and Android doesn't permit this without root but on Android calling this
+    // ends up producing a handled error instead of crashing like on OpenBSD
+    // FreeBSD can only do this if /proc is mounted, which is not by default:
+    // https://stackoverflow.com/a/1024937/11708026
+    LOG_ERROR("unable to retrieve absolute path - unsupported OS!");
+    return NULL;
 #endif
     return exePath;
 }

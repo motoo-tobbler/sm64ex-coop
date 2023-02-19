@@ -157,20 +157,13 @@ void mods_init(void) {
     // load mods
     if (hasUserPath) { mods_load(&gLocalMods, userModPath); }
 
-    // OpenBSD cannot load files relative to the path of the executable
-    // OpenBSD lead dev Theo de Raadt explaining that this will not be supported:
-    // https://marc.info/?l=openbsd-misc&m=144987773230417
-    // oh and Android doesn't permit this without root but on Android calling this
-    // ends up producing a handled error instead of crashing like on OpenBSD
-    // FreeBSD can only do this if /proc is mounted, which is not by default:
-    // https://stackoverflow.com/a/1024937/11708026
-#if !defined(__FreeBSD__) && !defined(__OpenBSD__) && !defined(__ANDROID__)
     const char* exePath = path_to_executable();
-    char defaultModsPath[SYS_MAX_PATH] = { 0 };
-    path_get_folder((char*)exePath, defaultModsPath);
-    strncat(defaultModsPath, MOD_DIRECTORY, SYS_MAX_PATH-1);
-    mods_load(&gLocalMods, defaultModsPath);
-#endif
+    if (exePath != NULL) {
+        char defaultModsPath[SYS_MAX_PATH] = { 0 };
+        path_get_folder((char*)exePath, defaultModsPath);
+        strncat(defaultModsPath, MOD_DIRECTORY, SYS_MAX_PATH-1);
+        mods_load(&gLocalMods, defaultModsPath);
+    }
 
     // sort
     mods_sort(&gLocalMods);

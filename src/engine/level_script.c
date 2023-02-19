@@ -28,6 +28,9 @@
 #include "src/pc/lua/utils/smlua_model_utils.h"
 #include "src/pc/lua/smlua.h"
 #include "src/pc/djui/djui.h"
+#ifdef TOUCH_CONTROLS
+#include "src/pc/controller/controller_touchscreen.h"
+#endif
 
 #define CMD_GET(type, offset) (*(type *) (CMD_PROCESS_OFFSET(offset) + (u8 *) sCurrentCmd))
 
@@ -1087,10 +1090,6 @@ static void (*LevelScriptJumpTable[])(void) = {
     /*41*/ level_cmd_load_model_from_geo_ext,
     /*42*/ level_cmd_jump_area_ext,
 };
-
-#ifdef TOUCH_CONTROLS
-extern void render_touch_controls(void);
-#endif
 
 struct LevelCommand *level_script_execute(struct LevelCommand *cmd) {
     sScriptStatus = SCRIPT_RUNNING;
