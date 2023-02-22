@@ -144,6 +144,7 @@ static u32 sBackwardKnockbackActions[][3] = {
 static u8 sDisplayingDoorText = FALSE;
 static u8 sJustTeleported = FALSE;
 u8 gPssSlideStarted = FALSE;
+extern u8 gLastCollectedStarOrKey;
 
 /**
  * Returns the type of cap Mario is wearing.
@@ -890,6 +891,12 @@ u32 interact_star_or_key(struct MarioState *m, UNUSED u32 interactType, struct O
     u8 stayInLevelCommon = !(gCurrLevelNum == LEVEL_BOWSER_1 || gCurrLevelNum == LEVEL_BOWSER_2 || gCurrLevelNum == LEVEL_BOWSER_3);
     if (stayInLevelCommon && gServerSettings.stayInLevelAfterStar) { noExit = TRUE; }
 
+    if (o->behavior == bhvBowserKey) {
+        gLastCollectedStarOrKey = 1;
+    } else {
+        gLastCollectedStarOrKey = 0;
+    }
+
     if (m->health >= 0x100) {
         mario_stop_riding_and_holding(m);
         queue_rumble_data_mario(m, 5, 80);
@@ -1336,7 +1343,11 @@ u8 passes_pvp_interaction_checks(struct MarioState* attacker, struct MarioState*
     isInCutscene = isInCutscene || (attacker->action == ACT_IN_CANNON) || (victim->action == ACT_IN_CANNON);
     u8 isAttackerInvulnerable = (attacker->action & ACT_FLAG_INVULNERABLE) || attacker->invincTimer != 0 || attacker->hurtCounter != 0;
     u8 isInvulnerable = (victim->action & ACT_FLAG_INVULNERABLE) || victim->invincTimer != 0 || victim->hurtCounter != 0 || isInCutscene;
-    u8 isIgnoredAttack = (attacker->action == ACT_JUMP || attacker->action == ACT_DOUBLE_JUMP || attacker->action == ACT_LONG_JUMP || attacker->action == ACT_SIDE_FLIP);
+    u8 isIgnoredAttack = (attacker->action == ACT_JUMP || attacker->action == ACT_DOUBLE_JUMP
+                          || attacker->action == ACT_LONG_JUMP || attacker->action == ACT_SIDE_FLIP
+                          || attacker->action == ACT_BACKFLIP || attacker->action == ACT_TRIPLE_JUMP
+                          || attacker->action == ACT_WALL_KICK_AIR || attacker->action == ACT_WATER_JUMP
+                          || attacker->action == ACT_STEEP_JUMP || attacker->action == ACT_HOLD_JUMP);
     u8 isVictimIntangible = (victim->action & ACT_FLAG_INTANGIBLE);
     if (victim->knockbackTimer > 0) {
         return false;
@@ -1975,17 +1986,17 @@ u32 interact_cap(struct MarioState *m, UNUSED u32 interactType, struct Object *o
         switch (capFlag) {
             case MARIO_VANISH_CAP:
                 capTime = gLevelValues.vanishCapDuration;
-                capMusic = SEQUENCE_ARGS(4, SEQ_EVENT_POWERUP);
+                capMusic = SEQUENCE_ARGS(4, gLevelValues.vanishCapSequence);
                 break;
 
             case MARIO_METAL_CAP:
                 capTime = gLevelValues.metalCapDuration;
-                capMusic = SEQUENCE_ARGS(4, SEQ_EVENT_METAL_CAP);
+                capMusic = SEQUENCE_ARGS(4, gLevelValues.metalCapSequence);
                 break;
 
             case MARIO_WING_CAP:
                 capTime = gLevelValues.wingCapDuration;
-                capMusic = SEQUENCE_ARGS(4, SEQ_EVENT_POWERUP);
+                capMusic = SEQUENCE_ARGS(4, gLevelValues.wingCapSequence);
                 break;
         }
 
@@ -2250,7 +2261,9 @@ void check_death_barrier(struct MarioState *m) {
 }
 
 void check_lava_boost(struct MarioState *m) {
-    if (m->action == ACT_BUBBLED || (Cheats.enabled && Cheats.godMode)) { return; }
+    bool allow = true;
+    smlua_call_event_hooks_mario_param_ret_bool(HOOK_ALLOW_HAZARD_SURFACE, m, &allow);
+    if (m->action == ACT_BUBBLED || (Cheats.enabled && Cheats.godMode) || (!allow)) { return; }
     if (!(m->action & ACT_FLAG_RIDING_SHELL) && m->pos[1] < m->floorHeight + 10.0f) {
         if (!(m->flags & MARIO_METAL_CAP)) {
             m->hurtCounter += (m->flags & MARIO_CAP_ON_HEAD) ? 12 : 18;
@@ -2262,6 +2275,7 @@ void check_lava_boost(struct MarioState *m) {
 }
 
 void pss_begin_slide(UNUSED struct MarioState *m) {
+    if (!m->visibleToEnemies) { return; }
     if (!(gHudDisplay.flags & HUD_DISPLAY_FLAG_TIMER)) {
         level_control_timer(TIMER_CONTROL_SHOW);
         level_control_timer(TIMER_CONTROL_START);

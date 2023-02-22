@@ -68,6 +68,9 @@ struct PacketPlayerData {
     u32 interactSyncID;
     u32 usedSyncID;
     u32 platformSyncID;
+
+    u8 levelSyncValid;
+    u8 areaSyncValid;
 };
 #pragma pack()
 
@@ -131,6 +134,10 @@ static void read_packet_data(struct PacketPlayerData* data, struct MarioState* m
     data->interactSyncID = interactSyncID;
     data->usedSyncID     = usedSyncID;
     data->platformSyncID = platformSyncID;
+
+    struct NetworkPlayer* np = &gNetworkPlayers[m->playerIndex];
+    data->areaSyncValid  = np->currAreaSyncValid;
+    data->levelSyncValid = np->currLevelSyncValid;
 }
 
 static void write_packet_data(struct PacketPlayerData* data, struct MarioState* m,
@@ -187,6 +194,12 @@ static void write_packet_data(struct PacketPlayerData* data, struct MarioState* 
     *interactSyncID = data->interactSyncID;
     *usedSyncID     = data->usedSyncID;
     *platformSyncID = data->platformSyncID;
+
+    if (gNetworkType != NT_SERVER) {
+        struct NetworkPlayer* np = &gNetworkPlayers[m->playerIndex];
+        np->currAreaSyncValid  = data->areaSyncValid;
+        np->currLevelSyncValid = data->levelSyncValid;
+    }
 }
 
 void network_send_player(u8 localIndex) {
@@ -379,6 +392,14 @@ void network_receive_player(struct Packet* p) {
             network_send_kick(np->localIndex, EKT_CLOSE_CONNECTION);
             network_player_disconnected(np->localIndex);
         }
+    }
+#else
+    if (m->action == ACT_DEBUG_FREE_MOVE && oldData.action != ACT_DEBUG_FREE_MOVE) {
+        char *playerColorString = network_get_player_text_color_string(np->localIndex);
+        char message[256];
+        snprintf(message, 256, "%s%s\\#dcdcdc\\ entered the debug free fly state", playerColorString, np->name);
+        djui_popup_create(message, 1);
+        LOG_INFO("%s entered the debug free fly state", np->name);
     }
 #endif
 }

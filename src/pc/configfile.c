@@ -139,18 +139,20 @@ unsigned int configPlayerModel                   = 0;
 unsigned int configMenuLevel                     = 0;
 bool         configMenuSound                     = false;
 bool         configMenuRandom                    = false;
-struct PlayerPalette configPlayerPalette         = {{{ 0x00, 0x00, 0xff }, { 0xff, 0x00, 0x00 }, { 0xff, 0xff, 0xff }, { 0x72, 0x1c, 0x0e }, { 0x73, 0x06, 0x00 }, { 0xfe, 0xc1, 0x79 }}};
+struct PlayerPalette configPlayerPalette         = {{{ 0x00, 0x00, 0xff }, { 0xff, 0x00, 0x00 }, { 0xff, 0xff, 0xff }, { 0x72, 0x1c, 0x0e }, { 0x73, 0x06, 0x00 }, { 0xfe, 0xc1, 0x79 }, { 0xff, 0x00, 0x00 }}};
+struct PlayerPalette configCustomPalette         = {{{ 0x00, 0x00, 0xff }, { 0xff, 0x00, 0x00 }, { 0xff, 0xff, 0xff }, { 0x72, 0x1c, 0x0e }, { 0x73, 0x06, 0x00 }, { 0xfe, 0xc1, 0x79 }, { 0xff, 0x00, 0x00 }}};
 bool         configUncappedFramerate             = true;
 unsigned int configFrameLimit                    = 60;
 unsigned int configDrawDistance                  = 5;
 bool         configDisablePopups                 = 0;
-#ifdef DEVELOPMENT
-bool         configDisableDevPause               = 1;
+#ifdef LUA_PROFILER
+bool         configLuaProfiler                   = 1;
 #endif
 bool         configDisableDownloadedModels       = 0;
 unsigned int configInterpolationMode             = 1;
 unsigned int configGamepadNumber                 = 0;
 bool         configBackgroundGamepad             = 1;
+bool         configSingleplayerPause             = 0;
 
 static const struct ConfigOption options[] = {
     {.name = "fullscreen",           .type = CONFIG_TYPE_BOOL, .boolValue = &configWindow.fullscreen},
@@ -235,11 +237,20 @@ static const struct ConfigOption options[] = {
     {.name = "coop_player_palette_shoes",      .type = CONFIG_TYPE_COLOR , .colorValue  = &configPlayerPalette.parts[SHOES]},
     {.name = "coop_player_palette_hair",       .type = CONFIG_TYPE_COLOR , .colorValue  = &configPlayerPalette.parts[HAIR]},
     {.name = "coop_player_palette_skin",       .type = CONFIG_TYPE_COLOR , .colorValue  = &configPlayerPalette.parts[SKIN]},
+    {.name = "coop_player_palette_cap",        .type = CONFIG_TYPE_COLOR , .colorValue  = &configPlayerPalette.parts[CAP]},
+    {.name = "coop_custom_palette_pants",      .type = CONFIG_TYPE_COLOR , .colorValue  = &configCustomPalette.parts[PANTS]},
+    {.name = "coop_custom_palette_shirt",      .type = CONFIG_TYPE_COLOR , .colorValue  = &configCustomPalette.parts[SHIRT]},
+    {.name = "coop_custom_palette_gloves",     .type = CONFIG_TYPE_COLOR , .colorValue  = &configCustomPalette.parts[GLOVES]},
+    {.name = "coop_custom_palette_shoes",      .type = CONFIG_TYPE_COLOR , .colorValue  = &configCustomPalette.parts[SHOES]},
+    {.name = "coop_custom_palette_hair",       .type = CONFIG_TYPE_COLOR , .colorValue  = &configCustomPalette.parts[HAIR]},
+    {.name = "coop_custom_palette_skin",       .type = CONFIG_TYPE_COLOR , .colorValue  = &configCustomPalette.parts[SKIN]},
+    {.name = "coop_custom_palette_cap",        .type = CONFIG_TYPE_COLOR , .colorValue  = &configCustomPalette.parts[CAP]},
     {.name = "coop_stay_in_level_after_star",  .type = CONFIG_TYPE_UINT  , .uintValue   = &configStayInLevelAfterStar},
+    {.name = "coop_singleplayer_pause",        .type = CONFIG_TYPE_BOOL  , .boolValue   = &configSingleplayerPause},
     {.name = "share_lives",                    .type = CONFIG_TYPE_BOOL  , .boolValue   = &configShareLives},
     {.name = "disable_popups",                 .type = CONFIG_TYPE_BOOL  , .boolValue   = &configDisablePopups},
-#ifdef DEVELOPMENT
-    {.name = "disable_devpause",               .type = CONFIG_TYPE_BOOL  , .boolValue   = &configDisableDevPause},
+#ifdef LUA_PROFILER
+    {.name = "lua_profiler",                   .type = CONFIG_TYPE_BOOL  , .boolValue   = &configLuaProfiler},
 #endif
     {.name = "disable_downloaded_models",      .type = CONFIG_TYPE_BOOL  , .boolValue   = &configDisableDownloadedModels},
     {.name = "interpolation_mode",             .type = CONFIG_TYPE_UINT  , .uintValue   = &configInterpolationMode},

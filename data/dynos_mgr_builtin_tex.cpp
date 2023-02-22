@@ -9,6 +9,7 @@ extern "C" {
 //////////////
 
 #define define_builtin_tex(_ptr, _path, _width, _height, _bitSize) { (const char*)#_ptr, (const void*)_ptr, (const char*)_path, _width, _height, _bitSize }
+#define define_builtin_tex_(_ptr, _path, _width, _height, _bitSize) { (const char*)#_ptr "_", (const void*)_ptr, (const char*)_path, _width, _height, _bitSize }
 
 static const struct BuiltinTexInfo sDynosBuiltinTexs[] = {
     define_builtin_tex(amp_seg8_texture_08000F18, "actors/amp/amp_electricity.rgba16.png", 16, 32, 16),
@@ -999,32 +1000,32 @@ static const struct BuiltinTexInfo sDynosBuiltinTexs[] = {
     define_builtin_tex(texture_font_char_us_7, "textures/segment2/font_graphics.05AC0.ia4.png", 16, 8, 16),
     define_builtin_tex(texture_font_char_us_8, "textures/segment2/font_graphics.05B00.ia4.png", 16, 8, 16),
     define_builtin_tex(texture_font_char_us_9, "textures/segment2/font_graphics.05B40.ia4.png", 16, 8, 16),
-    define_builtin_tex(texture_font_char_us_A, "textures/segment2/font_graphics.05B80.ia4.png", 16, 8, 16),
-    define_builtin_tex(texture_font_char_us_B, "textures/segment2/font_graphics.05BC0.ia4.png", 16, 8, 16),
-    define_builtin_tex(texture_font_char_us_C, "textures/segment2/font_graphics.05C00.ia4.png", 16, 8, 16),
-    define_builtin_tex(texture_font_char_us_D, "textures/segment2/font_graphics.05C40.ia4.png", 16, 8, 16),
-    define_builtin_tex(texture_font_char_us_E, "textures/segment2/font_graphics.05C80.ia4.png", 16, 8, 16),
-    define_builtin_tex(texture_font_char_us_F, "textures/segment2/font_graphics.05CC0.ia4.png", 16, 8, 16),
-    define_builtin_tex(texture_font_char_us_G, "textures/segment2/font_graphics.05D00.ia4.png", 16, 8, 16),
-    define_builtin_tex(texture_font_char_us_H, "textures/segment2/font_graphics.05D40.ia4.png", 16, 8, 16),
-    define_builtin_tex(texture_font_char_us_I, "textures/segment2/font_graphics.05D80.ia4.png", 16, 8, 16),
-    define_builtin_tex(texture_font_char_us_J, "textures/segment2/font_graphics.05DC0.ia4.png", 16, 8, 16),
-    define_builtin_tex(texture_font_char_us_K, "textures/segment2/font_graphics.05E00.ia4.png", 16, 8, 16),
-    define_builtin_tex(texture_font_char_us_L, "textures/segment2/font_graphics.05E40.ia4.png", 16, 8, 16),
-    define_builtin_tex(texture_font_char_us_M, "textures/segment2/font_graphics.05E80.ia4.png", 16, 8, 16),
-    define_builtin_tex(texture_font_char_us_N, "textures/segment2/font_graphics.05EC0.ia4.png", 16, 8, 16),
-    define_builtin_tex(texture_font_char_us_O, "textures/segment2/font_graphics.05F00.ia4.png", 16, 8, 16),
-    define_builtin_tex(texture_font_char_us_P, "textures/segment2/font_graphics.05F40.ia4.png", 16, 8, 16),
-    define_builtin_tex(texture_font_char_us_Q, "textures/segment2/font_graphics.05F80.ia4.png", 16, 8, 16),
-    define_builtin_tex(texture_font_char_us_R, "textures/segment2/font_graphics.05FC0.ia4.png", 16, 8, 16),
-    define_builtin_tex(texture_font_char_us_S, "textures/segment2/font_graphics.06000.ia4.png", 16, 8, 16),
-    define_builtin_tex(texture_font_char_us_T, "textures/segment2/font_graphics.06040.ia4.png", 16, 8, 16),
-    define_builtin_tex(texture_font_char_us_U, "textures/segment2/font_graphics.06080.ia4.png", 16, 8, 16),
-    define_builtin_tex(texture_font_char_us_V, "textures/segment2/font_graphics.060C0.ia4.png", 16, 8, 16),
-    define_builtin_tex(texture_font_char_us_W, "textures/segment2/font_graphics.06100.ia4.png", 16, 8, 16),
-    define_builtin_tex(texture_font_char_us_X, "textures/segment2/font_graphics.06140.ia4.png", 16, 8, 16),
-    define_builtin_tex(texture_font_char_us_Y, "textures/segment2/font_graphics.06180.ia4.png", 16, 8, 16),
-    define_builtin_tex(texture_font_char_us_Z, "textures/segment2/font_graphics.061C0.ia4.png", 16, 8, 16),
+    define_builtin_tex_(texture_font_char_us_A, "textures/segment2/font_graphics.05B80.ia4.png", 16, 8, 16),
+    define_builtin_tex_(texture_font_char_us_B, "textures/segment2/font_graphics.05BC0.ia4.png", 16, 8, 16),
+    define_builtin_tex_(texture_font_char_us_C, "textures/segment2/font_graphics.05C00.ia4.png", 16, 8, 16),
+    define_builtin_tex_(texture_font_char_us_D, "textures/segment2/font_graphics.05C40.ia4.png", 16, 8, 16),
+    define_builtin_tex_(texture_font_char_us_E, "textures/segment2/font_graphics.05C80.ia4.png", 16, 8, 16),
+    define_builtin_tex_(texture_font_char_us_F, "textures/segment2/font_graphics.05CC0.ia4.png", 16, 8, 16),
+    define_builtin_tex_(texture_font_char_us_G, "textures/segment2/font_graphics.05D00.ia4.png", 16, 8, 16),
+    define_builtin_tex_(texture_font_char_us_H, "textures/segment2/font_graphics.05D40.ia4.png", 16, 8, 16),
+    define_builtin_tex_(texture_font_char_us_I, "textures/segment2/font_graphics.05D80.ia4.png", 16, 8, 16),
+    define_builtin_tex_(texture_font_char_us_J, "textures/segment2/font_graphics.05DC0.ia4.png", 16, 8, 16),
+    define_builtin_tex_(texture_font_char_us_K, "textures/segment2/font_graphics.05E00.ia4.png", 16, 8, 16),
+    define_builtin_tex_(texture_font_char_us_L, "textures/segment2/font_graphics.05E40.ia4.png", 16, 8, 16),
+    define_builtin_tex_(texture_font_char_us_M, "textures/segment2/font_graphics.05E80.ia4.png", 16, 8, 16),
+    define_builtin_tex_(texture_font_char_us_N, "textures/segment2/font_graphics.05EC0.ia4.png", 16, 8, 16),
+    define_builtin_tex_(texture_font_char_us_O, "textures/segment2/font_graphics.05F00.ia4.png", 16, 8, 16),
+    define_builtin_tex_(texture_font_char_us_P, "textures/segment2/font_graphics.05F40.ia4.png", 16, 8, 16),
+    define_builtin_tex_(texture_font_char_us_Q, "textures/segment2/font_graphics.05F80.ia4.png", 16, 8, 16),
+    define_builtin_tex_(texture_font_char_us_R, "textures/segment2/font_graphics.05FC0.ia4.png", 16, 8, 16),
+    define_builtin_tex_(texture_font_char_us_S, "textures/segment2/font_graphics.06000.ia4.png", 16, 8, 16),
+    define_builtin_tex_(texture_font_char_us_T, "textures/segment2/font_graphics.06040.ia4.png", 16, 8, 16),
+    define_builtin_tex_(texture_font_char_us_U, "textures/segment2/font_graphics.06080.ia4.png", 16, 8, 16),
+    define_builtin_tex_(texture_font_char_us_V, "textures/segment2/font_graphics.060C0.ia4.png", 16, 8, 16),
+    define_builtin_tex_(texture_font_char_us_W, "textures/segment2/font_graphics.06100.ia4.png", 16, 8, 16),
+    define_builtin_tex_(texture_font_char_us_X, "textures/segment2/font_graphics.06140.ia4.png", 16, 8, 16),
+    define_builtin_tex_(texture_font_char_us_Y, "textures/segment2/font_graphics.06180.ia4.png", 16, 8, 16),
+    define_builtin_tex_(texture_font_char_us_Z, "textures/segment2/font_graphics.061C0.ia4.png", 16, 8, 16),
     define_builtin_tex(texture_font_char_us_a, "textures/segment2/font_graphics.06200.ia4.png", 16, 8, 16),
     define_builtin_tex(texture_font_char_us_b, "textures/segment2/font_graphics.06240.ia4.png", 16, 8, 16),
     define_builtin_tex(texture_font_char_us_c, "textures/segment2/font_graphics.06280.ia4.png", 16, 8, 16),
@@ -1662,7 +1663,6 @@ static const struct BuiltinTexInfo sDynosBuiltinTexs[] = {
     define_builtin_tex(toad_player_texture_eyes_dead, "actors/toad_player/custom_toad_eyes_dead.rgba16.png", 32, 32, 16),
     define_builtin_tex(toad_player_texture_hair, "actors/toad_player/custom_toad_hair.rgba16.png", 32, 32, 16),
     define_builtin_tex(toad_player_texture_cap, "actors/toad_player/custom_toad_cap.rgba16.png", 32, 32, 16),
-    define_builtin_tex(waluigi_cap_seg3_texture_0301DF50, "actors/waluigi/custom_waluigi_cap.rgba16.png", 32, 32, 16),
     define_builtin_tex(wario_texture_white_button, "actors/wario/custom_wario_overalls_button.rgba16.png", 32, 32, 16),
     define_builtin_tex(wario_texture_w_logo, "actors/wario/custom_wario_logo.rgba16.png", 32, 32, 16),
     define_builtin_tex(wario_texture_hair_sideburn, "actors/wario/custom_wario_sideburn.rgba16.png", 32, 32, 16),
@@ -1676,13 +1676,32 @@ static const struct BuiltinTexInfo sDynosBuiltinTexs[] = {
     define_builtin_tex(wario_texture_eyes_down, "actors/wario/custom_wario_eyes_down_unused.rgba16.png", 64, 32, 16),
     define_builtin_tex(wario_texture_eyes_dead, "actors/wario/custom_wario_eyes_dead.rgba16.png", 64, 32, 16),
     define_builtin_tex(wario_cap_seg3_texture_0301DF50, "actors/wario_cap/custom_wario_cap_logo.rgba16.png", 32, 32, 16),
+    
+    // Waluigi
+
+    define_builtin_tex(waluigi_custom_waluigi_overalls_button_rgba16, "actors/waluigi/custom_waluigi_overalls_button.rgba16.png", 32, 32, 16),
+    define_builtin_tex(waluigi_custom_waluigi_metal_rgba16, "actors/waluigi/custom_waluigi_metal.rgba16.png", 64, 32, 16),
     define_builtin_tex(waluigi_custom_waluigi_cap_rgba16, "actors/waluigi/custom_waluigi_cap.rgba16.png", 32, 32, 16),
-    define_builtin_tex(waluigi_waluigi_eyes0_rgba16, "actors/waluigi/custom_waluigi_eyes0.rgba16.png", 64, 32, 16),
-    define_builtin_tex(waluigi_waluigi_mouth_rgba16, "actors/waluigi/custom_waluigi_mouth.rgba16.png", 64, 32, 16),
-    define_builtin_tex(waluigi_waluigi_eyes1_rgba16, "actors/waluigi/custom_waluigi_eyes1.rgba16.png", 64, 32, 16),
-    define_builtin_tex(waluigi_waluigi_eyes2_rgba16, "actors/waluigi/custom_waluigi_eyes2.rgba16.png", 64, 32, 16),
-    define_builtin_tex(waluigi_waluigi_eyes3_rgba16, "actors/waluigi/custom_waluigi_eyes3.rgba16.png", 64, 32, 16),
-    define_builtin_tex(waluigi_waluigi_glove_rgba16, "actors/waluigi/custom_waluigi_glove.rgba16.png", 32, 32, 16),
+    define_builtin_tex(waluigi_custom_waluigi_glove_rgba16, "actors/waluigi/custom_waluigi_glove.rgba16.png", 32, 32, 16),
+    define_builtin_tex(waluigi_custom_waluigi_sideburns_rgba16, "actors/waluigi/custom_waluigi_sideburns.rgba16.png", 32, 32, 16),
+
+    define_builtin_tex(waluigi_custom_waluigi_mouth_rgba16, "actors/waluigi/custom_waluigi_mouth.rgba16.png", 64, 32, 16),
+    define_builtin_tex(waluigi_custom_waluigi_mouth_dead_rgba16, "actors/waluigi/custom_waluigi_mouth_dead.rgba16.png", 64, 32, 16),
+
+    define_builtin_tex(waluigi_wing_1_rgba16, "actors/waluigi/wing_1.rgba16.png", 32, 64, 16),
+    define_builtin_tex(waluigi_wing_2_rgba16, "actors/waluigi/wing_2.rgba16.png", 32, 64, 16),
+
+    // Eyes
+    define_builtin_tex(waluigi_custom_waluigi_eyes_center_rgba16, "actors/waluigi/custom_waluigi_eyes_center.rgba16.png", 64, 32, 16),
+    define_builtin_tex(waluigi_custom_waluigi_eyes_half_closed_rgba16, "actors/waluigi/custom_waluigi_eyes_half_closed.rgba16.png", 64, 32, 16),
+    define_builtin_tex(waluigi_custom_waluigi_eyes_closed_rgba16, "actors/waluigi/custom_waluigi_eyes_closed.rgba16.png", 64, 32, 16),
+    define_builtin_tex(waluigi_custom_waluigi_eyes_dead_rgba16, "actors/waluigi/custom_waluigi_eyes_dead.rgba16.png", 64, 32, 16),
+    
+    // Unused
+    define_builtin_tex(waluigi_custom_waluigi_eyes_left_unused_rgba16, "actors/waluigi/custom_waluigi_eyes_left_unused.rgba16.png", 64, 32, 16),
+    define_builtin_tex(waluigi_custom_waluigi_eyes_right_unused_rgba16, "actors/waluigi/custom_waluigi_eyes_right_unused.rgba16.png", 64, 32, 16),
+    define_builtin_tex(waluigi_custom_waluigi_eyes_up_unused_rgba16, "actors/waluigi/custom_waluigi_eyes_up_unused.rgba16.png", 64, 32, 16),
+    define_builtin_tex(waluigi_custom_waluigi_eyes_down_unused_rgba16, "actors/waluigi/custom_waluigi_eyes_down_unused.rgba16.png", 64, 32, 16),
 };
 
 const Texture* DynOS_Builtin_Tex_GetFromName(const char* aDataName) {

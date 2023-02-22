@@ -39,6 +39,8 @@ extern ALIGNED8 const u8 texture_hud_char_luigi_head[];
 extern ALIGNED8 const u8 texture_hud_char_toad_head[];
 extern ALIGNED8 const u8 texture_hud_char_waluigi_head[];
 extern ALIGNED8 const u8 texture_hud_char_wario_head[];
+extern ALIGNED8 const u8 texture_hud_char_apostrophe[];
+extern ALIGNED8 const u8 texture_hud_char_double_quote[];
 
 struct GlobalTextures gGlobalTextures = {
     .camera     =   { .texture = (u8*)texture_hud_char_camera,       .bitSize = 8, .width = 16, .height = 16 },
@@ -48,6 +50,8 @@ struct GlobalTextures gGlobalTextures = {
     .arrow_down =   { .texture = (u8*)texture_hud_char_arrow_down,   .bitSize = 8, .width =  8, .height =  8 },
     .coin       =   { .texture = (u8*)texture_hud_char_coin,         .bitSize = 8, .width = 16, .height = 16 },
     .star       =   { .texture = (u8*)texture_hud_char_star,         .bitSize = 8, .width = 16, .height = 16 },
+    .apostrophe =   { .texture = (u8*)texture_hud_char_apostrophe,   .bitSize = 8, .width = 16, .height = 16 },
+    .double_quote = { .texture = (u8*)texture_hud_char_double_quote, .bitSize = 8, .width = 16, .height = 16 },
     .mario_head =   { .texture = (u8*)texture_hud_char_mario_head,   .bitSize = 8, .width = 16, .height = 16 },
     .luigi_head =   { .texture = (u8*)texture_hud_char_luigi_head,   .bitSize = 8, .width = 16, .height = 16 },
     .toad_head =    { .texture = (u8*)texture_hud_char_toad_head,    .bitSize = 8, .width = 16, .height = 16 },
@@ -276,8 +280,37 @@ void djui_hud_render_texture_raw(const u8* texture, u32 bitSize, u32 width, u32 
     gSPPopMatrix(gDisplayListHead++, G_MTX_MODELVIEW);
 }
 
+void djui_hud_render_texture_tile_raw(const u8* texture, u32 bitSize, u32 width, u32 height, f32 x, f32 y, f32 scaleW, f32 scaleH, u32 tileX, u32 tileY, u32 tileW, u32 tileH) {
+    gDjuiHudUtilsZ += 0.01f;
+    scaleW *= (f32) tileW / (f32) width;
+    scaleH *= (f32) tileH / (f32) height;
+
+    // translate position
+    f32 translatedX = x;
+    f32 translatedY = y;
+    djui_hud_position_translate(&translatedX, &translatedY);
+    create_dl_translation_matrix(DJUI_MTX_PUSH, translatedX, translatedY, gDjuiHudUtilsZ);
+
+    // translate scale
+    f32 translatedW = scaleW;
+    f32 translatedH = scaleH;
+    djui_hud_size_translate(&translatedW);
+    djui_hud_size_translate(&translatedH);
+    create_dl_scale_matrix(DJUI_MTX_NOPUSH, width * translatedW, height * translatedH, 1.0f);
+
+    // render
+    djui_gfx_render_texture_tile(texture, width, height, bitSize, tileX, tileY, tileW, tileH);
+
+    // pop
+    gSPPopMatrix(gDisplayListHead++, G_MTX_MODELVIEW);
+}
+
 void djui_hud_render_texture(struct TextureInfo* texInfo, f32 x, f32 y, f32 scaleW, f32 scaleH) {
     djui_hud_render_texture_raw(texInfo->texture, texInfo->bitSize, texInfo->width, texInfo->height, x, y, scaleW, scaleH);
+}
+
+void djui_hud_render_texture_tile(struct TextureInfo* texInfo, f32 x, f32 y, f32 scaleW, f32 scaleH, u32 tileX, u32 tileY, u32 tileW, u32 tileH) {
+    djui_hud_render_texture_tile_raw(texInfo->texture, texInfo->bitSize, texInfo->width, texInfo->height, x, y, scaleW, scaleH, tileX, tileY, tileW, tileH);
 }
 
 void djui_hud_render_texture_interpolated(struct TextureInfo* texInfo, f32 prevX, f32 prevY, f32 prevScaleW, f32 prevScaleH, f32 x, f32 y, f32 scaleW, f32 scaleH) {
@@ -285,6 +318,28 @@ void djui_hud_render_texture_interpolated(struct TextureInfo* texInfo, f32 prevX
     f32 savedZ = gDjuiHudUtilsZ;
 
     djui_hud_render_texture_raw(texInfo->texture, texInfo->bitSize, texInfo->width, texInfo->height, prevX, prevY, prevScaleW, prevScaleH);
+
+    if (sInterpHudCount >= MAX_INTERP_HUD) { return; }
+    struct InterpHud* interp = &sInterpHuds[sInterpHudCount++];
+    interp->headPos = savedHeadPos;
+    interp->prevX = prevX;
+    interp->prevY = prevY;
+    interp->prevScaleW = prevScaleW;
+    interp->prevScaleH = prevScaleH;
+    interp->x = x;
+    interp->y = y;
+    interp->scaleW = scaleW;
+    interp->scaleH = scaleH;
+    interp->width = texInfo->width;
+    interp->height = texInfo->height;
+    interp->z = savedZ;
+}
+
+void djui_hud_render_texture_tile_interpolated(struct TextureInfo* texInfo, f32 prevX, f32 prevY, f32 prevScaleW, f32 prevScaleH, f32 x, f32 y, f32 scaleW, f32 scaleH, u32 tileX, u32 tileY, u32 tileW, u32 tileH) {
+    Gfx* savedHeadPos = gDisplayListHead;
+    f32 savedZ = gDjuiHudUtilsZ;
+
+    djui_hud_render_texture_tile_raw(texInfo->texture, texInfo->bitSize, texInfo->width, texInfo->height, prevX, prevY, prevScaleW, prevScaleH, tileX, tileY, tileW, tileH);
 
     if (sInterpHudCount >= MAX_INTERP_HUD) { return; }
     struct InterpHud* interp = &sInterpHuds[sInterpHudCount++];

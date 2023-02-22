@@ -46,7 +46,7 @@ void bhv_piranha_plant_bubble_loop(void) {
 #endif
 
     struct Object* parentPlayer = nearest_player_to_object(parent);
-    s32 distanceToParentPlayer = dist_between_objects(parent, parentPlayer);
+    s32 distanceToParentPlayer = parentPlayer ? dist_between_objects(parent, parentPlayer) : 10000;
 
     switch (o->oAction) {
         case PIRANHA_PLANT_BUBBLE_ACT_IDLE:

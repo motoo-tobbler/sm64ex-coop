@@ -310,6 +310,8 @@ s64 DynOS_Gfx_ParseGfxConstants(const String& _Arg, bool* found) {
     gfx_constant(SHOES);
     gfx_constant(HAIR);
     gfx_constant(SKIN);
+    gfx_constant(CAP);
+    gfx_constant(METAL);
 
     // Common values
     gfx_constant(CALC_DXT(4,G_IM_SIZ_4b_BYTES));
@@ -741,6 +743,12 @@ static void ParseGfxSymbol(GfxData* aGfxData, DataNode<Gfx>* aNode, Gfx*& aHead,
     gfx_symbol_2(gsSPFogPosition, false);
     gfx_symbol_1(gsDPSetAlphaCompare, false);
     gfx_symbol_1(gsDPSetTextureFilter, false);
+    gfx_symbol_2(gsSPCullDisplayList, false);
+    gfx_symbol_1(gsDPSetAlphaDither, false);
+    gfx_symbol_1(gsDPSetCombineKey, false);
+    gfx_symbol_1(gsDPSetTextureConvert, false);
+    gfx_symbol_1(gsDPSetCombineKey, false);
+    gfx_symbol_1(gsDPSetTextureConvert, false);
 
     gfx_symbol_2(gsSPCopyLightEXT, false);
     gfx_symbol_1(gsSPCopyLightsPlayerPart, false);

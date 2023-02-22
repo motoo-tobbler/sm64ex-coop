@@ -517,6 +517,7 @@ s16 obj_turn_toward_object(struct Object *obj, struct Object *target, s16 angleI
 
 void obj_set_parent_relative_pos(struct Object *obj, s16 relX, s16 relY, s16 relZ) {
     if (obj == NULL) { return; }
+    
     obj->oParentRelativePosX = relX;
     obj->oParentRelativePosY = relY;
     obj->oParentRelativePosZ = relZ;
@@ -524,6 +525,7 @@ void obj_set_parent_relative_pos(struct Object *obj, s16 relX, s16 relY, s16 rel
 
 void obj_set_pos(struct Object *obj, s16 x, s16 y, s16 z) {
     if (obj == NULL) { return; }
+    
     obj->oPosX = x;
     obj->oPosY = y;
     obj->oPosZ = z;
@@ -531,6 +533,7 @@ void obj_set_pos(struct Object *obj, s16 x, s16 y, s16 z) {
 
 void obj_set_angle(struct Object *obj, s16 pitch, s16 yaw, s16 roll) {
     if (obj == NULL) { return; }
+    
     obj->oFaceAnglePitch = pitch;
     obj->oFaceAngleYaw = yaw;
     obj->oFaceAngleRoll = roll;
@@ -538,6 +541,46 @@ void obj_set_angle(struct Object *obj, s16 pitch, s16 yaw, s16 roll) {
     obj->oMoveAnglePitch = pitch;
     obj->oMoveAngleYaw = yaw;
     obj->oMoveAngleRoll = roll;
+}
+
+void obj_set_move_angle(struct Object *obj, s16 pitch, s16 yaw, s16 roll) {
+    if (obj == NULL) { return; }
+    
+    obj->oMoveAnglePitch = pitch;
+    obj->oMoveAngleYaw = yaw;
+    obj->oMoveAngleRoll = roll;
+}
+
+void obj_set_face_angle(struct Object *obj, s16 pitch, s16 yaw, s16 roll) {
+    if (obj == NULL) { return; }
+    
+    obj->oFaceAnglePitch = pitch;
+    obj->oFaceAngleYaw = yaw;
+    obj->oFaceAngleRoll = roll;
+}
+
+void obj_set_gfx_angle(struct Object *obj, s16 pitch, s16 yaw, s16 roll) {
+    if (obj == NULL) { return; }
+    
+    obj->header.gfx.angle[0] = pitch;
+    obj->header.gfx.angle[1] = yaw;
+    obj->header.gfx.angle[2] = roll;
+}
+
+void obj_set_gfx_pos(struct Object *obj, f32 x, f32 y, f32 z) {
+    if (obj == NULL) { return; }
+    
+    obj->header.gfx.pos[0] = x;
+    obj->header.gfx.pos[1] = y;
+    obj->header.gfx.pos[2] = z;
+}
+
+void obj_set_gfx_scale(struct Object *obj, f32 x, f32 y, f32 z) {
+    if (obj == NULL) { return; }
+    
+    obj->header.gfx.scale[0] = x;
+    obj->header.gfx.scale[1] = y;
+    obj->header.gfx.scale[2] = z;
 }
 
 /*
@@ -634,6 +677,7 @@ struct Object *spawn_object_at_origin(struct Object *parent, UNUSED s32 unusedAr
 
     geo_obj_init((struct GraphNodeObject *) &obj->header.gfx, gLoadedGraphNodes[model], gVec3fZero,
                  gVec3sZero);
+    smlua_call_event_hooks_object_model_param(HOOK_OBJECT_SET_MODEL, obj, model);
 
     return obj;
 }
@@ -1320,6 +1364,7 @@ void cur_obj_set_model(s32 modelID) {
 void obj_set_model(struct Object* obj, s32 modelID) {
     obj->header.gfx.sharedChild = gLoadedGraphNodes[modelID];
     dynos_actor_override((void*)&obj->header.gfx.sharedChild);
+    smlua_call_event_hooks_object_model_param(HOOK_OBJECT_SET_MODEL, obj, modelID);
 }
 
 void mario_set_flag(s32 flag) {
@@ -1693,6 +1738,7 @@ f32 cur_obj_lateral_dist_from_obj_to_home(struct Object *obj) {
 
 f32 cur_obj_lateral_dist_from_mario_to_home(void) {
     struct Object* player = nearest_player_to_object(o);
+    if (!player) { return 10000; }
     f32 dist;
     f32 dx = o->oHomeX - player->oPosX;
     f32 dz = o->oHomeZ - player->oPosZ;
@@ -1792,6 +1838,30 @@ void obj_set_billboard(struct Object *obj) {
 void obj_set_cylboard(struct Object *obj) {
     if (obj == NULL) { return; }
     obj->header.gfx.node.flags |= GRAPH_RENDER_CYLBOARD;
+}
+
+void cur_obj_set_billboard_if_vanilla_cam(void) {
+    if (configEnableCamera) {
+        o->header.gfx.node.flags &= ~GRAPH_RENDER_BILLBOARD;
+        o->header.gfx.node.flags |= GRAPH_RENDER_CYLBOARD;
+    } else {
+        o->header.gfx.node.flags &= ~GRAPH_RENDER_CYLBOARD;
+        o->header.gfx.node.flags |= GRAPH_RENDER_BILLBOARD;
+    }
+}
+
+void obj_set_hitbox_radius_and_height(struct Object *o, f32 radius, f32 height) {
+    if (o == NULL) { return; }
+    
+    o->hitboxRadius = radius;
+    o->hitboxHeight = height;
+}
+
+void obj_set_hurtbox_radius_and_height(struct Object *o, f32 radius, f32 height) {
+    if (o == NULL) { return; }
+    
+    o->hurtboxRadius = radius;
+    o->hurtboxHeight = height;
 }
 
 void cur_obj_set_hitbox_radius_and_height(f32 radius, f32 height) {
@@ -2628,6 +2698,10 @@ s32 cur_obj_mario_far_away(void) {
 
 s32 is_mario_moving_fast_or_in_air(s32 speedThreshold) {
     struct MarioState* marioState = nearest_mario_state_to_object(o);
+    if (!marioState) {
+        return FALSE;
+    }
+
     if (marioState->forwardVel > speedThreshold) {
         return TRUE;
     }
@@ -2830,6 +2904,7 @@ void clear_time_stop_flags(s32 flags) {
 }
 
 s32 cur_obj_can_mario_activate_textbox(struct MarioState* m, f32 radius, f32 height, UNUSED s32 unused) {
+    if (!m->visibleToEnemies) { return FALSE; }
     if (o->oDistanceToMario < 1500.0f) {
         f32 latDistToMario = lateral_dist_between_objects(o, m->marioObj);
         UNUSED s16 angleFromMario = obj_angle_to_object(m->marioObj, o);
@@ -2944,6 +3019,7 @@ s32 cur_obj_update_dialog_with_cutscene(struct MarioState* m, s32 actionArg, s32
     s32 doneTurning = TRUE;
 
     if (m->playerIndex != 0) { return 0; }
+    if (!m->visibleToEnemies) { return FALSE; }
 
     switch (o->oDialogState) {
 #ifdef VERSION_JP

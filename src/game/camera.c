@@ -806,10 +806,10 @@ void set_camera_height(struct Camera *c, f32 goalHeight) {
             }
         }
         approach_camera_height(c, goalHeight, 20.f);
-        if (camCeilHeight != gLevelValues.ceilHeightLimit) {
+        if (camCeilHeight != gLevelValues.cellHeightLimit) {
             camCeilHeight -= baseOff;
             if ((c->pos[1] > camCeilHeight && sMarioGeometry.currFloorHeight + baseOff < camCeilHeight)
-                || (sMarioGeometry.currCeilHeight != gLevelValues.ceilHeightLimit
+                || (sMarioGeometry.currCeilHeight != gLevelValues.cellHeightLimit
                     && sMarioGeometry.currCeilHeight > camCeilHeight && c->pos[1] > camCeilHeight)) {
                 c->pos[1] = camCeilHeight;
             }
@@ -1515,7 +1515,7 @@ s32 update_fixed_camera(struct Camera *c, Vec3f focus, UNUSED Vec3f pos) {
     }
 
     ceilHeight = find_ceil(c->pos[0], goalHeight - 100.f, c->pos[2], &ceiling);
-    if (ceilHeight != gLevelValues.ceilHeightLimit) {
+    if (ceilHeight != gLevelValues.cellHeightLimit) {
         if (goalHeight > (ceilHeight -= 125.f)) {
             goalHeight = ceilHeight;
         }
@@ -1614,7 +1614,7 @@ s32 update_boss_fight_camera(struct Camera *c, Vec3f focus, Vec3f pos) {
     // When C-Down is not active, this
     vec3f_set_dist_and_angle(focus, pos, focusDistance, 0x1000, yaw);
     // Find the floor of the arena
-    pos[1] = find_floor(c->areaCenX, gLevelValues.ceilHeightLimit, c->areaCenZ, &floor);
+    pos[1] = find_floor(c->areaCenX, gLevelValues.cellHeightLimit, c->areaCenZ, &floor);
     if (floor != NULL) {
         nx = floor->normal.x;
         ny = floor->normal.y;
@@ -2351,7 +2351,7 @@ s16 update_default_camera(struct Camera *c) {
         if (c->mode == CAMERA_MODE_FREE_ROAM) {
             camFloorHeight -= 100.f;
         }
-        ceilHeight = gLevelValues.ceilHeightLimit;
+        ceilHeight = gLevelValues.cellHeightLimit;
         vec3f_copy(c->focus, sMarioCamState->pos);
     }
 
@@ -2360,7 +2360,7 @@ s16 update_default_camera(struct Camera *c) {
         if (sMarioCamState->pos[1] - 100.f > camFloorHeight) {
             camFloorHeight = sMarioCamState->pos[1] - 100.f;
         }
-        ceilHeight = gLevelValues.ceilHeightLimit;
+        ceilHeight = gLevelValues.cellHeightLimit;
         vec3f_copy(c->focus, sMarioCamState->pos);
     }
     if (camFloorHeight != gLevelValues.floorLowerLimit) {
@@ -2385,7 +2385,7 @@ s16 update_default_camera(struct Camera *c) {
             vec3f_set_dist_and_angle(c->focus, c->pos, dist, tempPitch, tempYaw);
         }
     }
-    if (ceilHeight != gLevelValues.ceilHeightLimit) {
+    if (ceilHeight != gLevelValues.cellHeightLimit) {
         if (c->pos[1] > (ceilHeight -= 150.f)
             && (avoidStatus = is_range_behind_surface(c->pos, sMarioCamState->pos, ceil, 0, -1)) == 1) {
             c->pos[1] = ceilHeight;
@@ -2912,7 +2912,9 @@ void set_camera_mode(struct Camera *c, s16 mode, s16 frames) {
         vec3f_copy(end->pos, c->pos);
         vec3f_sub(end->pos, sMarioCamState->pos);
 
-        sAreaYaw = sModeTransitions[sModeInfo.newMode](c, end->focus, end->pos);
+        if (sModeInfo.newMode != CAMERA_MODE_NONE) {
+            sAreaYaw = sModeTransitions[sModeInfo.newMode](c, end->focus, end->pos);
+        }
 
         // End was updated by sModeTransitions
         vec3f_sub(end->focus, sMarioCamState->pos);
@@ -3051,13 +3053,15 @@ void update_lakitu(struct Camera *c) {
  * Gets controller input, checks for cutscenes, handles mode changes, and moves the camera
  */
 void update_camera(struct Camera *c) {
-    if (gOverrideFreezeCamera && !gDjuiInMainMenu) {
-        return;
-    }
     UNUSED u8 unused[24];
 
     gCamera = c;
     update_camera_hud_status(c);
+
+    if (gOverrideFreezeCamera && !gDjuiInMainMenu) {
+        return;
+    }
+
     if (c->cutscene == 0) {
         // Only process R_TRIG if 'fixed' is not selected in the menu
         if (cam_select_alt_mode(0) == CAM_SELECTION_MARIO
@@ -4006,7 +4010,8 @@ s32 update_camera_hud_status(struct Camera *c) {
     s16 status = CAM_STATUS_NONE;
 
     if (c->cutscene != 0
-        || ((gPlayer1Controller->buttonDown & R_TRIG) && cam_select_alt_mode(0) == CAM_SELECTION_FIXED)) {
+        || ((gPlayer1Controller->buttonDown & R_TRIG) && cam_select_alt_mode(0) == CAM_SELECTION_FIXED)
+        || gOverrideFreezeCamera) {
         status |= CAM_STATUS_FIXED;
     } else if (set_cam_angle(0) == CAM_ANGLE_MARIO) {
         status |= CAM_STATUS_MARIO;
@@ -6826,19 +6831,19 @@ void resolve_geometry_collisions(Vec3f pos, UNUSED Vec3f lastGood) {
     floorY = find_floor(pos[0], pos[1] + 50.f, pos[2], &surf);
     ceilY = find_ceil(pos[0], pos[1] - 50.f, pos[2], &surf);
 
-    if ((gLevelValues.floorLowerLimit != floorY) && (gLevelValues.ceilHeightLimit == ceilY)) {
+    if ((gLevelValues.floorLowerLimit != floorY) && (gLevelValues.cellHeightLimit == ceilY)) {
         if (pos[1] < (floorY += 125.f)) {
             pos[1] = floorY;
         }
     }
 
-    if ((gLevelValues.floorLowerLimit == floorY) && (gLevelValues.ceilHeightLimit != ceilY)) {
+    if ((gLevelValues.floorLowerLimit == floorY) && (gLevelValues.cellHeightLimit != ceilY)) {
         if (pos[1] > (ceilY -= 125.f)) {
             pos[1] = ceilY;
         }
     }
 
-    if ((gLevelValues.floorLowerLimit != floorY) && (gLevelValues.ceilHeightLimit != ceilY)) {
+    if ((gLevelValues.floorLowerLimit != floorY) && (gLevelValues.cellHeightLimit != ceilY)) {
         floorY += 125.f;
         ceilY -= 125.f;
 
@@ -6972,7 +6977,7 @@ void find_mario_floor_and_ceil(struct PlayerGeometry *pg) {
     }
 
     if (find_ceil(sMarioCamState->pos[0], sMarioCamState->pos[1] - 10.f,
-                  sMarioCamState->pos[2], &surf) != gLevelValues.ceilHeightLimit) {
+                  sMarioCamState->pos[2], &surf) != gLevelValues.cellHeightLimit) {
         pg->currCeilType = surf->type;
     } else {
         pg->currCeilType = 0;

@@ -20,6 +20,7 @@
 #include "pc/configfile.h"
 #include "pc/network/network.h"
 #include "pc/lua/smlua.h"
+#include "hardcoded.h"
 
 s32 check_common_idle_cancels(struct MarioState *m) {
     mario_drop_held_object(m);
@@ -123,11 +124,17 @@ s32 act_idle(struct MarioState *m) {
         return TRUE;
     }
 
+    extern bool gDjuiInMainMenu;
     if (m->actionState == 3) {
         if ((m->area->terrainType & TERRAIN_MASK) == TERRAIN_SNOW) {
             return set_mario_action(m, ACT_SHIVERING, 0);
         } else {
-            return set_mario_action(m, ACT_START_SLEEPING, 0);
+            if (!gDjuiInMainMenu) {
+                return set_mario_action(m, ACT_START_SLEEPING, 0);
+            } else {
+                m->actionState = 0;
+                m->actionTimer = 0;
+            }
         }
     }
 
@@ -1069,7 +1076,7 @@ s32 act_first_person(struct MarioState *m) {
             set_camera_mode(m->area->camera, CAMERA_MODE_C_UP, 0x10);
         }
         m->actionState = 1;
-    } else if (!(m->input & INPUT_FIRST_PERSON) || sp1C) {
+    } else if (!(m->input & INPUT_FIRST_PERSON) || sp1C || gOverrideFreezeCamera) {
         if (m->playerIndex == 0) {
             raise_background_noise(2);
             // Go back to the last camera mode
@@ -1079,7 +1086,7 @@ s32 act_first_person(struct MarioState *m) {
     }
 
     if (m->floor->type == SURFACE_LOOK_UP_WARP
-        && save_file_get_total_star_count(gCurrSaveFileNum - 1, COURSE_MIN - 1, COURSE_MAX - 1) >= 10) {
+        && save_file_get_total_star_count(gCurrSaveFileNum - 1, COURSE_MIN - 1, COURSE_MAX - 1) >= gLevelValues.wingCapLookUpReq) {
         s16 sp1A = m->statusForCamera->headRotation[0];
         s16 sp18 = ((m->statusForCamera->headRotation[1] * 4) / 3) + m->faceAngle[1];
         if (sp1A == -0x1800 && (sp18 < -0x6FFF || sp18 >= 0x7000)) {

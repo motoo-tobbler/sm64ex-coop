@@ -251,7 +251,7 @@ void network_send_to(u8 localIndex, struct Packet* p) {
     memcpy(&p->buffer[p->dataLength], &hash, sizeof(u32));
 
     // redirect to server if required
-    if (localIndex != 0 && gNetworkType != NT_SERVER && gNetworkSystem->requireServerBroadcast) {
+    if (localIndex != 0 && gNetworkType != NT_SERVER && gNetworkSystem->requireServerBroadcast && gNetworkPlayerServer != NULL) {
         localIndex = gNetworkPlayerServer->localIndex;
     }
 
@@ -535,8 +535,8 @@ void network_shutdown(bool sendLeaving, bool exiting, bool popup) {
     extern s16 gMenuMode;
     gMenuMode = -1;
 
-    extern u8 gIsModerator;
-    gIsModerator = 0;
+    extern bool gIsModerator;
+    gIsModerator = false;
 
     djui_panel_shutdown();
     extern bool gDjuiInMainMenu;

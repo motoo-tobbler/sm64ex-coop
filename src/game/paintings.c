@@ -21,6 +21,7 @@
 #include "level_update.h"
 #include "src/pc/network/network_player.h"
 #include "print.h"
+#include "hardcoded.h"
 
 /**
  * @file paintings.c
@@ -870,12 +871,10 @@ void painting_update_floors(struct Painting *painting) {
         enterLeft = 0;
         enterMiddle = 0;
         enterRight = 0;
-        struct Surface* surface = NULL;
-        s16 floorType = 0;
+        struct Surface* surface;
         find_floor(m->marioObj->oPosX, m->marioObj->oPosY, m->marioObj->oPosZ, &surface);
-        if (surface != NULL) {
-            floorType = surface->type;
-        }
+        if (surface == NULL) { continue; }
+        s16 floorType = surface->type;
 
         /* The area in front of every painting in the game (except HMC and CotMC, which   *\
         |* act a little differently) is made up of 3 special floor triangles with special *|

@@ -100,7 +100,6 @@ static void djui_panel_join_ip_text_change(struct DjuiBase* caller) {
 
 static void djui_panel_join_ip_text_set_new(void) {
     char buffer[256] = { 0 };
-    gGetHostName = sInputboxIp->buffer;
     if (snprintf(buffer, 256, "%s", sInputboxIp->buffer) < 0) {
         LOG_INFO("truncating IP");
     }
@@ -119,6 +118,7 @@ static void djui_panel_join_ip_text_set_new(void) {
         }
     }
 
+    snprintf(gGetHostName, MAX_CONFIG_STRING, "%s", buffer);
     if (snprintf(configJoinIp, MAX_CONFIG_STRING, "%s", buffer) < 0) {
         LOG_INFO("truncating IP");
     }
@@ -140,7 +140,6 @@ static void djui_panel_join_ip_text_set(struct DjuiInputbox* inputbox1) {
     }
 
     djui_inputbox_set_text(inputbox1, buffer);
-    djui_inputbox_select_all(inputbox1);
 }
 
 void djui_panel_join_do_join(struct DjuiBase* caller) {

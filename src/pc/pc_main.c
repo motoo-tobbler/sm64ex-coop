@@ -1,7 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <signal.h>
 
 #ifdef __ANDROID__
 #include <sys/stat.h>
@@ -57,12 +56,15 @@
 #include "pc/discord/discordrpc.h"
 #endif
 #include "pc/network/version.h"
+#include "pc/network/socket/socket.h"
 #include "pc/network/network_player.h"
 #include "pc/djui/djui.h"
 #include "pc/debuglog.h"
 #include "pc/utils/misc.h"
 
 #include "pc/mods/mods.h"
+
+#include "menu/intro_geo.h"
 
 OSMesg D_80339BEC;
 OSMesgQueue gSIEventMesgQueue;
@@ -181,7 +183,7 @@ void produce_interpolation_frames_and_delay(void) {
         gfx_start_frame();
         f32 delta = MIN((curTime - sFrameTimeStart) / (sFrameTargetTime - sFrameTimeStart), 1);
         gRenderingDelta = delta;
-        patch_interpolations(delta);
+        if (!skipInterpolationTitleScreen || configFrameLimit > 30) { patch_interpolations(delta); }
         send_display_list(gGfxSPTask);
         gfx_end_frame();
 
@@ -297,6 +299,17 @@ void main_func(void) {
     configfile_load(configfile_name());
     dynos_pack_init();
 
+    // If coop_custom_palette_* values are not found in sm64config.txt, the custom palette config will use the default values (Mario's palette)
+    // But if no preset is found, that means the current palette is a custom palette
+    for (int i = 0; i <= PALETTE_PRESET_MAX; i++) {
+        if (i == PALETTE_PRESET_MAX) {
+            configCustomPalette = configPlayerPalette;
+            configfile_save(configfile_name());
+        } else if (memcmp(&configPlayerPalette, &gPalettePresets[i], sizeof(struct PlayerPalette)) == 0) {
+            break;
+        }
+    }
+
     if (configPlayerModel >= CT_MAX) { configPlayerModel = 0; }
 
     if (gCLIOpts.FullScreen == 1)
@@ -367,7 +380,8 @@ void main_func(void) {
 
     if (gCLIOpts.Network == NT_CLIENT) {
         network_set_system(NS_SOCKET);
-        strncpy(configJoinIp, gCLIOpts.JoinIp, IP_MAX_LEN);
+        snprintf(gGetHostName, MAX_CONFIG_STRING, "%s", gCLIOpts.JoinIp);
+        snprintf(configJoinIp, MAX_CONFIG_STRING, "%s", gCLIOpts.JoinIp);
         configJoinPort = gCLIOpts.NetworkPort;
         network_init(NT_CLIENT);
     } else if (gCLIOpts.Network == NT_SERVER) {
@@ -427,18 +441,9 @@ void main_func(void) {
 // possibly because the Android NDK is stripping or mangling main(), 
 // so I've switched it to SDL_main 
 #ifdef __ANDROID__
-int SDL_main(int argc, char** argv) {
+int SDL_main(int argc, char *argv[]) {
 #else
 int main(int argc, char *argv[]) {
-#endif
-#ifdef SIGINT
-    signal(SIGINT, inthand);
-#endif
-#ifdef SIGQUIT
-    signal(SIGQUIT, inthand);
-#endif
-#ifdef SIGTERM
-    signal(SIGTERM, inthand);
 #endif
     parse_cli_opts(argc, argv);
     DynOS_Init();

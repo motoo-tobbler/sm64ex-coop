@@ -43,6 +43,7 @@ extern Trajectory sThiTinyMetalBallTraj[];
 
 struct LevelValues gDefaultLevelValues = {
     .fixCollisionBugs         = 0,
+    .fixVanishFloors          = 0,
     .entryLevel               = LEVEL_CASTLE_GROUNDS,
     .exitCastleLevel          = LEVEL_CASTLE,
     .exitCastleArea           = 1,
@@ -57,6 +58,9 @@ struct LevelValues gDefaultLevelValues = {
     .wingCapDurationTotwc     = 1200,
     .metalCapDurationCotmc    = 600,
     .vanishCapDurationVcutm   = 600,
+    .wingCapSequence          = SEQ_EVENT_POWERUP,
+    .metalCapSequence         = SEQ_EVENT_METAL_CAP,
+    .vanishCapSequence        = SEQ_EVENT_POWERUP,
     .starPositions = {
         .KoopaBobStarPos      = {  3030.0f,  4500.0f, -4600.0f },
         .KoopaThiStarPos      = {  7100.0f, -1300.0f, -6000.0f },
@@ -89,10 +93,13 @@ struct LevelValues gDefaultLevelValues = {
         .UnagiStarPos         = {  6833.0f, -3654.0f,  2230.0f },
         .JetstreamRingStarPos = {  3400.0f, -3200.0f,  -500.0f },
     },
-    .ceilHeightLimit          = CEIL_HEIGHT_LIMIT,
+    .cellHeightLimit          = CELL_HEIGHT_LIMIT,
     .floorLowerLimit          = FLOOR_LOWER_LIMIT,
     .floorLowerLimitMisc      = FLOOR_LOWER_LIMIT_MISC,
     .floorLowerLimitShadow    = FLOOR_LOWER_LIMIT_SHADOW,
+    .pauseExitAnywhere        = 1,
+    .disableActs              = false,
+    .wingCapLookUpReq         = 10,
 };
 
 struct LevelValues gLevelValues = { 0 };
@@ -125,6 +132,7 @@ struct BehaviorValues gDefaultBehaviorValues = {
     .BowlingBallThiSmallSpeed = 10.0f,
     .GrateStarRequirement     = 120,
     .ShowStarMilestones       = TRUE,
+    .RespawnShellBoxes        = TRUE,
     .starsNeededForDialog     = { 1, 3, 8, 30, 50, 70 },
     .dialogs = {
         .BobombBuddyBob1Dialog         = DIALOG_004,
@@ -248,6 +256,29 @@ struct BehaviorValues gDefaultBehaviorValues = {
 
 struct BehaviorValues gBehaviorValues = { 0 };
 
+struct PaintingValues gDefaultPaintingValues = {
+    .cotmc_painting =     &cotmc_painting,
+
+    .bob_painting =       &bob_painting,
+    .ccm_painting =       &ccm_painting,
+    .wf_painting =        &wf_painting,
+    .jrb_painting =       &jrb_painting,
+    .lll_painting =       &lll_painting,
+    .ssl_painting =       &ssl_painting,
+    .hmc_painting =       &hmc_painting,
+    .ddd_painting =       &ddd_painting,
+    .wdw_painting =       &wdw_painting,
+    .thi_tiny_painting =  &thi_tiny_painting,
+    .ttm_painting =       &ttm_painting,
+    .ttc_painting =       &ttc_painting,
+    .sl_painting =        &sl_painting,
+    .thi_huge_painting =  &thi_huge_painting,
+
+    .ttm_slide_painting = &ttm_slide_painting,
+};
+
+struct PaintingValues gPaintingValues = { 0 };
+
   ///////////////
  // functions //
 ///////////////
@@ -256,4 +287,5 @@ __attribute__((constructor))
 void hardcoded_reset_default_values(void) {
     gLevelValues = gDefaultLevelValues;
     gBehaviorValues = gDefaultBehaviorValues;
+    gPaintingValues = gDefaultPaintingValues;
 }

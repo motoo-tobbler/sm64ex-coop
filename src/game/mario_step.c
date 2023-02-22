@@ -109,7 +109,9 @@ void mario_bonk_reflection(struct MarioState *m, u32 negateSpeed) {
 }
 
 u32 mario_update_quicksand(struct MarioState *m, f32 sinkingSpeed) {
-    if (m->action & ACT_FLAG_RIDING_SHELL || (Cheats.enabled && Cheats.godMode)) {
+    bool allow = true;
+    smlua_call_event_hooks_mario_param_ret_bool(HOOK_ALLOW_HAZARD_SURFACE, m, &allow);
+    if (m->action & ACT_FLAG_RIDING_SHELL || (Cheats.enabled && Cheats.godMode) || (!allow)) {
         m->quicksandDepth = 0.0f;
     } else {
         if (m->quicksandDepth < 1.1f) {
@@ -194,7 +196,8 @@ u32 mario_update_moving_sand(struct MarioState *m) {
 u32 mario_update_windy_ground(struct MarioState *m) {
     struct Surface *floor = m->floor;
 
-    if (floor->type == SURFACE_HORIZONTAL_WIND) {
+    extern bool gDjuiInMainMenu;
+    if (floor->type == SURFACE_HORIZONTAL_WIND && !gDjuiInMainMenu) {
         f32 pushSpeed;
         s16 pushAngle = floor->force << 8;
 

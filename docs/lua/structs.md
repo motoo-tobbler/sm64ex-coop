@@ -46,6 +46,9 @@
 - [ObjectNode](#ObjectNode)
 - [ObjectWarpNode](#ObjectWarpNode)
 - [OffsetSizePair](#OffsetSizePair)
+- [Painting](#Painting)
+- [PaintingMeshVertex](#PaintingMeshVertex)
+- [PaintingValues](#PaintingValues)
 - [ParallelTrackingPoint](#ParallelTrackingPoint)
 - [PlayerCameraState](#PlayerCameraState)
 - [PlayerGeometry](#PlayerGeometry)
@@ -296,6 +299,7 @@
 | RacingPenguinBigRadius | `number` |  |
 | RacingPenguinHeight | `number` |  |
 | RacingPenguinRadius | `number` |  |
+| RespawnShellBoxes | `integer` |  |
 | ShowStarMilestones | `integer` |  |
 | ToadStar1Requirement | `integer` |  |
 | ToadStar2Requirement | `integer` |  |
@@ -335,6 +339,7 @@
 | doorStatus | `integer` |  |
 | focus | [Vec3f](structs.md#Vec3f) | read-only |
 | mode | `integer` |  |
+| mtx | `Mat4` | read-only |
 | nextYaw | `integer` |  |
 | pos | [Vec3f](structs.md#Vec3f) | read-only |
 | unusedVec1 | [Vec3f](structs.md#Vec3f) | read-only |
@@ -755,10 +760,12 @@
 
 | Field | Type | Access |
 | ----- | ---- | ------ |
+| apostrophe | [TextureInfo](structs.md#TextureInfo) | read-only |
 | arrow_down | [TextureInfo](structs.md#TextureInfo) | read-only |
 | arrow_up | [TextureInfo](structs.md#TextureInfo) | read-only |
 | camera | [TextureInfo](structs.md#TextureInfo) | read-only |
 | coin | [TextureInfo](structs.md#TextureInfo) | read-only |
+| double_quote | [TextureInfo](structs.md#TextureInfo) | read-only |
 | lakitu | [TextureInfo](structs.md#TextureInfo) | read-only |
 | luigi_head | [TextureInfo](structs.md#TextureInfo) | read-only |
 | mario_head | [TextureInfo](structs.md#TextureInfo) | read-only |
@@ -797,6 +804,7 @@
 | animInfo | [AnimInfo](structs.md#AnimInfo) | read-only |
 | areaIndex | `integer` |  |
 | cameraToObject | [Vec3f](structs.md#Vec3f) | read-only |
+| disableAutomaticShadowPos | `boolean` |  |
 | node | [GraphNode](structs.md#GraphNode) | read-only |
 | pos | [Vec3f](structs.md#Vec3f) | read-only |
 | prevAngle | [Vec3s](structs.md#Vec3s) | read-only |
@@ -805,12 +813,17 @@
 | prevScaleTimestamp | `integer` |  |
 | prevShadowPos | [Vec3f](structs.md#Vec3f) | read-only |
 | prevShadowPosTimestamp | `integer` |  |
+| prevThrowMatrix | `Mat4` | read-only |
 | prevThrowMatrixTimestamp | `integer` |  |
 | prevTimestamp | `integer` |  |
 | scale | [Vec3f](structs.md#Vec3f) | read-only |
+| shadowInvisible | `boolean` |  |
+| shadowPos | [Vec3f](structs.md#Vec3f) | read-only |
 | sharedChild | [GraphNode](structs.md#GraphNode) |  |
 | skipInViewCheck | `boolean` |  |
 | skipInterpolationTimestamp | `integer` |  |
+| throwMatrix | `Pointer` <`Mat4`> |  |
+| throwMatrixPrev | `Pointer` <`Mat4`> |  |
 | unk4C | [SpawnInfo](structs.md#SpawnInfo) |  |
 
 [:arrow_up_small:](#)
@@ -904,26 +917,33 @@
 
 | Field | Type | Access |
 | ----- | ---- | ------ |
-| ceilHeightLimit | `integer` |  |
+| cellHeightLimit | `integer` |  |
 | coinsRequiredForCoinStar | `integer` |  |
+| disableActs | `boolean` |  |
 | entryLevel | [enum LevelNum](constants.md#enum-LevelNum) |  |
 | exitCastleArea | `integer` |  |
 | exitCastleLevel | [enum LevelNum](constants.md#enum-LevelNum) |  |
 | exitCastleWarpNode | `integer` |  |
 | fixCollisionBugs | `integer` |  |
+| fixVanishFloors | `boolean` |  |
 | floorLowerLimit | `integer` |  |
 | floorLowerLimitMisc | `integer` |  |
 | floorLowerLimitShadow | `integer` |  |
 | metalCapDuration | `integer` |  |
 | metalCapDurationCotmc | `integer` |  |
+| metalCapSequence | `integer` |  |
+| pauseExitAnywhere | `boolean` |  |
 | pssSlideStarIndex | `integer` |  |
 | pssSlideStarTime | `integer` |  |
 | skipCreditsAt | [enum LevelNum](constants.md#enum-LevelNum) |  |
 | starPositions | [StarPositions](structs.md#StarPositions) | read-only |
 | vanishCapDuration | `integer` |  |
 | vanishCapDurationVcutm | `integer` |  |
+| vanishCapSequence | `integer` |  |
 | wingCapDuration | `integer` |  |
 | wingCapDurationTotwc | `integer` |  |
+| wingCapLookUpReq | `integer` |  |
+| wingCapSequence | `integer` |  |
 
 [:arrow_up_small:](#)
 
@@ -1053,6 +1073,7 @@
 | slideYaw | `integer` |  |
 | spawnInfo | [SpawnInfo](structs.md#SpawnInfo) |  |
 | specialTripleJump | `integer` |  |
+| splineKeyframe | `Pointer` <`Vec4s`> |  |
 | splineKeyframeFraction | `number` |  |
 | splineState | `integer` |  |
 | squishTimer | `integer` |  |
@@ -1187,6 +1208,7 @@
 | prevObj | [Object](structs.md#Object) |  |
 | respawnInfoType | `integer` |  |
 | setHome | `integer` |  |
+| transform | `Mat4` | read-only |
 | unused1 | `integer` |  |
 | usingObj | [Object](structs.md#Object) |  |
 
@@ -1977,6 +1999,84 @@
 | ----- | ---- | ------ |
 | offset | `integer` |  |
 | size | `integer` |  |
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [Painting](#Painting)
+
+| Field | Type | Access |
+| ----- | ---- | ------ |
+| alpha | `integer` |  |
+| currFloor | `integer` |  |
+| currRippleMag | `number` |  |
+| currRippleRate | `number` |  |
+| dispersionFactor | `number` |  |
+| entryDispersionFactor | `number` |  |
+| entryRippleDecay | `number` |  |
+| entryRippleMag | `number` |  |
+| entryRippleRate | `number` |  |
+| floorEntered | `integer` |  |
+| id | `integer` | read-only |
+| imageCount | `integer` | read-only |
+| lastFloor | `integer` |  |
+| marioIsUnder | `integer` |  |
+| marioWasUnder | `integer` |  |
+| marioWentUnder | `integer` |  |
+| passiveDispersionFactor | `number` |  |
+| passiveRippleDecay | `number` |  |
+| passiveRippleMag | `number` |  |
+| passiveRippleRate | `number` |  |
+| pitch | `number` |  |
+| posX | `number` |  |
+| posY | `number` |  |
+| posZ | `number` |  |
+| rippleDecay | `number` |  |
+| rippleTimer | `number` |  |
+| rippleTrigger | `integer` |  |
+| rippleX | `number` |  |
+| rippleY | `number` |  |
+| size | `number` |  |
+| state | `integer` |  |
+| textureHeight | `integer` | read-only |
+| textureType | `integer` | read-only |
+| textureWidth | `integer` | read-only |
+| yaw | `number` |  |
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [PaintingMeshVertex](#PaintingMeshVertex)
+
+| Field | Type | Access |
+| ----- | ---- | ------ |
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [PaintingValues](#PaintingValues)
+
+| Field | Type | Access |
+| ----- | ---- | ------ |
+| bob_painting | [Painting](structs.md#Painting) |  |
+| ccm_painting | [Painting](structs.md#Painting) |  |
+| cotmc_painting | [Painting](structs.md#Painting) |  |
+| ddd_painting | [Painting](structs.md#Painting) |  |
+| hmc_painting | [Painting](structs.md#Painting) |  |
+| jrb_painting | [Painting](structs.md#Painting) |  |
+| lll_painting | [Painting](structs.md#Painting) |  |
+| sl_painting | [Painting](structs.md#Painting) |  |
+| ssl_painting | [Painting](structs.md#Painting) |  |
+| thi_huge_painting | [Painting](structs.md#Painting) |  |
+| thi_tiny_painting | [Painting](structs.md#Painting) |  |
+| ttc_painting | [Painting](structs.md#Painting) |  |
+| ttm_painting | [Painting](structs.md#Painting) |  |
+| ttm_slide_painting | [Painting](structs.md#Painting) |  |
+| wdw_painting | [Painting](structs.md#Painting) |  |
+| wf_painting | [Painting](structs.md#Painting) |  |
 
 [:arrow_up_small:](#)
 

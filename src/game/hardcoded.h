@@ -1,7 +1,9 @@
 #ifndef HARDCODED_H
 #include "types.h"
 #include "level_table.h"
-#include  "dialog_ids.h"
+#include "dialog_ids.h"
+#include "seq_ids.h"
+#include "paintings.h"
 
   ////////////
  // Levels //
@@ -38,6 +40,8 @@ struct StarPositions {
 
 struct LevelValues {
     u8 fixCollisionBugs;
+    u8 wingCapLookUpReq;
+    bool fixVanishFloors;
     enum LevelNum entryLevel;
     enum LevelNum exitCastleLevel;
     s16 exitCastleArea;
@@ -52,11 +56,16 @@ struct LevelValues {
     u16 wingCapDurationTotwc;
     u16 metalCapDurationCotmc;
     u16 vanishCapDurationVcutm;
+    u8 wingCapSequence;
+    u8 metalCapSequence;
+    u8 vanishCapSequence;
     struct StarPositions starPositions;
-    s16 ceilHeightLimit;
+    s16 cellHeightLimit;
     s16 floorLowerLimit;
     s16 floorLowerLimitMisc;
     s16 floorLowerLimitShadow;
+    bool pauseExitAnywhere;
+    bool disableActs;
 };
 
 extern struct LevelValues gLevelValues;
@@ -219,12 +228,36 @@ struct BehaviorValues {
     f32 BowlingBallThiSmallSpeed;
     u16 GrateStarRequirement;
     u8  ShowStarMilestones;
+    u8  RespawnShellBoxes;
     struct StarsNeededForDialog starsNeededForDialog;
     struct BehaviorDialogs dialogs;
     struct BehaviorTrajectories trajectories;
 };
 
 extern struct BehaviorValues gBehaviorValues;
+
+struct PaintingValues {
+    struct Painting* cotmc_painting;
+
+    struct Painting* bob_painting;
+    struct Painting* ccm_painting;
+    struct Painting* wf_painting;
+    struct Painting* jrb_painting;
+    struct Painting* lll_painting;
+    struct Painting* ssl_painting;
+    struct Painting* hmc_painting;
+    struct Painting* ddd_painting;
+    struct Painting* wdw_painting;
+    struct Painting* thi_tiny_painting;
+    struct Painting* ttm_painting;
+    struct Painting* ttc_painting;
+    struct Painting* sl_painting;
+    struct Painting* thi_huge_painting;
+
+    struct Painting* ttm_slide_painting;
+};
+
+extern struct PaintingValues gPaintingValues;
 
 void hardcoded_reset_default_values(void);
 

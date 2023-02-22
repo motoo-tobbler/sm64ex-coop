@@ -41,6 +41,7 @@ in_files = [
     "src/pc/lua/utils/smlua_obj_utils.h",
     "src/pc/lua/utils/smlua_misc_utils.h",
     "src/pc/lua/utils/smlua_collision_utils.h",
+    "src/pc/lua/utils/smlua_math_utils.h",
     "src/pc/lua/utils/smlua_model_utils.h",
     "src/pc/lua/utils/smlua_text_utils.h",
     "src/pc/lua/utils/smlua_audio_utils.h",
@@ -54,7 +55,9 @@ in_files = [
     "src/game/mario_misc.h",
     "src/pc/mods/mod_storage.h",
     "src/pc/utils/misc.h",
-    "src/game/level_update.h"
+    "src/game/level_update.h",
+    "src/game/area.h",
+    "src/engine/level_script.h"
 ]
 
 override_allowed_functions = {
@@ -65,13 +68,15 @@ override_allowed_functions = {
     "src/pc/lua/utils/smlua_model_utils.h": [ "smlua_model_util_get_id" ],
     "src/game/object_list_processor.h":     [ "set_object_respawn_info_bits" ],
     "src/game/mario_misc.h":                [ "bhv_toad.*", "bhv_unlock_door.*" ],
+    "src/pc/utils/misc.h":                  [ "update_all_mario_stars" ],
     "src/game/level_update.h":              [ "level_trigger_warp" ],
-    "src/pc/utils/misc.h":                  [ "update_all_mario_stars"],
+    "src/game/area.h":                      [ "area_get_warp_node" ],
+    "src/engine/level_script.h":            [ "area_create_warp_node" ]
 }
 
 override_disallowed_functions = {
     "src/audio/external.h":                [ " func_" ],
-    "src/engine/math_util.h":              [ "atan2s", "atan2f" ],
+    "src/engine/math_util.h":              [ "atan2s", "atan2f", "vec3s_sub" ],
     "src/engine/surface_collision.h":      [ " debug_", "f32_find_wall_collision" ],
     "src/game/mario_actions_airborne.c":   [ "^[us]32 act_.*" ],
     "src/game/mario_actions_automatic.c":  [ "^[us]32 act_.*" ],
@@ -95,7 +100,7 @@ override_disallowed_functions = {
     "src/game/camera.h":                   [ "update_camera", "init_camera", "stub_camera", "^reset_camera", "move_point_along_spline" ],
     "src/game/behavior_actions.h":         [ "bhv_dust_smoke_loop", "bhv_init_room" ],
     "src/pc/lua/utils/smlua_audio_utils.h": [ "smlua_audio_utils_override", "audio_custom_shutdown"],
-    "src/pc/djui/djui_hud_utils.h":         [ "djui_hud_render_texture", "djui_hud_render_texture_raw" ],
+    "src/pc/djui/djui_hud_utils.h":         [ "djui_hud_render_texture", "djui_hud_render_texture_raw", "djui_hud_render_texture_tile", "djui_hud_render_texture_tile_raw" ],
     "src/pc/lua/utils/smlua_level_utils.h": [ "smlua_level_util_reset" ],
 }
 
@@ -156,6 +161,90 @@ param_vec3s_after_call = """
 param_override_build['Vec3s'] = {
     'before': param_vec3s_before_call,
     'after': param_vec3s_after_call
+}
+
+param_vec4f_before_call = """
+    f32* $[IDENTIFIER] = smlua_get_vec4f_from_buffer();
+    $[IDENTIFIER][0] = smlua_get_number_field($[INDEX], "x");
+    $[IDENTIFIER][1] = smlua_get_number_field($[INDEX], "y");
+    $[IDENTIFIER][2] = smlua_get_number_field($[INDEX], "z");
+    $[IDENTIFIER][3] = smlua_get_number_field($[INDEX], "w");
+"""
+
+param_vec4f_after_call = """
+    smlua_push_number_field($[INDEX], "x", $[IDENTIFIER][0]);
+    smlua_push_number_field($[INDEX], "y", $[IDENTIFIER][1]);
+    smlua_push_number_field($[INDEX], "z", $[IDENTIFIER][2]);
+    smlua_push_number_field($[INDEX], "w", $[IDENTIFIER][3]);
+"""
+
+param_override_build['Vec4f'] = {
+    'before': param_vec4f_before_call,
+    'after': param_vec4f_after_call
+}
+
+param_vec4s_before_call = """
+    s16* $[IDENTIFIER] = smlua_get_vec4s_from_buffer();
+    $[IDENTIFIER][0] = smlua_get_integer_field($[INDEX], "x");
+    $[IDENTIFIER][1] = smlua_get_integer_field($[INDEX], "y");
+    $[IDENTIFIER][2] = smlua_get_integer_field($[INDEX], "z");
+    $[IDENTIFIER][3] = smlua_get_integer_field($[INDEX], "w");
+"""
+
+param_vec4s_after_call = """
+    smlua_push_integer_field($[INDEX], "x", $[IDENTIFIER][0]);
+    smlua_push_integer_field($[INDEX], "y", $[IDENTIFIER][1]);
+    smlua_push_integer_field($[INDEX], "z", $[IDENTIFIER][2]);
+    smlua_push_integer_field($[INDEX], "w", $[IDENTIFIER][3]);
+"""
+
+param_override_build['Vec4s'] = {
+    'before': param_vec4s_before_call,
+    'after': param_vec4s_after_call
+}
+
+param_mat4_before_call = """
+    Mat4 $[IDENTIFIER];
+    $[IDENTIFIER][0][0] = smlua_get_number_field($[INDEX], "a");
+    $[IDENTIFIER][0][1] = smlua_get_number_field($[INDEX], "b");
+    $[IDENTIFIER][0][2] = smlua_get_number_field($[INDEX], "c");
+    $[IDENTIFIER][0][3] = smlua_get_number_field($[INDEX], "d");
+    $[IDENTIFIER][1][0] = smlua_get_number_field($[INDEX], "e");
+    $[IDENTIFIER][1][1] = smlua_get_number_field($[INDEX], "f");
+    $[IDENTIFIER][1][2] = smlua_get_number_field($[INDEX], "g");
+    $[IDENTIFIER][1][3] = smlua_get_number_field($[INDEX], "h");
+    $[IDENTIFIER][2][0] = smlua_get_number_field($[INDEX], "i");
+    $[IDENTIFIER][2][1] = smlua_get_number_field($[INDEX], "j");
+    $[IDENTIFIER][2][2] = smlua_get_number_field($[INDEX], "k");
+    $[IDENTIFIER][2][3] = smlua_get_number_field($[INDEX], "l");
+    $[IDENTIFIER][3][0] = smlua_get_number_field($[INDEX], "m");
+    $[IDENTIFIER][3][1] = smlua_get_number_field($[INDEX], "n");
+    $[IDENTIFIER][3][2] = smlua_get_number_field($[INDEX], "o");
+    $[IDENTIFIER][3][3] = smlua_get_number_field($[INDEX], "p");
+"""
+
+param_mat4_after_call = """
+    smlua_push_number_field($[INDEX], "a", $[IDENTIFIER][0][0]);
+    smlua_push_number_field($[INDEX], "b", $[IDENTIFIER][0][1]);
+    smlua_push_number_field($[INDEX], "c", $[IDENTIFIER][0][2]);
+    smlua_push_number_field($[INDEX], "d", $[IDENTIFIER][0][3]);
+    smlua_push_number_field($[INDEX], "e", $[IDENTIFIER][1][0]);
+    smlua_push_number_field($[INDEX], "f", $[IDENTIFIER][1][1]);
+    smlua_push_number_field($[INDEX], "g", $[IDENTIFIER][1][2]);
+    smlua_push_number_field($[INDEX], "h", $[IDENTIFIER][1][3]);
+    smlua_push_number_field($[INDEX], "i", $[IDENTIFIER][2][0]);
+    smlua_push_number_field($[INDEX], "j", $[IDENTIFIER][2][1]);
+    smlua_push_number_field($[INDEX], "k", $[IDENTIFIER][2][2]);
+    smlua_push_number_field($[INDEX], "l", $[IDENTIFIER][2][3]);
+    smlua_push_number_field($[INDEX], "m", $[IDENTIFIER][3][0]);
+    smlua_push_number_field($[INDEX], "n", $[IDENTIFIER][3][1]);
+    smlua_push_number_field($[INDEX], "o", $[IDENTIFIER][3][2]);
+    smlua_push_number_field($[INDEX], "p", $[IDENTIFIER][3][3]);
+"""
+
+param_override_build['Mat4'] = {
+    'before': param_mat4_before_call,
+    'after': param_mat4_after_call
 }
 
 param_color_before_call = """
@@ -469,6 +558,10 @@ def build_call(function):
 
     if ftype == 'void':
         return '    %s;\n' % ccall
+    # We can't possibly know the type of a void pointer, 
+    # So we just don't return anything from it
+    elif ftype == 'void *':
+        return '    %s;\n' % ccall
 
     flot = translate_type_to_lot(ftype)
 
@@ -500,7 +593,12 @@ def build_function(function, do_extern):
     else:
         s = 'int smlua_func_%s(lua_State* L) {\n' % function['identifier']
 
-    s += '    if(!smlua_functions_valid_param_count(L, %d)) { return 0; }\n\n' % len(function['params'])
+    s += """    if (L == NULL) { return 0; }\n
+    int top = lua_gettop(L);
+    if (top != %d) {
+        LOG_LUA_LINE("Improper param count for '%%s': Expected %%u, Received %%u", "%s", %d, top);
+        return 0;
+    }\n\n""" % (len(function['params']), function['identifier'], len(function['params']))
 
     # stub Bass and discord, but not walking animations
     if 'audio_' in fid and 'smlua' not in fid and 'anim' not in fid or 'discord' in fid:
@@ -510,7 +608,7 @@ def build_function(function, do_extern):
     i = 1
     for param in function['params']:
         s += build_param(param, i)
-        s += '    if (!gSmLuaConvertSuccess) { LOG_LUA("Failed to convert parameter %d for function \'%s\'"); return 0; }\n' % (i, fid)
+        s += '    if (!gSmLuaConvertSuccess) { LOG_LUA("Failed to convert parameter %%u for function \'%%s\'", %d, "%s"); return 0; }\n' % (i, fid)
         i += 1
     s += '\n'
 

@@ -7,6 +7,7 @@
 #include "buffers/zbuffer.h"
 #include "game/area.h"
 #include "game/game_init.h"
+#include "game/hardcoded.h"
 #include "game/mario.h"
 #include "game/memory.h"
 #include "game/object_helpers.h"
@@ -102,6 +103,26 @@ static s32 eval_script_op(s8 op, s32 arg) {
     }
 
     return result;
+}
+
+struct ObjectWarpNode *area_create_warp_node(u8 id, u8 destLevel, u8 destArea, u8 destNode, u8 checkpoint, struct Object *o) {
+    if (sCurrAreaIndex != -1) {
+        struct ObjectWarpNode *warpNode =
+            alloc_only_pool_alloc(sLevelPool, sizeof(struct ObjectWarpNode));
+
+        warpNode->node.id = id;
+        warpNode->node.destLevel = destLevel + checkpoint;
+        warpNode->node.destArea = destArea;
+        warpNode->node.destNode = destNode;
+
+        warpNode->object = o;
+
+        warpNode->next = gAreas[sCurrAreaIndex].warpNodes;
+        gAreas[sCurrAreaIndex].warpNodes = warpNode;
+
+        return warpNode;
+    }
+    return NULL;
 }
 
 static void area_check_red_coin_or_secret(void *arg, bool isMacroObject) {
@@ -509,7 +530,7 @@ static void level_cmd_place_object(void) {
     u16 model;
     struct SpawnInfo *spawnInfo;
 
-    if (sCurrAreaIndex != -1 && ((CMD_GET(u8, 2) & val7) || CMD_GET(u8, 2) == 0x1F)) {
+    if (sCurrAreaIndex != -1 && (gLevelValues.disableActs || (CMD_GET(u8, 2) & val7) || CMD_GET(u8, 2) == 0x1F)) {
         model = CMD_GET(u8, 3);
         spawnInfo = alloc_only_pool_alloc(sLevelPool, sizeof(struct SpawnInfo));
 

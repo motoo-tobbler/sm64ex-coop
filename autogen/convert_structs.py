@@ -24,6 +24,7 @@ in_files = [
     'src/game/hardcoded.h',
     'src/pc/mods/mod.h',
     'src/pc/lua/utils/smlua_audio_utils.h',
+    'src/game/paintings.h'
 ]
 
 out_filename_c = 'src/pc/lua/smlua_cobject_autogen.c'
@@ -72,7 +73,8 @@ override_field_mutable = {
 }
 
 override_field_invisible = {
-    "Mod": [ "files" ]
+    "Mod": [ "files" ],
+    "MarioState": [ "visibleToEnemies" ],
 }
 
 override_field_immutable = {
@@ -88,6 +90,7 @@ override_field_immutable = {
     "Mod": [ "*" ],
     "ModFile": [ "*" ],
     "BassAudio": [ "*" ],
+    "Painting": [ "id", "imageCount", "textureType", "textureWidth", "textureHeight" ]
 }
 
 override_allowed_structs = {

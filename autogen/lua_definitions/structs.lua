@@ -181,6 +181,7 @@
 --- @field public RacingPenguinBigRadius number
 --- @field public RacingPenguinHeight number
 --- @field public RacingPenguinRadius number
+--- @field public RespawnShellBoxes integer
 --- @field public ShowStarMilestones integer
 --- @field public ToadStar1Requirement integer
 --- @field public ToadStar2Requirement integer
@@ -206,6 +207,7 @@
 --- @field public doorStatus integer
 --- @field public focus Vec3f
 --- @field public mode integer
+--- @field public mtx Mat4
 --- @field public nextYaw integer
 --- @field public pos Vec3f
 --- @field public unusedVec1 Vec3f
@@ -516,10 +518,12 @@
 --- @field public wooden_signpost_seg3_collision_0302DD80 Pointer_Collision
 
 --- @class GlobalTextures
+--- @field public apostrophe TextureInfo
 --- @field public arrow_down TextureInfo
 --- @field public arrow_up TextureInfo
 --- @field public camera TextureInfo
 --- @field public coin TextureInfo
+--- @field public double_quote TextureInfo
 --- @field public lakitu TextureInfo
 --- @field public luigi_head TextureInfo
 --- @field public mario_head TextureInfo
@@ -544,6 +548,7 @@
 --- @field public animInfo AnimInfo
 --- @field public areaIndex integer
 --- @field public cameraToObject Vec3f
+--- @field public disableAutomaticShadowPos boolean
 --- @field public node GraphNode
 --- @field public pos Vec3f
 --- @field public prevAngle Vec3s
@@ -552,12 +557,17 @@
 --- @field public prevScaleTimestamp integer
 --- @field public prevShadowPos Vec3f
 --- @field public prevShadowPosTimestamp integer
+--- @field public prevThrowMatrix Mat4
 --- @field public prevThrowMatrixTimestamp integer
 --- @field public prevTimestamp integer
 --- @field public scale Vec3f
+--- @field public shadowInvisible boolean
+--- @field public shadowPos Vec3f
 --- @field public sharedChild GraphNode
 --- @field public skipInViewCheck boolean
 --- @field public skipInterpolationTimestamp integer
+--- @field public throwMatrix Pointer_Mat4
+--- @field public throwMatrixPrev Pointer_Mat4
 --- @field public unk4C SpawnInfo
 
 --- @class GraphNode_802A45E4
@@ -616,26 +626,33 @@
 --- @field public yaw integer
 
 --- @class LevelValues
---- @field public ceilHeightLimit integer
+--- @field public cellHeightLimit integer
 --- @field public coinsRequiredForCoinStar integer
+--- @field public disableActs boolean
 --- @field public entryLevel LevelNum
 --- @field public exitCastleArea integer
 --- @field public exitCastleLevel LevelNum
 --- @field public exitCastleWarpNode integer
 --- @field public fixCollisionBugs integer
+--- @field public fixVanishFloors boolean
 --- @field public floorLowerLimit integer
 --- @field public floorLowerLimitMisc integer
 --- @field public floorLowerLimitShadow integer
 --- @field public metalCapDuration integer
 --- @field public metalCapDurationCotmc integer
+--- @field public metalCapSequence integer
+--- @field public pauseExitAnywhere boolean
 --- @field public pssSlideStarIndex integer
 --- @field public pssSlideStarTime integer
 --- @field public skipCreditsAt LevelNum
 --- @field public starPositions StarPositions
 --- @field public vanishCapDuration integer
 --- @field public vanishCapDurationVcutm integer
+--- @field public vanishCapSequence integer
 --- @field public wingCapDuration integer
 --- @field public wingCapDurationTotwc integer
+--- @field public wingCapLookUpReq integer
+--- @field public wingCapSequence integer
 
 --- @class LinearTransitionPoint
 --- @field public dist number
@@ -730,6 +747,7 @@
 --- @field public slideYaw integer
 --- @field public spawnInfo SpawnInfo
 --- @field public specialTripleJump integer
+--- @field public splineKeyframe Pointer_Vec4s
 --- @field public splineKeyframeFraction number
 --- @field public splineState integer
 --- @field public squishTimer integer
@@ -1556,6 +1574,7 @@
 --- @field public prevObj Object
 --- @field public respawnInfoType integer
 --- @field public setHome integer
+--- @field public transform Mat4
 --- @field public unused1 integer
 --- @field public usingObj Object
 
@@ -1583,6 +1602,63 @@
 --- @class OffsetSizePair
 --- @field public offset integer
 --- @field public size integer
+
+--- @class Painting
+--- @field public alpha integer
+--- @field public currFloor integer
+--- @field public currRippleMag number
+--- @field public currRippleRate number
+--- @field public dispersionFactor number
+--- @field public entryDispersionFactor number
+--- @field public entryRippleDecay number
+--- @field public entryRippleMag number
+--- @field public entryRippleRate number
+--- @field public floorEntered integer
+--- @field public id integer
+--- @field public imageCount integer
+--- @field public lastFloor integer
+--- @field public marioIsUnder integer
+--- @field public marioWasUnder integer
+--- @field public marioWentUnder integer
+--- @field public passiveDispersionFactor number
+--- @field public passiveRippleDecay number
+--- @field public passiveRippleMag number
+--- @field public passiveRippleRate number
+--- @field public pitch number
+--- @field public posX number
+--- @field public posY number
+--- @field public posZ number
+--- @field public rippleDecay number
+--- @field public rippleTimer number
+--- @field public rippleTrigger integer
+--- @field public rippleX number
+--- @field public rippleY number
+--- @field public size number
+--- @field public state integer
+--- @field public textureHeight integer
+--- @field public textureType integer
+--- @field public textureWidth integer
+--- @field public yaw number
+
+--- @class PaintingMeshVertex
+
+--- @class PaintingValues
+--- @field public bob_painting Painting
+--- @field public ccm_painting Painting
+--- @field public cotmc_painting Painting
+--- @field public ddd_painting Painting
+--- @field public hmc_painting Painting
+--- @field public jrb_painting Painting
+--- @field public lll_painting Painting
+--- @field public sl_painting Painting
+--- @field public ssl_painting Painting
+--- @field public thi_huge_painting Painting
+--- @field public thi_tiny_painting Painting
+--- @field public ttc_painting Painting
+--- @field public ttm_painting Painting
+--- @field public ttm_slide_painting Painting
+--- @field public wdw_painting Painting
+--- @field public wf_painting Painting
 
 --- @class ParallelTrackingPoint
 --- @field public distThresh number
@@ -1824,4 +1900,6 @@
 --- @class Pointer_LevelScript
 --- @class Pointer_ObjectAnimPointer
 --- @class Pointer_Collision
+--- @class Pointer_Mat4
+--- @class Pointer_Vec4s
 --- @class Pointer_BehaviorScript

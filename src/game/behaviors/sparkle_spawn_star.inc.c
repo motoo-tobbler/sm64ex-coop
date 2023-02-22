@@ -35,8 +35,6 @@ void bhv_spawned_star_init(void) {
 void set_sparkle_spawn_star_hitbox(void) {
     obj_set_hitbox(o, &sSparkleSpawnStarHitbox);
     if (o->oInteractStatus & INT_STATUS_INTERACTED) {
-        extern u8 gLastCollectedStarOrKey;
-        gLastCollectedStarOrKey = 0;
         mark_obj_for_deletion(o);
         o->oInteractStatus = 0;
     }
@@ -56,9 +54,11 @@ void set_home_to_mario(void) {
         o->oHomeY = o->parentObj->oPosY;
     } else {
         struct Object* player = nearest_player_to_object(o);
-        o->oHomeX = player->oPosX;
-        o->oHomeZ = player->oPosZ;
-        o->oHomeY = player->oPosY;
+        if (player) {
+            o->oHomeX = player->oPosX;
+            o->oHomeZ = player->oPosZ;
+            o->oHomeY = player->oPosY;
+        }
     }
     o->oHomeY += 250.0f;
     o->oPosY = o->oHomeY;
