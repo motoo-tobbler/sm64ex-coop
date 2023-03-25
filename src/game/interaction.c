@@ -394,7 +394,7 @@ void mario_blow_off_cap(struct MarioState *m, f32 capSpeed) {
     struct Object *capObject;
 
     if (does_mario_have_normal_cap_on_head(m)) {
-        save_file_set_cap_pos(m->pos[0], m->pos[1], m->pos[2]);
+        m->cap = SAVE_FLAG_CAP_ON_MR_BLIZZARD;
 
         m->flags &= ~(MARIO_NORMAL_CAP | MARIO_CAP_ON_HEAD);
 
@@ -426,7 +426,7 @@ u32 mario_lose_cap_to_enemy(struct MarioState* m, u32 arg) {
     u32 wasWearingCap = FALSE;
 
     if (does_mario_have_normal_cap_on_head(m)) {
-        save_file_set_flags(arg == 1 ? SAVE_FLAG_CAP_ON_KLEPTO : SAVE_FLAG_CAP_ON_UKIKI);
+        gMarioStates[0].cap = (arg == 1 ? SAVE_FLAG_CAP_ON_KLEPTO : SAVE_FLAG_CAP_ON_UKIKI);
         m->flags &= ~(MARIO_NORMAL_CAP | MARIO_CAP_ON_HEAD);
         wasWearingCap = TRUE;
     }
@@ -909,6 +909,11 @@ u32 interact_star_or_key(struct MarioState *m, UNUSED u32 interactType, struct O
             }
         }
 
+        if (gLevelValues.starHeal) {
+            m->healCounter = 31;
+            m->hurtCounter = 0;
+        }
+
         if (noExit) {
             starGrabAction = ACT_STAR_DANCE_NO_EXIT;
         }
@@ -923,6 +928,9 @@ u32 interact_star_or_key(struct MarioState *m, UNUSED u32 interactType, struct O
 
         if (m->action & ACT_FLAG_AIR) {
             starGrabAction = ACT_FALL_AFTER_STAR_GRAB;
+            if (gLevelValues.floatingStarDance && m->pos[1] - m->floorHeight > 1000) {
+                starGrabAction = ACT_STAR_DANCE_WATER;
+            }
         }
 
         for (s32 i = 0; i < MAX_PLAYERS; i++) {
@@ -2175,6 +2183,8 @@ void check_kick_or_punch_wall(struct MarioState *m) {
 }
 
 void mario_process_interactions(struct MarioState *m) {
+    if (gDjuiInMainMenu) { return; }
+
     sDelayInvincTimer = FALSE;
     sInvulnerable = (m->action & ACT_FLAG_INVULNERABLE) || m->invincTimer != 0;
 

@@ -1989,7 +1989,13 @@ id_RM_Scroll_Texture = 535
 id_editor_Scroll_Texture = 536
 
 --- @type BehaviorId
-id_bhv_max_count = 537
+id_bhvBlueCoinNumber = 537
+
+--- @type BehaviorId
+id_bhvStarNumber = 538
+
+--- @type BehaviorId
+id_bhv_max_count = 539
 
 --- @type integer
 CAMERA_MODE_8_DIRECTIONS = 0x0E
@@ -3258,6 +3264,75 @@ RESOLUTION_N64 = 1
 RESOLUTION_COUNT = 2
 
 --- @type integer
+ENVFX_BUBBLE_START = 10
+
+--- @type integer
+ENVFX_FLOWERS = 11
+
+--- @type integer
+ENVFX_JETSTREAM_BUBBLES = 14
+
+--- @type integer
+ENVFX_LAVA_BUBBLES = 12
+
+--- @type integer
+ENVFX_MODE_NONE = 0
+
+--- @type integer
+ENVFX_SNOW_BLIZZARD = 3
+
+--- @type integer
+ENVFX_SNOW_NORMAL = 1
+
+--- @type integer
+ENVFX_SNOW_WATER = 2
+
+--- @type integer
+ENVFX_WHIRLPOOL_BUBBLES = 13
+
+--- @type integer
+SEQ_PLAYER_ENV = 1
+
+--- @type integer
+SEQ_PLAYER_LEVEL = 0
+
+--- @type integer
+SEQ_PLAYER_SFX = 2
+
+--- @type integer
+BACKGROUND_ABOVE_CLOUDS = 8
+
+--- @type integer
+BACKGROUND_BELOW_CLOUDS = 3
+
+--- @type integer
+BACKGROUND_CUSTOM = 10
+
+--- @type integer
+BACKGROUND_DESERT = 5
+
+--- @type integer
+BACKGROUND_FLAMING_SKY = 1
+
+--- @type integer
+BACKGROUND_GREEN_SKY = 7
+
+--- @type integer
+BACKGROUND_HAUNTED = 6
+
+--- @type integer
+BACKGROUND_OCEAN_SKY = 0
+
+--- @type integer
+BACKGROUND_PURPLE_SKY = 9
+
+--- @type integer
+BACKGROUND_SNOW_MOUNTAINS = 4
+
+--- @type integer
+BACKGROUND_UNDERWATER_CITY = 2
+
+--- @type integer
 GEO_CONTEXT_AREA_INIT = 4
 
 --- @type integer
@@ -3811,6 +3886,9 @@ MARIO_SPAWN_UNKNOWN_03 = 0x03
 
 --- @type integer
 MARIO_SPAWN_UNKNOWN_27 = 0x27
+
+--- @type integer
+PRESS_START_DEMO_TIMER = 800
 
 --- @type integer
 TIMER_CONTROL_HIDE = 3
@@ -4945,6 +5023,9 @@ BLUE_COIN_SWITCH_ACT_IDLE = 0
 
 --- @type integer
 BLUE_COIN_SWITCH_ACT_RECEDING = 1
+
+--- @type integer
+BLUE_COIN_SWITCH_ACT_RESPAWNING = 3
 
 --- @type integer
 BLUE_COIN_SWITCH_ACT_TICKING = 2
@@ -8152,7 +8233,13 @@ HOOK_OBJECT_SET_MODEL = 28
 HOOK_CHARACTER_SOUND = 29
 
 --- @type LuaHookedEventType
-HOOK_MAX = 30
+HOOK_BEFORE_SET_MARIO_ACTION = 30
+
+--- @type LuaHookedEventType
+HOOK_JOINED_GAME = 31
+
+--- @type LuaHookedEventType
+HOOK_MAX = 32
 
 --- @class HudDisplayFlags
 
@@ -11426,4 +11513,7 @@ MAX_VERSION_LENGTH = 10
 MINOR_VERSION_NUMBER = 0
 
 --- @type integer
-VERSION_NUMBER = 31
+VERSION_NUMBER = 32
+
+--- @type string
+VERSION_TEXT = "beta"

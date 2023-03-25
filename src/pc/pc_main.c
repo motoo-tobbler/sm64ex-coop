@@ -47,7 +47,7 @@
 #include "pc/discord/discordrpc.h"
 #endif
 #include "pc/network/version.h"
-#include "pc/network/socket/socket.h"
+#include "pc/network/socket/domain_res.h"
 #include "pc/network/network_player.h"
 #include "pc/djui/djui.h"
 #include "pc/debuglog.h"
@@ -174,7 +174,7 @@ void produce_interpolation_frames_and_delay(void) {
         gfx_start_frame();
         f32 delta = MIN((curTime - sFrameTimeStart) / (sFrameTargetTime - sFrameTimeStart), 1);
         gRenderingDelta = delta;
-        if (!skipInterpolationTitleScreen || configFrameLimit > 30) { patch_interpolations(delta); }
+        if (!gSkipInterpolationTitleScreen && (configFrameLimit > 30 || configUncappedFramerate)) { patch_interpolations(delta); }
         send_display_list(gGfxSPTask);
         gfx_end_frame();
 

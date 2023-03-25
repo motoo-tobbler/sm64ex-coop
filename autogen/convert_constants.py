@@ -39,7 +39,10 @@ in_files = [
     "include/surface_terrains.h",
     "src/game/level_update.h",
     "src/pc/network/version.h",
-    "include/level_commands.h"
+    "include/geo_commands.h",
+    "include/level_commands.h",
+    "src/audio/external.h",
+    "src/game/envfx_snow.h"
 ]
 
 exclude_constants = {
@@ -48,7 +51,9 @@ exclude_constants = {
 }
 
 include_constants = {
+    'include/geo_commands.h': ['BACKGROUND'],
     'include/level_commands.h': [ "WARP_CHECKPOINT", "WARP_NO_CHECKPOINT" ],
+    'src/audio/external.h': [ "SEQ_PLAYER" ]
 }
 
 pretend_find = [
@@ -158,7 +163,7 @@ def process_define(filename, line):
         if p.startswith('0x'):
             continue
         p = re.sub(r'0x[a-fA-F0-9]+', '', p)
-        if re.search('[a-z]', p) != None:
+        if re.search('[a-z]', p) != None and 'VERSION_TEXT' not in line:
             if 'gCurrentObject' not in line:
                 print('UNRECOGNIZED DEFINE: ' + line)
             return None
@@ -217,7 +222,7 @@ def build_constant(processed_constant):
         constants = [processed_constant]
 
     for c in constants:
-        s += '%s = %s\n' % (c[0], c[1])
+        s += '%s = %s\n' % (c[0], c[1].replace('"', "'"))
 
     return s
 
@@ -323,7 +328,10 @@ def def_constant(processed_constant):
         return s
 
     for c in [processed_constant]:
-        s += '\n--- @type integer\n'
+        if '"' in c[1]:
+            s += '\n--- @type string\n'
+        else:
+            s += '\n--- @type integer\n'
         s += '%s = %s\n' % (c[0], c[1])
 
     return s

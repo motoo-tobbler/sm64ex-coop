@@ -102,7 +102,7 @@ EXTRA_CFLAGS ?=
 EXTRA_CPP_FLAGS ?=
 EXTRA_CFLAGS += -Wno-format-security -Wno-trigraphs
 
-dev:; @$(MAKE) DEBUG=1 DEVELOPMENT=1
+dev:; @$(MAKE) DEVELOPMENT=1
 
 # COMPILER - selects the C compiler to use
 #   gcc - uses the GNU C Compiler
@@ -495,6 +495,9 @@ endif
 
 # Copy missing character sounds from mario sound banks
 _ := $(shell $(PYTHON) $(TOOLS_DIR)/copy_mario_sounds.py)
+
+# Copy missing instrument samples from the music sound banks
+_ := $(shell $(PYTHON) $(TOOLS_DIR)/copy_extended_sounds.py)
 
 #==============================================================================#
 # Target Executable and Sources                                                #

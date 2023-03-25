@@ -1093,6 +1093,10 @@ static u32 set_mario_action_cutscene(struct MarioState *m, u32 action, UNUSED u3
  * specific function if needed.
  */
 u32 set_mario_action(struct MarioState *m, u32 action, u32 actionArg) {
+    u32 returnValue = 0;
+    smlua_call_event_hooks_mario_action_params_ret_int(HOOK_BEFORE_SET_MARIO_ACTION, m, action, &returnValue);
+    if (returnValue == 1) { return TRUE; } else if (returnValue) { action = returnValue; }
+    
     switch (action & ACT_GROUP_MASK) {
         case ACT_GROUP_MOVING:
             action = set_mario_action_moving(m, action, actionArg);
@@ -2145,13 +2149,12 @@ void init_single_mario(struct MarioState* m) {
 
     m->invincTimer = 0;
     m->visibleToEnemies = TRUE;
-
-    // always put the cap on head
-    /*if (save_file_get_flags() & (SAVE_FLAG_CAP_ON_GROUND | SAVE_FLAG_CAP_ON_KLEPTO | SAVE_FLAG_CAP_ON_UKIKI | SAVE_FLAG_CAP_ON_MR_BLIZZARD)) {
+    
+    if (m->cap & (SAVE_FLAG_CAP_ON_GROUND | SAVE_FLAG_CAP_ON_KLEPTO | SAVE_FLAG_CAP_ON_UKIKI | SAVE_FLAG_CAP_ON_MR_BLIZZARD)) {
         m->flags = 0;
-    } else {*/
+    } else {
         m->flags = (MARIO_CAP_ON_HEAD | MARIO_NORMAL_CAP);
-    //}
+    }
 
     m->forwardVel = 0.0f;
     m->squishTimer = 0;
@@ -2194,7 +2197,6 @@ void init_single_mario(struct MarioState* m) {
 
     m->action = (m->pos[1] <= (m->waterLevel - 100)) ? ACT_WATER_IDLE : ACT_IDLE;
 
-    mario_reset_bodystate(m);
     update_mario_info_for_cam(m);
     m->marioBodyState->punchState = 0;
 
