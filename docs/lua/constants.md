@@ -14,6 +14,9 @@
 - [djui_hud_utils.h](#djui_hud_utilsh)
     - [enum DjuiFontType](#enum-DjuiFontType)
     - [enum HudUtilsResolution](#enum-HudUtilsResolution)
+- [envfx_snow.h](#envfx_snowh)
+- [external.h](#externalh)
+- [geo_commands.h](#geo_commandsh)
 - [graph_node.h](#graph_nodeh)
 - [interaction.c](#interactionc)
     - [enum InteractionFlag](#enum-InteractionFlag)
@@ -625,7 +628,9 @@
 | id_bhvYoshi | 534 |
 | id_RM_Scroll_Texture | 535 |
 | id_editor_Scroll_Texture | 536 |
-| id_bhv_max_count | 537 |
+| id_bhvBlueCoinNumber | 537 |
+| id_bhvStarNumber | 538 |
+| id_bhv_max_count | 539 |
 
 [:arrow_up_small:](#)
 
@@ -1097,6 +1102,47 @@
 
 <br />
 
+## [envfx_snow.h](#envfx_snow.h)
+- ENVFX_BUBBLE_START
+- ENVFX_FLOWERS
+- ENVFX_JETSTREAM_BUBBLES
+- ENVFX_LAVA_BUBBLES
+- ENVFX_MODE_NONE
+- ENVFX_SNOW_BLIZZARD
+- ENVFX_SNOW_NORMAL
+- ENVFX_SNOW_WATER
+- ENVFX_WHIRLPOOL_BUBBLES
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [external.h](#external.h)
+- SEQ_PLAYER_ENV
+- SEQ_PLAYER_LEVEL
+- SEQ_PLAYER_SFX
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [geo_commands.h](#geo_commands.h)
+- BACKGROUND_ABOVE_CLOUDS
+- BACKGROUND_BELOW_CLOUDS
+- BACKGROUND_CUSTOM
+- BACKGROUND_DESERT
+- BACKGROUND_FLAMING_SKY
+- BACKGROUND_GREEN_SKY
+- BACKGROUND_HAUNTED
+- BACKGROUND_OCEAN_SKY
+- BACKGROUND_PURPLE_SKY
+- BACKGROUND_SNOW_MOUNTAINS
+- BACKGROUND_UNDERWATER_CITY
+
+[:arrow_up_small:](#)
+
+<br />
+
 ## [graph_node.h](#graph_node.h)
 - GEO_CONTEXT_AREA_INIT
 - GEO_CONTEXT_AREA_LOAD
@@ -1323,6 +1369,7 @@
 - MARIO_SPAWN_UNKNOWN_02
 - MARIO_SPAWN_UNKNOWN_03
 - MARIO_SPAWN_UNKNOWN_27
+- PRESS_START_DEMO_TIMER
 - TIMER_CONTROL_HIDE
 - TIMER_CONTROL_SHOW
 - TIMER_CONTROL_START
@@ -1773,6 +1820,7 @@
 - BIRD_BP_SPAWNER
 - BLUE_COIN_SWITCH_ACT_IDLE
 - BLUE_COIN_SWITCH_ACT_RECEDING
+- BLUE_COIN_SWITCH_ACT_RESPAWNING
 - BLUE_COIN_SWITCH_ACT_TICKING
 - BLUE_FISH_ACT_ASCEND
 - BLUE_FISH_ACT_DIVE
@@ -2894,7 +2942,9 @@
 | HOOK_ON_CHAT_MESSAGE | 27 |
 | HOOK_OBJECT_SET_MODEL | 28 |
 | HOOK_CHARACTER_SOUND | 29 |
-| HOOK_MAX | 30 |
+| HOOK_BEFORE_SET_MARIO_ACTION | 30 |
+| HOOK_JOINED_GAME | 31 |
+| HOOK_MAX | 32 |
 
 [:arrow_up_small:](#)
 
@@ -4039,6 +4089,7 @@
 - MAX_VERSION_LENGTH
 - MINOR_VERSION_NUMBER
 - VERSION_NUMBER
+- VERSION_TEXT
 
 [:arrow_up_small:](#)
 

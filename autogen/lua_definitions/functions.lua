@@ -287,12 +287,22 @@ function bhv_blue_coin_jumping_loop()
 end
 
 --- @return nil
+function bhv_blue_coin_number_loop()
+    -- ...
+end
+
+--- @return nil
 function bhv_blue_coin_sliding_jumping_init()
     -- ...
 end
 
 --- @return nil
 function bhv_blue_coin_sliding_loop()
+    -- ...
+end
+
+--- @return nil
+function bhv_blue_coin_switch_init()
     -- ...
 end
 
@@ -2170,6 +2180,11 @@ function bhv_star_key_collection_puff_spawner_loop()
 end
 
 --- @return nil
+function bhv_star_number_loop()
+    -- ...
+end
+
+--- @return nil
 function bhv_star_spawn_init()
     -- ...
 end
@@ -2830,6 +2845,11 @@ end
 --- @param z number
 --- @return Object
 function spawn_red_coin_cutscene_star(x, y, z)
+    -- ...
+end
+
+--- @return nil
+function spawn_star_number()
     -- ...
 end
 
@@ -3623,6 +3643,11 @@ function djui_hud_get_screen_width()
     -- ...
 end
 
+--- @return boolean
+function djui_hud_is_pause_menu_created()
+    -- ...
+end
+
 --- @param message string
 --- @return number
 function djui_hud_measure_text(message)
@@ -3678,6 +3703,12 @@ end
 --- @param locked boolean
 --- @return nil
 function djui_hud_set_mouse_locked(locked)
+    -- ...
+end
+
+--- @param enable boolean
+--- @return nil
+function djui_hud_set_render_behind_hud(enable)
     -- ...
 end
 
@@ -3834,6 +3865,20 @@ end
 --- @param fadeDuration integer
 --- @return nil
 function seq_player_unlower_volume(player, fadeDuration)
+    -- ...
+end
+
+--- @param player integer
+--- @param bankMask integer
+--- @return nil
+function sound_banks_disable(player, bankMask)
+    -- ...
+end
+
+--- @param player integer
+--- @param bankMask integer
+--- @return nil
+function sound_banks_enable(player, bankMask)
     -- ...
 end
 
@@ -8251,6 +8296,11 @@ function get_dialog_id()
     -- ...
 end
 
+--- @return integer
+function get_envfx()
+    -- ...
+end
+
 --- @param index integer
 --- @return number
 function get_environment_region(index)
@@ -8283,14 +8333,35 @@ function get_last_star_or_key()
     -- ...
 end
 
+--- @param index integer
+--- @return number
+function get_lighting_dir(index)
+    -- ...
+end
+
 --- @return integer
 function get_network_area_timer()
+    -- ...
+end
+
+--- @return integer
+function get_skybox()
     -- ...
 end
 
 --- @param initialValue integer
 --- @return Pointer_integer
 function get_temp_s32_pointer(initialValue)
+    -- ...
+end
+
+--- @return integer
+function get_time()
+    -- ...
+end
+
+--- @return integer
+function get_ttc_speed_setting()
     -- ...
 end
 
@@ -8380,6 +8451,19 @@ function set_last_star_or_key(value)
     -- ...
 end
 
+--- @param index integer
+--- @param value number
+--- @return nil
+function set_lighting_dir(index, value)
+    -- ...
+end
+
+--- @param envfx integer
+--- @return nil
+function set_override_envfx(envfx)
+    -- ...
+end
+
 --- @param far number
 --- @return nil
 function set_override_far(far)
@@ -8395,6 +8479,18 @@ end
 --- @param near number
 --- @return nil
 function set_override_near(near)
+    -- ...
+end
+
+--- @param background integer
+--- @return nil
+function set_override_skybox(background)
+    -- ...
+end
+
+--- @param speed integer
+--- @return nil
+function set_ttc_speed_setting(speed)
     -- ...
 end
 

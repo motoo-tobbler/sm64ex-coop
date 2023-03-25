@@ -8196,6 +8196,24 @@
 
 <br />
 
+## [get_envfx](#get_envfx)
+
+### Lua Example
+`local integerValue = get_envfx()`
+
+### Parameters
+- None
+
+### Returns
+- `integer`
+
+### C Prototype
+`u16 get_envfx(void);`
+
+[:arrow_up_small:](#)
+
+<br />
+
 ## [get_environment_region](#get_environment_region)
 
 ### Lua Example
@@ -8297,6 +8315,26 @@
 
 <br />
 
+## [get_lighting_dir](#get_lighting_dir)
+
+### Lua Example
+`local numberValue = get_lighting_dir(index)`
+
+### Parameters
+| Field | Type |
+| ----- | ---- |
+| index | `integer` |
+
+### Returns
+- `number`
+
+### C Prototype
+`f32 get_lighting_dir(u8 index);`
+
+[:arrow_up_small:](#)
+
+<br />
+
 ## [get_network_area_timer](#get_network_area_timer)
 
 ### Lua Example
@@ -8310,6 +8348,24 @@
 
 ### C Prototype
 `u32 get_network_area_timer(void);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [get_skybox](#get_skybox)
+
+### Lua Example
+`local integerValue = get_skybox()`
+
+### Parameters
+- None
+
+### Returns
+- `integer`
+
+### C Prototype
+`s8 get_skybox();`
 
 [:arrow_up_small:](#)
 
@@ -8330,6 +8386,42 @@
 
 ### C Prototype
 `s32* get_temp_s32_pointer(s32 initialValue);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [get_time](#get_time)
+
+### Lua Example
+`local integerValue = get_time()`
+
+### Parameters
+- None
+
+### Returns
+- `integer`
+
+### C Prototype
+`u32 get_time(void);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [get_ttc_speed_setting](#get_ttc_speed_setting)
+
+### Lua Example
+`local integerValue = get_ttc_speed_setting()`
+
+### Parameters
+- None
+
+### Returns
+- `integer`
+
+### C Prototype
+`s16 get_ttc_speed_setting();`
 
 [:arrow_up_small:](#)
 
@@ -8598,6 +8690,47 @@
 
 <br />
 
+## [set_lighting_dir](#set_lighting_dir)
+
+### Lua Example
+`set_lighting_dir(index, value)`
+
+### Parameters
+| Field | Type |
+| ----- | ---- |
+| index | `integer` |
+| value | `number` |
+
+### Returns
+- None
+
+### C Prototype
+`void set_lighting_dir(u8 index, f32 value);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [set_override_envfx](#set_override_envfx)
+
+### Lua Example
+`set_override_envfx(envfx)`
+
+### Parameters
+| Field | Type |
+| ----- | ---- |
+| envfx | `integer` |
+
+### Returns
+- None
+
+### C Prototype
+`void set_override_envfx(s32 envfx);`
+
+[:arrow_up_small:](#)
+
+<br />
+
 ## [set_override_far](#set_override_far)
 
 ### Lua Example
@@ -8653,6 +8786,46 @@
 
 ### C Prototype
 `void set_override_near(f32 near);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [set_override_skybox](#set_override_skybox)
+
+### Lua Example
+`set_override_skybox(background)`
+
+### Parameters
+| Field | Type |
+| ----- | ---- |
+| background | `integer` |
+
+### Returns
+- None
+
+### C Prototype
+`void set_override_skybox(s8 background);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [set_ttc_speed_setting](#set_ttc_speed_setting)
+
+### Lua Example
+`set_ttc_speed_setting(speed)`
+
+### Parameters
+| Field | Type |
+| ----- | ---- |
+| speed | `integer` |
+
+### Returns
+- None
+
+### C Prototype
+`void set_ttc_speed_setting(s16 speed);`
 
 [:arrow_up_small:](#)
 

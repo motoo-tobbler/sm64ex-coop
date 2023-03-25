@@ -924,22 +924,34 @@
 | exitCastleArea | `integer` |  |
 | exitCastleLevel | [enum LevelNum](constants.md#enum-LevelNum) |  |
 | exitCastleWarpNode | `integer` |  |
+| extendedPauseDisplay | `integer` |  |
 | fixCollisionBugs | `integer` |  |
-| fixVanishFloors | `boolean` |  |
+| fixCollisionBugsRoundedCorners | `integer` |  |
+| fixVanishFloors | `integer` |  |
+| floatingStarDance | `integer` |  |
 | floorLowerLimit | `integer` |  |
 | floorLowerLimitMisc | `integer` |  |
 | floorLowerLimitShadow | `integer` |  |
+| hudCapTimer | `integer` |  |
+| hudRedCoinsRadar | `integer` |  |
+| hudSecretsRadar | `integer` |  |
 | metalCapDuration | `integer` |  |
 | metalCapDurationCotmc | `integer` |  |
 | metalCapSequence | `integer` |  |
+| mushroom1UpHeal | `integer` |  |
 | pauseExitAnywhere | `boolean` |  |
+| previewBlueCoins | `integer` |  |
 | pssSlideStarIndex | `integer` |  |
 | pssSlideStarTime | `integer` |  |
+| respawnBlueCoinsSwitch | `integer` |  |
+| showStarNumber | `integer` |  |
 | skipCreditsAt | [enum LevelNum](constants.md#enum-LevelNum) |  |
+| starHeal | `integer` |  |
 | starPositions | [StarPositions](structs.md#StarPositions) | read-only |
 | vanishCapDuration | `integer` |  |
 | vanishCapDurationVcutm | `integer` |  |
 | vanishCapSequence | `integer` |  |
+| visibleSecrets | `integer` |  |
 | wingCapDuration | `integer` |  |
 | wingCapDurationTotwc | `integer` |  |
 | wingCapLookUpReq | `integer` |  |
@@ -1021,6 +1033,7 @@
 | animation | [MarioAnimation](structs.md#MarioAnimation) |  |
 | area | [Area](structs.md#Area) |  |
 | bubbleObj | [Object](structs.md#Object) |  |
+| cap | `integer` |  |
 | capTimer | `integer` |  |
 | ceil | [Surface](structs.md#Surface) |  |
 | ceilHeight | `number` |  |
@@ -2169,6 +2182,8 @@
 | ----- | ---- | ------ |
 | bubbleDeath | `integer` |  |
 | enableCheats | `integer` |  |
+| enablePlayerList | `integer` |  |
+| enablePlayersInLevelDisplay | `integer` |  |
 | headlessServer | `integer` |  |
 | playerInteractions | [enum PlayerInteractions](constants.md#enum-PlayerInteractions) |  |
 | playerKnockbackStrength | `integer` |  |

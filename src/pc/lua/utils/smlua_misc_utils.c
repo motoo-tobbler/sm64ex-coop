@@ -17,7 +17,10 @@
 #include "game/rendering_graph_node.h"
 #include "game/level_update.h"
 #include "pc/djui/djui_hud_utils.h"
+#include "game/skybox.h"
+#include "pc/gfx/gfx_pc.h"
 #include "include/course_table.h"
+#include "game/level_geo.h"
 
 u32 get_network_area_timer(void) {
     return gNetworkAreaTimer;
@@ -383,6 +386,55 @@ void add_scroll_target(u32 index, const char* name, u32 offset, u32 size) {
 
 ///
 
+f32 get_lighting_dir(u8 index) {
+    if (index > 2) { return 0; }
+    return gLightingDir[index];
+}
+
+void set_lighting_dir(u8 index, f32 value) {
+    if (index > 2) { return; }
+
+    gLightingDir[index] = value;
+}
+
+///
+
+s8 get_skybox() {
+    return gReadOnlyBackground;
+}
+
+void set_override_skybox(s8 background) {
+    gOverrideBackground = background;
+}
+
+///
+
 bool course_is_main_course(u16 levelNum) {
     return COURSE_IS_MAIN_COURSE(levelNum);
+}
+
+///
+
+s16 get_ttc_speed_setting() {
+    return gTTCSpeedSetting;
+}
+
+void set_ttc_speed_setting(s16 speed) {
+    gTTCSpeedSetting = speed;
+}
+
+///
+
+u32 get_time(void) {
+    return time(NULL);
+}
+
+///
+
+u16 get_envfx(void) {
+    return gReadOnlyEnvFx;
+}
+
+void set_override_envfx(s32 envfx) {
+    gOverrideEnvFx = envfx;
 }

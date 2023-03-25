@@ -20,6 +20,11 @@
 #include "pc/crash_handler.h"
 #include "pc/debuglog.h"
 #include "game/camera.h"
+#include "pc/gfx/gfx_pc.h"
+#include "game/skybox.h"
+#include "game/object_list_processor.h"
+#include "game/object_helpers.h"
+#include "menu/intro_geo.h"
 
 // fix warnings when including rendering_graph_node
 #undef near
@@ -62,6 +67,8 @@ struct ServerSettings gServerSettings = {
     .shareLives = 0,
     .enableCheats = 0,
     .bubbleDeath = 1,
+    .enablePlayersInLevelDisplay = 1,
+    .enablePlayerList = 1,
     .headlessServer = 0,
 };
 
@@ -506,15 +513,26 @@ void network_shutdown(bool sendLeaving, bool exiting, bool popup) {
     gOverrideNear = 0;
     gOverrideFar = 0;
     gOverrideFOV = 0;
+    gLightingDir[0] = 0;
+    gLightingDir[1] = 0;
+    gLightingDir[2] = 0;
+    gOverrideBackground = -1;
+    gDjuiRenderBehindHud = false;
     dynos_mod_shutdown();
     mods_clear(&gActiveMods);
     mods_clear(&gRemoteMods);
     smlua_shutdown();
     extern s16 gChangeLevel;
     gChangeLevel = LEVEL_CASTLE_GROUNDS;
+    if (gSkipInterpolationTitleScreen || find_object_with_behavior(bhvActSelector) != NULL) {
+        dynos_warp_to_level(LEVEL_CASTLE_GROUNDS, 1, 0);
+    }
     network_player_init();
     camera_set_use_course_specific_settings(true);
     free_vtx_scroll_targets();
+    gMarioStates[0].cap = 0;
+    extern s16 gTTCSpeedSetting;
+    gTTCSpeedSetting = 0;
 
     struct Controller* cnt = gMarioStates[0].controller;
     cnt->rawStickX = 0;

@@ -2143,6 +2143,24 @@
 
 <br />
 
+## [djui_hud_is_pause_menu_created](#djui_hud_is_pause_menu_created)
+
+### Lua Example
+`local booleanValue = djui_hud_is_pause_menu_created()`
+
+### Parameters
+- None
+
+### Returns
+- `boolean`
+
+### C Prototype
+`bool djui_hud_is_pause_menu_created(void);`
+
+[:arrow_up_small:](#)
+
+<br />
+
 ## [djui_hud_measure_text](#djui_hud_measure_text)
 
 ### Lua Example
@@ -2294,6 +2312,26 @@
 
 ### C Prototype
 `void djui_hud_set_mouse_locked(bool locked);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [djui_hud_set_render_behind_hud](#djui_hud_set_render_behind_hud)
+
+### Lua Example
+`djui_hud_set_render_behind_hud(enable)`
+
+### Parameters
+| Field | Type |
+| ----- | ---- |
+| enable | `boolean` |
+
+### Returns
+- None
+
+### C Prototype
+`void djui_hud_set_render_behind_hud(bool enable);`
 
 [:arrow_up_small:](#)
 
@@ -2801,6 +2839,48 @@
 
 ### C Prototype
 `void seq_player_unlower_volume(u8 player, u16 fadeDuration);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [sound_banks_disable](#sound_banks_disable)
+
+### Lua Example
+`sound_banks_disable(player, bankMask)`
+
+### Parameters
+| Field | Type |
+| ----- | ---- |
+| player | `integer` |
+| bankMask | `integer` |
+
+### Returns
+- None
+
+### C Prototype
+`void sound_banks_disable(u8 player, u16 bankMask);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [sound_banks_enable](#sound_banks_enable)
+
+### Lua Example
+`sound_banks_enable(player, bankMask)`
+
+### Parameters
+| Field | Type |
+| ----- | ---- |
+| player | `integer` |
+| bankMask | `integer` |
+
+### Returns
+- None
+
+### C Prototype
+`void sound_banks_enable(u8 player, u16 bankMask);`
 
 [:arrow_up_small:](#)
 

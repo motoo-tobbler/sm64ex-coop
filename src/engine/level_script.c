@@ -29,6 +29,8 @@
 #include "src/pc/lua/utils/smlua_model_utils.h"
 #include "src/pc/lua/smlua.h"
 #include "src/pc/djui/djui.h"
+#include "game/hardcoded.h"
+#include "menu/intro_geo.h"
 #ifdef TOUCH_CONTROLS
 #include "src/pc/controller/controller_touchscreen.h"
 #endif
@@ -335,6 +337,8 @@ static void level_cmd_load_mio0(void) {
 }
 
 static void level_cmd_load_mario_head(void) {
+    gSkipInterpolationTitleScreen = true;
+    gGlobalTimer = 0;
     // TODO: Fix these hardcoded sizes
     void *addr = main_pool_alloc(DOUBLE_SIZE_ON_64_BIT(0xE1000), MEMORY_POOL_LEFT);
     if (addr != NULL) {
@@ -360,6 +364,7 @@ static void level_cmd_init_level(void) {
     clear_areas();
     main_pool_push_state();
     smlua_model_util_clear();
+    gSkipInterpolationTitleScreen = false;
 
     sCurrentCmd = CMD_NEXT;
 }

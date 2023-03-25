@@ -1,7 +1,8 @@
 #ifndef VERSION_H
 #define VERSION_H
 
-#define VERSION_NUMBER 31
+#define VERSION_TEXT "beta"
+#define VERSION_NUMBER 32
 #define MINOR_VERSION_NUMBER 0
 
 #define MAX_VERSION_LENGTH 10
