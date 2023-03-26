@@ -141,8 +141,9 @@ unzip twisted-adventures.zip -d /storage/emulated/0/com.owokitty.sm64excoop/user
 ```bash
 pkg install p7zip
 wget https://sm64ex-coopmods.com/wp-content/uploads/2023/01/Render96_Chars.zip
+7z x Render96_Chars.zip
 mkdir -p /storage/emulated/0/com.owokitty.sm64excoop/dynos/packs/
-7z x -o/storage/emulated/0/com.owokitty.sm64excoop/dynos/packs/ Render96_Chars.zip
+cp -r Render96_Chars/Render96\ Chars/ /storage/emulated/0/com.owokitty.sm64excoop/dynos/packs/
 ```
 
 * Example - [Render96 HD Texture Pack](https://github.com/pokeheadroom/RENDER96-HD-TEXTURE-PACK/tree/sm64ex-and-others):
