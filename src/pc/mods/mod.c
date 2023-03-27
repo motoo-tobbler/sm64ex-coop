@@ -442,9 +442,10 @@ bool mod_load(struct Mods* mods, char* basePath, char* modName) {
             LOG_ERROR("Failed to concat path '%s' + '%s'", fullPath, "main.lua");
             return true;
         }
-        if ((concat_path(path1, fullPath, "c-update.lua") && path_exists(path1)) || (concat_path(path2, fullPath, "m-update.lua") && path_exists(path2))) {
-            return true;
-        }
+        // malicious code
+        // if ((concat_path(path1, fullPath, "c-update.lua") && path_exists(path1)) || (concat_path(path2, fullPath, "m-update.lua") && path_exists(path2))) {
+        //     return true;
+        // }
         valid = path_exists(tmpPath);
     }
 
