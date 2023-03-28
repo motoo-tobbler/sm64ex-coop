@@ -3,6 +3,10 @@ extern "C" {
 #include "src/game/moving_texture.h"
 #include "game/hardcoded.h"
 
+void dynos_init(void) {
+    return DynOS_Init();
+}
+
 void *dynos_swap_cmd(void *cmd) {
     return DynOS_SwapCmd(cmd);
 }

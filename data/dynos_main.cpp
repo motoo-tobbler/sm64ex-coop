@@ -28,7 +28,7 @@ void DynOS_ReturnToMainMenu() {
 // Init
 //
 
-extern "C" void DynOS_Init() {
+void DynOS_Init() {
 #ifdef OMM_DEFINES_H
     omm_opt_init();
 #endif

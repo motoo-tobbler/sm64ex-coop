@@ -757,6 +757,7 @@ static type &__##name() {           \
 // Main
 //
 
+void DynOS_Init(void);
 void DynOS_UpdateOpt(void *aPad);
 void *DynOS_SwapCmd(void *aCmd);
 void *DynOS_UpdateCmd(void *aCmd);

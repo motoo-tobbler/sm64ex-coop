@@ -7,6 +7,7 @@
 #include "engine/behavior_script.h"
 #include "src/game/moving_texture.h"
 
+void dynos_init(void);
 void *dynos_swap_cmd(void *cmd);
 
 // -- built in -- //

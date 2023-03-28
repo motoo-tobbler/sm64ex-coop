@@ -446,7 +446,7 @@ int SDL_main(int argc, char *argv[]) {
 int main(int argc, char *argv[]) {
 #endif
     parse_cli_opts(argc, argv);
-    DynOS_Init();
+    dynos_init();
     main_func();
     return 0;
 }
