@@ -10,5 +10,5 @@ void djui_panel_back(void);
 void djui_panel_update(void);
 void djui_panel_shutdown(void);
 #ifdef TOUCH_CONTROLS
-void djui_panel_shutdown_touchconfig(void);
+void djui_panel_shutdown_touchconfig(struct DjuiBase* caller);
 #endif

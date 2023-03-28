@@ -93,7 +93,7 @@ static struct ControlElement ControlConfigElements[CONTROL_CONFIG_ELEMENT_COUNT]
 static u32 ControlElementsLength = sizeof(ControlElements)/sizeof(struct ControlElement);
 static u32 ControlConfigElementsLength = sizeof(ControlConfigElements)/sizeof(struct ControlElement);
 
-bool exit_control_config() {
+void exit_control_config() {
     gInTouchConfig = false;
     if (gNetworkType != NT_NONE)
         djui_panel_pause_create(NULL);

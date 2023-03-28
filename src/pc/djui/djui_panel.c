@@ -176,7 +176,7 @@ void djui_panel_shutdown(void) {
 }
 
 #ifdef TOUCH_CONTROLS
-void djui_panel_shutdown_touchconfig(void) {
+void djui_panel_shutdown_touchconfig(struct DjuiBase* caller) {
     struct DjuiPanel* panel = sPanelList;
     while (panel != NULL) {
         struct DjuiPanel* next = panel->parent;
