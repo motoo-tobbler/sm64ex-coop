@@ -127,7 +127,7 @@ cp build/us_pc/sm64.us.apk /storage/emulated/0
 
 > To install Lua mods, put them in `/storage/emulated/0/com.owokitty.sm64excoop/user/mods`, or `/storage/emulated/0/Android/data/com.owokitty.sm64excoop/files/user/mods` if you don't accept the storage permission request.
 * Default mods:
-> NOTE: Alongside the feature update to beta 33, I have finally implemented automatic installation of the default mods on Android into **`/storage/emulated/0/com.owokitty.sm64excoop/user/mods/`. If you previously installed the default mods using the below command, to use the automatically installed versions of the default mods, delete each previously-installed outdated default mod from `/storage/emulated/0/com.owokitty.sm64excoop/user/mods/` because that directory takes priority.**
+> NOTE: Alongside the feature update to beta 33, I have finally implemented automatic installation of the default mods on Android into **`/storage/emulated/0/com.owokitty.sm64excoop/mods/`. If you previously installed the default mods using the below command, to use the automatically installed new versions of the default mods, delete each previously-installed outdated default mod from `/storage/emulated/0/com.owokitty.sm64excoop/user/mods/` because that directory takes priority.**
 ```bash
 cp -r ~/sm64ex-coop/mods/* /storage/emulated/0/com.owokitty.sm64excoop/user/mods/
 ```
