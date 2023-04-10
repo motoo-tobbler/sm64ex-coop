@@ -1797,13 +1797,14 @@ ifeq ($(TARGET_N64),1)
   $(BUILD_DIR)/$(TARGET).objdump: $(ELF)
 	$(OBJDUMP) -D $< > $@
 else
-<<<<<<< HEAD
 
 ifeq ($(TARGET_ANDROID),1)
 APK_FILES := $(shell find platform/android/ -type f)
 
 $(ZIP_UNCOMPRESSED): $(EXE) $(APK_FILES)
 	cp -r platform/android $(BUILD_DIR)/platform/ && \
+  cp -r mods $(BUILD_DIR)/platform/android/android/assets/ && \
+  cp -r lang $(BUILD_DIR)/platform/android/android/assets/ && \
 	cp $(PREFIX)/lib/libc++_shared.so $(BUILD_DIR)/platform/android/android/lib/$(ARCH_APK)/ && \
 	cp $(EXE) $(BUILD_DIR)/platform/android/android/lib/$(ARCH_APK)/ && \
 	cd $(BUILD_DIR)/platform/android/android && \

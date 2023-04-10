@@ -292,6 +292,9 @@ void main_func(void) {
     if (stat(gamedir, NULL) == -1) {
         mkdir(gamedir, 0770);
     }
+    // Extract lang files and default mods from the apk and copy them to basedir
+    // TODO: some way to inhibit this on launch if the apk doesn't contain updated/differing files?
+    SDL_AndroidCopyAssetFilesToDir(basedir);
 #else
     const char *gamedir = gCLIOpts.GameDir[0] ? gCLIOpts.GameDir : FS_BASEDIR;
 #endif

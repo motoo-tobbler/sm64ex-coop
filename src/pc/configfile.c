@@ -17,13 +17,10 @@
 #include "pc/network/ban_list.h"
 #include "pc/crash_handler.h"
 #include "pc/network/moderator_list.h"
-<<<<<<< HEAD
+#include "debuglog.h"
 #ifdef TOUCH_CONTROLS
 #include "pc/controller/controller_touchscreen.h"
 #endif
-=======
-#include "debuglog.h"
->>>>>>> coop
 
 #define ARRAY_LEN(arr) (sizeof(arr) / sizeof(arr[0]))
 

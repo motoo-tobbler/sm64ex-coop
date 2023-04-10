@@ -192,6 +192,18 @@ void mods_refresh_local(void) {
     // load mods
     if (hasUserPath) { mods_load(&gLocalMods, userModPath); }
 
+#ifdef __ANDROID__
+    // Android does not allow read access to the true executable path without root, so load mods
+    // from the path I have chosen for my Android app as a replacement for the
+    // "relative to executable" mods folder found on Windows, MacOS and Linux distros that have
+    // traditional default permissions.
+    // (/storage/emulated/0/com.owokitty.sm64excoop/mods)
+    const char* gamedir = get_gamedir();
+    char defaultModsPath[SYS_MAX_PATH] = { 0 };
+    snprintf(defaultModsPath, sizeof(defaultModsPath), "%s/%s", 
+            gamedir, MOD_DIRECTORY);
+    mods_load(&gLocalMods, defaultModsPath);
+#else
     const char* exePath = path_to_executable();
     if (exePath != NULL) {
         char defaultModsPath[SYS_MAX_PATH] = { 0 };
@@ -199,6 +211,7 @@ void mods_refresh_local(void) {
         strncat(defaultModsPath, MOD_DIRECTORY, SYS_MAX_PATH-1);
         mods_load(&gLocalMods, defaultModsPath);
     }
+#endif
 
     // sort
     mods_sort(&gLocalMods);
