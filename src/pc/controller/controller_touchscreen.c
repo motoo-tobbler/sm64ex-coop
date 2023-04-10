@@ -13,6 +13,8 @@
 #include "gfx_dimensions.h"
 #include "pc/gfx/gfx_pc.h"
 #include "pc/djui/djui_panel.h"
+#include "pc/djui/djui_panel_pause.h"
+#include "pc/djui/djui_panel_main.h"
 #include "pc/network/network.h"
 
 #include "controller_api.h"

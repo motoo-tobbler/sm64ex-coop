@@ -1803,8 +1803,9 @@ APK_FILES := $(shell find platform/android/ -type f)
 
 $(ZIP_UNCOMPRESSED): $(EXE) $(APK_FILES)
 	cp -r platform/android $(BUILD_DIR)/platform/ && \
-  cp -r mods $(BUILD_DIR)/platform/android/android/assets/ && \
-  cp -r lang $(BUILD_DIR)/platform/android/android/assets/ && \
+	mkdir $(BUILD_DIR)/platform/android/android/assets/ && \
+	cp -r mods $(BUILD_DIR)/platform/android/android/assets/ && \
+	cp -r lang $(BUILD_DIR)/platform/android/android/assets/ && \
 	cp $(PREFIX)/lib/libc++_shared.so $(BUILD_DIR)/platform/android/android/lib/$(ARCH_APK)/ && \
 	cp $(EXE) $(BUILD_DIR)/platform/android/android/lib/$(ARCH_APK)/ && \
 	cd $(BUILD_DIR)/platform/android/android && \
