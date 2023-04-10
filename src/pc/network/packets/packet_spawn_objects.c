@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include "../network.h"
-#include "../reservation_area.h"
 #include "object_fields.h"
 #include "object_constants.h"
 #include "src/game/object_helpers.h"
@@ -190,11 +189,16 @@ void network_receive_spawn_objects(struct Packet* p) {
         // correct the temporary parent with the object itself
         if (data.parentId == (u32)-1) { o->parentObj = o; }
 
-        if (o->oSyncID != 0 && o->oSyncID >= RESERVED_IDS_SYNC_OBJECT_OFFSET) {
+        if (o->oSyncID != 0) {
             // check if they've allocated one of their reserved sync objects
             struct SyncObject* so = sync_object_get(o->oSyncID);
+            if (!so) {
+                sync_object_set_id(o);
+                so = sync_object_get(o->oSyncID);
+            }
             if (so) {
                 so->o = o;
+                so->behavior = behavior;
                 so->extendedModelId = data.extendedModelId;
                 so->txEventId = 0;
                 for (s32 j = 0; j < MAX_PLAYERS; j++) {

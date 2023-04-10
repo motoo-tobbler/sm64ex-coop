@@ -26,6 +26,7 @@
 #include "pc/network/network.h"
 #include "pc/lua/smlua_hooks.h"
 #include "pc/djui/djui.h"
+#include "pc/djui/djui_panel_pause.h"
 
 struct SpawnInfo gPlayerSpawnInfos[MAX_PLAYERS];
 struct GraphNode *D_8033A160[MAX_LOADED_GRAPH_NODES];
@@ -229,8 +230,6 @@ void clear_areas(void) {
         gAreaData[i].dialog[1] = 255;
         gAreaData[i].musicParam = 0;
         gAreaData[i].musicParam2 = 0;
-        memset(gAreaData[i].cachedBehaviors, 0, sizeof(u8) * 256);
-        memset(gAreaData[i].cachedPositions, 0, sizeof(Vec3f) * 256);
     }
 }
 
@@ -253,6 +252,9 @@ void load_area(s32 index) {
     if (gCurrentArea == NULL && gAreaData[index].unk04 != NULL) {
         gCurrentArea = &gAreaData[index];
         gCurrentArea->localAreaTimer = 0;
+        if (gCurrentArea->objectSpawnInfos) {
+            gCurrentArea->nextSyncID = gCurrentArea->objectSpawnInfos->syncID + 10;
+        }
         gCurrAreaIndex = gCurrentArea->index;
 
         if (gCurrentArea->terrainData != NULL) {

@@ -3,6 +3,7 @@
 #include "pc/mods/mods.h"
 #include "pc/mods/mods_utils.h"
 #include "pc/djui/djui.h"
+#include "pc/djui/djui_panel_join_message.h"
 #include "pc/debuglog.h"
 #include "pc/mods/mod_cache.h"
 
@@ -22,7 +23,7 @@ void network_send_mod_list_request(void) {
     snprintf(version, MAX_VERSION_LENGTH, "%s", get_version());
     packet_write(&p, &version, sizeof(u8) * MAX_VERSION_LENGTH);
 
-    network_send_to((gNetworkPlayerServer != NULL) ? gNetworkPlayerServer->localIndex : 0, &p);
+    network_send_to(PACKET_DESTINATION_SERVER, &p);
     LOG_INFO("sending mod list request");
 }
 
@@ -236,7 +237,7 @@ void network_receive_mod_list_entry(struct Packet* p) {
 
     // sanity check mod size
     if (mod->size >= MAX_MOD_SIZE) {
-        djui_popup_create("Server had too large of a mod.\nQuitting.", 4);
+        djui_popup_create(DLANG(NOTIF, DISCONNECT_BIG_MOD), 4);
         network_shutdown(false, false, false);
         return;
     }

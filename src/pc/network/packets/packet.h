@@ -9,6 +9,7 @@
 
 #define PACKET_LENGTH 3000
 #define PACKET_DESTINATION_BROADCAST ((u8)-1)
+#define PACKET_DESTINATION_SERVER ((u8)-2)
 
 struct NetworkPlayer;
 
@@ -35,9 +36,9 @@ enum PacketType {
     PACKET_NETWORK_PLAYERS,
     PACKET_DEATH,
 
-    PACKET_RESERVATION_LIST,
-    PACKET_RESERVATION_USE,
-    PACKET_RESERVATION_RELEASE,
+    PACKET_PING,
+    PACKET_PONG,
+    PACKET_UNUSED_23,
 
     PACKET_CHANGE_LEVEL,
     PACKET_CHANGE_AREA,
@@ -96,6 +97,7 @@ struct Packet {
     bool levelAreaMustMatch;
     bool levelMustMatch;
     bool requestBroadcast;
+    bool keepSendingAfterDisconnect;
     u8 destGlobalId;
     u16 seqId;
     bool sent;
@@ -114,6 +116,7 @@ enum KickReasonType {
     EKT_FULL_PARTY,
     EKT_KICKED,
     EKT_BANNED,
+    EKT_REJOIN,
 };
 
 enum ChatConfirmCommand {
@@ -263,6 +266,11 @@ void network_receive_network_players(struct Packet* p);
 void network_send_death(void);
 void network_receive_death(struct Packet* p);
 
+// packet_ping.c
+void network_send_ping(struct NetworkPlayer* toNp);
+void network_receive_ping(struct Packet* p);
+void network_receive_pong(struct Packet* p);
+
 // packet_change_level.c
 void network_send_change_level(void);
 void network_receive_change_level(struct Packet* p);
@@ -313,18 +321,6 @@ void network_receive_level_area_inform(struct Packet* p);
 // packet_level_respawn_info.c
 void network_send_level_respawn_info(struct Object* o, u8 respawnInfoBits);
 void network_receive_level_respawn_info(struct Packet* p);
-
-// packet_reservation_list.c
-void network_send_reservation_list(struct NetworkPlayer* np, u32 syncIds[]);
-void network_receive_reservation_list(struct Packet* p);
-
-// packet_reservation_use.c
-void network_send_reservation_use(u32 syncId);
-void network_receive_reservation_use(struct Packet* p);
-
-// packet_reservation_release.c
-void network_send_reservation_release(u32 syncId);
-void network_receive_reservation_release(struct Packet* p);
 
 // packet_debug_sync.c
 void network_send_debug_sync(void);
