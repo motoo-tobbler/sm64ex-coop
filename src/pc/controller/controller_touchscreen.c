@@ -250,10 +250,9 @@ void touch_motion(struct TouchEvent* event) {
         // normal use
         else {
             if (ControlElements[i].touchID == event->touchID) {
+                s32 x, y;
                 switch (ControlElements[i].type) {
                     case Joystick:
-                        ; //workaround
-                        s32 x, y;
                         x = CORRECT_TOUCH_X(event->x) - pos.x;
                         y = CORRECT_TOUCH_Y(event->y) - pos.y;
                         if (pos.x + size / 2 < CORRECT_TOUCH_X(event->x))
