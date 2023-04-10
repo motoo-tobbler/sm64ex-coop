@@ -244,6 +244,7 @@ MACHINE_TEXTURES                := $(wildcard $(TEXTURE_DIR)/machine/*.png)
 MOUNTAIN_TEXTURES               := $(wildcard $(TEXTURE_DIR)/mountain/*.png)
 GRASS_TEXTURES                  := $(wildcard $(TEXTURE_DIR)/grass/*.png)
 CUSTOM_FONT_TITLE_TEXTURES      := $(wildcard $(TEXTURE_DIR)/custom_font_title/*.png)
+CUSTOM_FONT_TEXTURES            := $(wildcard $(TEXTURE_DIR)/custom_font/*.png)
 ifeq ($(TOUCH_CONTROLS),1)
 TOUCH_SCREEN_TEXTURES           := $(wildcard $(TEXTURE_DIR)/touchcontrols/*.png)
 endif
@@ -264,7 +265,8 @@ $(BUILD_DIR)/bin/sky.o:               $(SKY_TEXTURES:%.png=$(BUILD_DIR)/%.inc.c)
 $(BUILD_DIR)/bin/machine.o:           $(MACHINE_TEXTURES:%.png=$(BUILD_DIR)/%.inc.c)
 $(BUILD_DIR)/bin/mountain.o:          $(MOUNTAIN_TEXTURES:%.png=$(BUILD_DIR)/%.inc.c)
 $(BUILD_DIR)/bin/grass.o:             $(GRASS_TEXTURES:%.png=$(BUILD_DIR)/%.inc.c)
-$(BUILD_DIR)/bin/custom_font_title.o: $(CUSTOM_FONT_TITLE_TEXTURES:%.png=$(BUILD_DIR)/%.inc.c)
+$(BUILD_DIR)/bin/custom_font.o:       $(CUSTOM_FONT_TEXTURES:%.png=$(BUILD_DIR)/%.inc.c)
+$(BUILD_DIR)/bin/custom_textures.o:   $(SEGMENT2_TEXTURES:%.png=$(BUILD_DIR)/%.inc.c)
 ifeq ($(TOUCH_CONTROLS),1)
 $(BUILD_DIR)/src/pc/controller/controller_touchscreen.o: $(TOUCH_SCREEN_TEXTURES:%.png=$(BUILD_DIR)/%.inc.c)
 endif
@@ -286,7 +288,7 @@ $(BUILD_DIR)/bin/sky.elf:                SEGMENT_ADDRESS := 0x09000000
 $(BUILD_DIR)/bin/machine.elf:            SEGMENT_ADDRESS := 0x09000000
 $(BUILD_DIR)/bin/mountain.elf:           SEGMENT_ADDRESS := 0x09000000
 $(BUILD_DIR)/bin/grass.elf:              SEGMENT_ADDRESS := 0x09000000
-$(BUILD_DIR)/bin/custom_font_title.elf:  SEGMENT_ADDRESS := 0x09000000
+$(BUILD_DIR)/bin/custom_font.elf:  SEGMENT_ADDRESS := 0x09000000
 
 # EU segment 19 translations
 $(BUILD_DIR)/bin/eu/translation_de.elf:  SEGMENT_ADDRESS := 0x19000000

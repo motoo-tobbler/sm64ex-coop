@@ -434,6 +434,7 @@ static void level_cmd_begin_area(void) {
         gAreas[areaIndex].unk04 = screenArea;
         gAreas[areaIndex].numRedCoins = 0;
         gAreas[areaIndex].numSecrets = 0;
+        gAreas[areaIndex].nextSyncID = 10;
 
         if (node != NULL) {
             gAreas[areaIndex].camera = (struct Camera *) node->config.camera;
@@ -520,6 +521,7 @@ static void level_cmd_init_mario(void) {
         spawnInfo->behaviorScript = behaviorScript;
         spawnInfo->unk18 = unk18;
         spawnInfo->next = NULL;
+        spawnInfo->syncID = 0;
 
         if (lastSpawnInfo != NULL) {
             lastSpawnInfo->next = spawnInfo;
@@ -554,6 +556,9 @@ static void level_cmd_place_object(void) {
         spawnInfo->behaviorScript = CMD_GET(void *, 20);
         spawnInfo->unk18 = gLoadedGraphNodes[model];
         spawnInfo->next = gAreas[sCurrAreaIndex].objectSpawnInfos;
+
+        spawnInfo->syncID = gAreas[sCurrAreaIndex].nextSyncID;
+        gAreas[sCurrAreaIndex].nextSyncID += 10;
 
         gAreas[sCurrAreaIndex].objectSpawnInfos = spawnInfo;
         area_check_red_coin_or_secret(spawnInfo->behaviorScript, false);
@@ -951,6 +956,10 @@ static void level_cmd_place_object_ext(void) {
         spawnInfo->unk18 = gLoadedGraphNodes[model];
         spawnInfo->next = gAreas[sCurrAreaIndex].objectSpawnInfos;
 
+        spawnInfo->syncID = spawnInfo->next
+                          ? spawnInfo->next->syncID + 10
+                          : 10;
+
         gAreas[sCurrAreaIndex].objectSpawnInfos = spawnInfo;
         area_check_red_coin_or_secret(spawnInfo->behaviorScript, false);
     }
@@ -1016,6 +1025,10 @@ static void level_cmd_place_object_ext2(void) {
         spawnInfo->behaviorScript = (BehaviorScript*)get_behavior_from_id(behId);
         spawnInfo->unk18 = gLoadedGraphNodes[smlua_model_util_load_with_pool(modelId, sLevelPool)];
         spawnInfo->next = gAreas[sCurrAreaIndex].objectSpawnInfos;
+
+        spawnInfo->syncID = spawnInfo->next
+                          ? spawnInfo->next->syncID + 10
+                          : 10;
 
         gAreas[sCurrAreaIndex].objectSpawnInfos = spawnInfo;
         area_check_red_coin_or_secret(spawnInfo->behaviorScript, false);

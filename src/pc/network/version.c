@@ -11,6 +11,9 @@ char* get_version(void) {
 }
 
 char* get_version_local(void) {
+    if (PATCH_VERSION_NUMBER <= 0) {
+        return get_version();
+    }
     snprintf(sLocalVersionString, MAX_LOCAL_VERSION_LENGTH, "%s %d.%d.%d", VERSION_TEXT, VERSION_NUMBER, MINOR_VERSION_NUMBER, PATCH_VERSION_NUMBER);
     return sLocalVersionString;
 }

@@ -508,10 +508,16 @@ ifeq ($(filter clean distclean print-%,$(MAKECMDGOALS)),)
     endif
   endif
 
-  # Make tools if out of date
   ifeq ($(WINDOWS_AUTO_BUILDER),0)
+    # if the tools are out of date, clean them
+    TOOLS_VER_FILE := $(TOOLS_DIR)/tools-ver-1.ver
+    ifeq ($(wildcard $(TOOLS_VER_FILE)),)
+        $(info Cleaning tools...)
+        DUMMY != touch $(TOOLS_VER_FILE)
+        DUMMY != $(MAKE) -C $(TOOLS_DIR) clean >&2
+    endif
+
     $(info Building tools...)
-    #DUMMY != $(MAKE) -s -C $(TOOLS_DIR) $(if $(filter-out ido0,$(COMPILER)$(USE_QEMU_IRIX)),all-except-recomp,) >&2 || echo FAIL
     DUMMY != $(MAKE) -C $(TOOLS_DIR) >&2 || echo FAIL
       ifeq ($(DUMMY),FAIL)
         $(error Failed to build tools)
@@ -594,7 +600,7 @@ SRC_DIRS := src src/engine src/game src/audio src/menu src/buffers actors levels
 BIN_DIRS := bin bin/$(VERSION)
 
 # PC files
-SRC_DIRS += src/pc src/pc/gfx src/pc/audio src/pc/controller src/pc/fs src/pc/fs/packtypes src/pc/mods src/pc/network src/pc/network/packets src/pc/network/socket src/pc/utils src/pc/djui src/pc/lua src/pc/lua/utils
+SRC_DIRS += src/pc src/pc/gfx src/pc/audio src/pc/controller src/pc/fs src/pc/fs/packtypes src/pc/mods src/pc/network src/pc/network/packets src/pc/network/socket src/pc/utils src/pc/utils/miniz src/pc/djui src/pc/lua src/pc/lua/utils
 
 #ifeq ($(DISCORDRPC),1)
 #  SRC_DIRS += src/pc/discord
@@ -735,6 +741,11 @@ else ifeq ($(TARGET_FOSS),1)
 else
   BASS_LIBS := lib/bass/libbass.so lib/bass/libbass_fx.so
 endif
+
+LANG_DIR := lang
+
+# Remove old lang dir
+_ := $(shell rm -rf ./$(BUILD_DIR)/$(LANG_DIR))
 
 MOD_DIR := mods
 
@@ -1075,7 +1086,7 @@ else ifeq ($(TARGET_RPI),1)
 else ifeq ($(TARGET_FOSS),1)
   LDFLAGS += -L$(LIBLUA_DIR)/src -l:liblua.a
 else
-  LDFLAGS += -Llib/lua/linux -l:liblua53.a
+  LDFLAGS += -Llib/lua/linux -l:liblua53.a -ldl
 endif
 
 # Network/Discord/Bass (ugh, needs cleanup)
@@ -1241,6 +1252,7 @@ N64CKSUM              := $(TOOLS_DIR)/n64cksum
 N64GRAPHICS           := $(TOOLS_DIR)/n64graphics
 N64GRAPHICS_CI        := $(TOOLS_DIR)/n64graphics_ci
 TEXTCONV              := $(TOOLS_DIR)/textconv
+AIFF_EXTRACT_FAILSAFE := $(TOOLS_DIR)/aiff_extract_codebook_failsafe.py
 AIFF_EXTRACT_CODEBOOK := $(TOOLS_DIR)/aiff_extract_codebook
 VADPCM_ENC            := $(TOOLS_DIR)/vadpcm_enc
 EXTRACT_DATA_FOR_MIO  := $(TOOLS_DIR)/extract_data_for_mio
@@ -1362,6 +1374,9 @@ $(BUILD_DIR)/$(DISCORD_SDK_LIBS):
 
 $(BUILD_DIR)/$(BASS_LIBS):
 	@$(CP) -f $(BASS_LIBS) $(BUILD_DIR)
+
+$(BUILD_DIR)/$(LANG_DIR):
+	@$(CP) -f -r $(LANG_DIR) $(BUILD_DIR)
 
 $(BUILD_DIR)/$(MOD_DIR):
 	@$(CP) -f -r $(MOD_DIR) $(BUILD_DIR)
@@ -1782,6 +1797,7 @@ ifeq ($(TARGET_N64),1)
   $(BUILD_DIR)/$(TARGET).objdump: $(ELF)
 	$(OBJDUMP) -D $< > $@
 else
+<<<<<<< HEAD
 
 ifeq ($(TARGET_ANDROID),1)
 APK_FILES := $(shell find platform/android/ -type f)
@@ -1803,7 +1819,7 @@ $(APK_SIGNED): $(APK_ALIGNED)
 	apksigner sign --cert platform/android/certificate.pem --key platform/android/key.pk8 $@
 endif
 
-  $(EXE): $(O_FILES) $(MIO0_FILES:.mio0=.o) $(ULTRA_O_FILES) $(GODDARD_O_FILES) $(BUILD_DIR)/$(RPC_LIBS) $(BUILD_DIR)/$(DISCORD_SDK_LIBS) $(BUILD_DIR)/$(BASS_LIBS) $(BUILD_DIR)/$(MOD_DIR)
+  $(EXE): $(O_FILES) $(MIO0_FILES:.mio0=.o) $(ULTRA_O_FILES) $(GODDARD_O_FILES) $(BUILD_DIR)/$(RPC_LIBS) $(BUILD_DIR)/$(DISCORD_SDK_LIBS) $(BUILD_DIR)/$(BASS_LIBS) $(BUILD_DIR)/$(LANG_DIR) $(BUILD_DIR)/$(MOD_DIR)
 	@$(PRINT) "$(GREEN)Linking executable: $(BLUE)$@ $(NO_COL)\n"
 	$(V)$(LD) $(PROF_FLAGS) -L $(BUILD_DIR) -o $@ $(O_FILES) $(ULTRA_O_FILES) $(GODDARD_O_FILES) $(LDFLAGS) $(EXTRA_INCLUDES)
 endif

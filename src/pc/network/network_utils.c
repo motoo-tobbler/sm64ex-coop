@@ -32,9 +32,9 @@ char* network_discord_id_from_local_index(u8 localIndex) {
     if (gNetworkSystem == &gNetworkSystemDiscord) { return gNetworkSystem->get_id_str(localIndex); }
 #else
 char* network_discord_id_from_local_index(UNUSED u8 localIndex) {
+#endif
     return NULL;
 }
-#endif
 
 bool network_is_server(void) {
     return gNetworkType == NT_SERVER;

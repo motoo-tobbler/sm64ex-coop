@@ -17,9 +17,13 @@
 #include "pc/network/ban_list.h"
 #include "pc/crash_handler.h"
 #include "pc/network/moderator_list.h"
+<<<<<<< HEAD
 #ifdef TOUCH_CONTROLS
 #include "pc/controller/controller_touchscreen.h"
 #endif
+=======
+#include "debuglog.h"
+>>>>>>> coop
 
 #define ARRAY_LEN(arr) (sizeof(arr) / sizeof(arr[0]))
 
@@ -157,6 +161,7 @@ bool         configSingleplayerPause             = 0;
 bool         configDebugPrint                    = 0;
 bool         configDebugInfo                     = 0;
 bool         configDebugError                    = 0;
+char         configLanguage[MAX_CONFIG_STRING]   = "";
 
 static const struct ConfigOption options[] = {
     {.name = "fullscreen",           .type = CONFIG_TYPE_BOOL, .boolValue = &configWindow.fullscreen},
@@ -264,6 +269,7 @@ static const struct ConfigOption options[] = {
     {.name = "debug_print",                    .type = CONFIG_TYPE_BOOL  , .boolValue   = &configDebugPrint},
     {.name = "debug_info",                     .type = CONFIG_TYPE_BOOL  , .boolValue   = &configDebugInfo},
     {.name = "debug_error",                    .type = CONFIG_TYPE_BOOL  , .boolValue   = &configDebugError},
+    {.name = "language",                       .type = CONFIG_TYPE_STRING, .stringValue = (char*)&configLanguage, .maxStringLength = MAX_CONFIG_STRING},
 #ifdef TOUCH_CONTROLS
     {.name = "touch_stick_x",            .type = CONFIG_TYPE_BIND, .uintValue = configControlElements[TOUCH_STICK].x},
     {.name = "touch_stick_y",            .type = CONFIG_TYPE_BIND, .uintValue = configControlElements[TOUCH_STICK].y},
@@ -360,13 +366,7 @@ static void enable_mod_read(char** tokens, UNUSED int numTokens) {
         strncat(combined, tokens[i], 255);
     }
 
-    for (unsigned int i = 0; i < gLocalMods.entryCount; i++) {
-        struct Mod* mod = gLocalMods.entries[i];
-        if (!strcmp(combined, mod->relativePath)) {
-            mod->enabled = true;
-            break;
-        }
-    }
+    mods_enable(combined);
 }
 
 static void enable_mod_write(FILE* file) {
@@ -442,12 +442,14 @@ static const struct FunctionConfigOption functionOptions[] = {
 
 // Reads an entire line from a file (excluding the newline character) and returns an allocated string
 // Returns NULL if no lines could be read from the file
-static char *read_file_line(fs_file_t *file) {
+static char *read_file_line(fs_file_t *file, bool* error) {
     char *buffer;
     size_t bufferSize = 8;
     size_t offset = 0; // offset in buffer to write
+    *error = false;
 
     buffer = malloc(bufferSize);
+    buffer[0] = '\0';
     while (1) {
         // Read a line from the file
         if (fs_readline(file, buffer + offset, bufferSize - offset) == NULL) {
@@ -455,7 +457,12 @@ static char *read_file_line(fs_file_t *file) {
             return NULL; // Nothing could be read.
         }
         offset = strlen(buffer);
-        assert(offset > 0);
+        if (offset <= 0) {
+            LOG_ERROR("Configfile offset <= 0");
+            *error = true;
+            return NULL;
+        }
+
 
         // If a newline was found, remove the trailing newline and exit
         if (buffer[offset - 1] == '\n') {
@@ -520,11 +527,16 @@ const char *configfile_name(void) {
     return (gCLIOpts.ConfigFile[0]) ? gCLIOpts.ConfigFile : CONFIGFILE_DEFAULT;
 }
 
+const char *configfile_backup_name(void) {
+    return CONFIGFILE_BACKUP;
+}
+
 // Loads the config file specified by 'filename'
-void configfile_load(const char *filename) {
+static void configfile_load_internal(const char *filename, bool* error) {
     fs_file_t *file;
     char *line;
     unsigned int temp;
+    *error = false;
 
     printf("Loading configuration from '%s'\n", filename);
 
@@ -537,7 +549,7 @@ void configfile_load(const char *filename) {
     }
 
     // Go through each line in the file
-    while ((line = read_file_line(file)) != NULL) {
+    while ((line = read_file_line(file, error)) != NULL && !*error) {
         char *p = line;
         char *tokens[20];
         int numTokens;
@@ -607,7 +619,8 @@ void configfile_load(const char *filename) {
                             }
                             break;
                         default:
-                            assert(0); // bad type
+                            LOG_ERROR("Configfile read bad type '%d': %s", (int)option->type, line);
+                            goto NEXT_OPTION;
                     }
                     printf("option: '%s', value:", tokens[0]);
                     for (int i = 1; i < numTokens; ++i) printf(" '%s'", tokens[i]);
@@ -617,6 +630,11 @@ void configfile_load(const char *filename) {
                 puts("error: expected value");
         }
 NEXT_OPTION:
+        free(line);
+        line = NULL;
+    }
+
+    if (line) {
         free(line);
     }
 
@@ -628,6 +646,16 @@ NEXT_OPTION:
 #ifndef DISCORD_SDK
     configNetworkSystem = 1;
 #endif
+}
+
+void configfile_load(void) {
+    bool configReadError = false;
+    configfile_load_internal(configfile_name(), &configReadError);
+    if (configReadError) {
+        configfile_load_internal(configfile_backup_name(), &configReadError);
+    } else {
+        configfile_save(configfile_backup_name());
+    }
 }
 
 // Writes the config file to 'filename'
@@ -671,7 +699,8 @@ void configfile_save(const char *filename) {
                 fprintf(file, "%s %02x %02x %02x\n", option->name, (*option->colorValue)[0], (*option->colorValue)[1], (*option->colorValue)[2]);
                 break;
             default:
-                assert(0); // unknown type
+                LOG_ERROR("Configfile wrote bad type '%d': %s", (int)option->type, option->name);
+                break;
         }
     }
 

@@ -131,6 +131,7 @@
 | macroObjectsAltered | `Pointer` <`integer`> | read-only |
 | musicParam | `integer` |  |
 | musicParam2 | `integer` |  |
+| nextSyncID | `integer` | read-only |
 | numRedCoins | `integer` |  |
 | numSecrets | `integer` |  |
 | objectSpawnInfos | [SpawnInfo](structs.md#SpawnInfo) |  |
@@ -1032,6 +1033,7 @@
 | angleVel | [Vec3s](structs.md#Vec3s) | read-only |
 | animation | [MarioAnimation](structs.md#MarioAnimation) |  |
 | area | [Area](structs.md#Area) |  |
+| bounceSquishTimer | `integer` |  |
 | bubbleObj | [Object](structs.md#Object) |  |
 | cap | `integer` |  |
 | capTimer | `integer` |  |
@@ -1039,7 +1041,7 @@
 | ceilHeight | `number` |  |
 | character | [Character](structs.md#Character) |  |
 | collidedObjInteractTypes | `integer` |  |
-| controller | [Controller](structs.md#Controller) |  |
+| controller | [Controller](structs.md#Controller) | read-only |
 | curAnimOffset | `number` |  |
 | currentRoom | `integer` |  |
 | doubleJumpTimer | `integer` |  |
@@ -1173,6 +1175,7 @@
 | descriptionR | `integer` | read-only |
 | fadeOpacity | `integer` | read-only |
 | globalIndex | `integer` | read-only |
+| lastPingSent | `number` | read-only |
 | lastReceived | `number` | read-only |
 | lastSent | `number` | read-only |
 | localIndex | `integer` | read-only |
@@ -1185,6 +1188,7 @@
 | overridePaletteIndexLp | `integer` | read-only |
 | palette | [PlayerPalette](structs.md#PlayerPalette) | read-only |
 | paletteIndex | `integer` | read-only |
+| ping | `integer` | read-only |
 | type | `integer` | read-only |
 
 [:arrow_up_small:](#)
@@ -2218,6 +2222,7 @@
 | next | [SpawnInfo](structs.md#SpawnInfo) |  |
 | startAngle | [Vec3s](structs.md#Vec3s) | read-only |
 | startPos | [Vec3s](structs.md#Vec3s) | read-only |
+| syncID | `integer` | read-only |
 | unk18 | [GraphNode](structs.md#GraphNode) |  |
 
 [:arrow_up_small:](#)
