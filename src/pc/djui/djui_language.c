@@ -19,8 +19,8 @@ bool djui_language_init(char* lang) {
     // TODO: this is more code that will also be totally non-functioning on OpenBSD without
     // intervention, but at the moment I'm editing it just for Android.
 #ifdef __ANDROID__
-    const char* gamedir = get_gamedir();
-    snprintf(exePath, SYS_MAX_PATH, "%s", gamedir);
+    const char *gamedir = get_gamedir();
+    snprintf(exePath, sizeof(exePath), "%s", gamedir);
 #else
     path_get_folder((char*)path_to_executable(), exePath);
 #endif

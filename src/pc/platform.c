@@ -127,7 +127,7 @@ const char *sys_user_path(void) {
 const char *sys_exe_path(void) {
     static char path[SYS_MAX_PATH] = { 0 };
     
-    const char basedir = get_gamedir();
+    const char *basedir = get_gamedir();
     snprintf(path, sizeof(path), "%s", basedir);
 
     if (!fs_sys_dir_exists(path) && !fs_sys_mkdir(path))
