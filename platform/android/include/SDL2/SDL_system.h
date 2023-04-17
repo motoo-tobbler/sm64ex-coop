@@ -415,7 +415,6 @@ extern DECLSPEC int SDLCALL SDL_AndroidGetExternalStorageState(void);
  */
 extern DECLSPEC const char * SDLCALL SDL_AndroidGetExternalStoragePath(void);
 
-
 /**
  * Get the path used for external storage for this application.
  *
@@ -433,6 +432,13 @@ extern DECLSPEC const char * SDLCALL SDL_AndroidGetExternalStoragePath(void);
  * \sa SDL_AndroidGetExternalStorageState
  */
 extern DECLSPEC const char * SDLCALL SDL_AndroidGetTopExternalStoragePath(void);
+
+/**
+ * Recursively copy all asset files and folders to the given directory
+ *
+ * \param destpath The target directory to which to copy all assets.
+ */
+extern DECLSPEC void SDLCALL SDL_AndroidCopyAssetFilesToDir(const char *destpath);
 
 /**
  * Request permissions at runtime.

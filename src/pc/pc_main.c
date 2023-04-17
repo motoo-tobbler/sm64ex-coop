@@ -283,10 +283,6 @@ void inthand(UNUSED int signum) {
     game_exit();
 }
 
-#ifdef __ANDROID__
-extern void SDL_AndroidCopyAssetFilesToDir(const char* destpath);
-#endif
-
 void main_func(void) {
 #ifdef __ANDROID__
     char gamedir[SYS_MAX_PATH] = ".";

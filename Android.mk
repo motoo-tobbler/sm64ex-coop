@@ -2,7 +2,7 @@ LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 LOCAL_MODULE := main
 
-SDL_PATH := ../SDL
+SDL_PATH := $(LOCAL_PATH)/platform/android
 
 ### Build Options ###
 
