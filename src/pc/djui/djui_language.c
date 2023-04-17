@@ -2,6 +2,8 @@
 #include "djui_unicode.h"
 #include "pc/ini.h"
 #include "pc/platform.h"
+#include "pc/mods/mods.h"
+#include "pc/mods/mods_utils.h"
 
 ini_t* sLang = NULL;
 
@@ -13,9 +15,19 @@ bool djui_language_init(char* lang) {
     }
 
     // construct path
+    char exePath[SYS_MAX_PATH] = "";
+    // TODO: this is more code that will also be totally non-functioning on OpenBSD without
+    // intervention, but at the moment I'm editing it just for Android.
+#ifdef __ANDROID__
+    const char* gamedir = get_gamedir();
+    snprintf(exePath, SYS_MAX_PATH, "%s", gamedir);
+#else
+    path_get_folder((char*)path_to_executable(), exePath);
+#endif
+
     char path[SYS_MAX_PATH] = "";
     if (!lang || lang[0] == '\0') { lang = "English"; }
-    snprintf(path, SYS_MAX_PATH, "%s/lang/%s.ini", sys_exe_path(), lang);
+    snprintf(path, SYS_MAX_PATH, "%s/lang/%s.ini", exePath, lang);
 
     // load
     sLang = ini_load(path);
