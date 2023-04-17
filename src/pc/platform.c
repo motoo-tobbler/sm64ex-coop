@@ -87,10 +87,6 @@ void sys_fatal(const char *fmt, ...) {
 
 #ifdef __ANDROID__
 #include "platform.h"
-extern const char* SDL_AndroidGetExternalStoragePath();
-extern const char* SDL_AndroidGetTopExternalStoragePath();
-extern SDL_bool SDL_AndroidRequestPermission(const char *permission);
-
 // The purpose of this code is to store/use the game data in /storage/emulated/0
 // instead of /storage/emulated/0/Android/data if the user permits it, which
 // results in Android not deleting the game data when the app is uninstalled
@@ -99,12 +95,14 @@ extern SDL_bool SDL_AndroidRequestPermission(const char *permission);
 // which app it is". It is also very useful for people (like me) who 
 // frequently switch between the cross-compilation and the Termux build on
 // the same device, which necessitates uninstalling the other build's app.
-const char* get_gamedir(void) {
+const char *get_gamedir(void) {
     SDL_bool privileged_write = SDL_FALSE, privileged_manage = SDL_FALSE;
-    char gamedir_privileged[SYS_MAX_PATH] = ".";
+    static char gamedir_unprivileged[SYS_MAX_PATH] = { 0 }, gamedir_privileged[SYS_MAX_PATH] = { 0 };
     const char *basedir_unprivileged = SDL_AndroidGetExternalStoragePath();
     const char *basedir_privileged = SDL_AndroidGetTopExternalStoragePath();
 
+    snprintf(gamedir_unprivileged, sizeof(gamedir_unprivileged), 
+             "%s", basedir_unprivileged);
     snprintf(gamedir_privileged, sizeof(gamedir_privileged), 
              "%s/%s", basedir_privileged, ANDROID_APPNAME);
 
@@ -112,11 +110,11 @@ const char* get_gamedir(void) {
     privileged_write = SDL_AndroidRequestPermission("android.permission.WRITE_EXTERNAL_STORAGE");
     //Android 11 and up
     privileged_manage = SDL_AndroidRequestPermission("android.permission.MANAGE_EXTERNAL_STORAGE");
-    return (privileged_write || privileged_manage) ? gamedir_privileged : basedir_unprivileged;
+    return (privileged_write || privileged_manage) ? gamedir_privileged : gamedir_unprivileged;
 }
 
 const char *sys_user_path(void) {
-    char path[SYS_MAX_PATH] = ".";
+    static char path[SYS_MAX_PATH] = { 0 };
 
     const char *basedir = get_gamedir();
     snprintf(path, sizeof(path), "%s/user", basedir);
@@ -127,7 +125,10 @@ const char *sys_user_path(void) {
 }
 
 const char *sys_exe_path(void) {
-    char *path = get_gamedir();
+    static char path[SYS_MAX_PATH] = { 0 };
+    
+    const char basedir = get_gamedir();
+    snprintf(path, sizeof(path), "%s", basedir);
 
     if (!fs_sys_dir_exists(path) && !fs_sys_mkdir(path))
         path[0] = 0; // somehow failed, we got no exe path

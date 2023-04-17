@@ -285,7 +285,7 @@ void inthand(UNUSED int signum) {
 
 void main_func(void) {
 #ifdef __ANDROID__
-    char gamedir[SYS_MAX_PATH] = ".";
+    char gamedir[SYS_MAX_PATH] = { 0 };
     const char *basedir = get_gamedir();
     snprintf(gamedir, sizeof(gamedir), "%s/%s", 
              basedir, gCLIOpts.GameDir[0] ? gCLIOpts.GameDir : FS_BASEDIR);
