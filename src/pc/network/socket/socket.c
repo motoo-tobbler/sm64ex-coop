@@ -90,10 +90,20 @@ static bool ns_socket_initialize(enum NetworkType networkType) {
         // save the port to send to
         sAddr[0].sin_family = AF_INET;
         sAddr[0].sin_port = htons(port);
+#ifdef __ANDROID__
+        const char *address = domain_resolution(configJoinIp);
+        if (address != NULL) {
+            sAddr[0].sin_addr.s_addr = inet_addr(address);
+        } else {
+            sAddr[0].sin_addr.s_addr = inet_addr(configJoinIp);
+        }
+        LOG_INFO("connecting to %s %u", configJoinIp, port);
+#else
         domain_resolution();
         sAddr[0].sin_addr.s_addr = inet_addr(configJoinIp);
         LOG_INFO("connecting to %s %u", configJoinIp, port);
         snprintf(configJoinIp, MAX_CONFIG_STRING, "%s", gGetHostName);
+#endif
     }
 
     // kick off first packet
