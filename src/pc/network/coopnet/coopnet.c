@@ -266,6 +266,15 @@ static CoopNetRc coopnet_initialize(void) {
 
     if (coopnet_is_connected()) { return COOPNET_OK; }
 
+#ifdef __ANDROID__
+    // quick fix, for some reason on Android configCoopNetIp initialized the
+    // way it is causes it to turn into this, maybe a form of memory corruption:
+    // "\0\0\0.coop64.us\0\0\0\0"...
+    if (strlen(configCoopNetIp) == 0) {
+        snprintf(configCoopNetIp, MAX_CONFIG_STRING, "%s", DEFAULT_COOPNET_IP);
+    }
+#endif
+
     CoopNetRc rc = coopnet_begin(configCoopNetIp, configCoopNetPort);
     if (rc == COOPNET_FAILED) {
         djui_popup_create(DLANG(NOTIF, COOPNET_CONNECTION_FAILED), 2);
