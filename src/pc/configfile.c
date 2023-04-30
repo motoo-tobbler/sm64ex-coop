@@ -69,6 +69,7 @@ ConfigWindow configWindow       = {
     .fullscreen = true,
     .exiting_fullscreen = false,
     .settings_changed = false,
+    .msaa = 0,
 };
 unsigned int configFiltering    = 1;          // 0=force nearest, 1=linear, (TODO) 2=three-point
 unsigned int configMasterVolume = 30; // 0 - MAX_VOLUME
@@ -118,14 +119,10 @@ bool         configCameraAnalog  = true;
 bool         configCameraMouse   = true;
 #endif
 bool         configSkipIntro     = 0;
-bool         configShareLives    = 0;
 bool         configEnableCheats  = 0;
 bool         configBubbleDeath   = true;
 unsigned int configAmountofPlayers = 16;
 bool         configHUD           = true;
-#ifdef DISCORDRPC
-bool         configDiscordRPC    = true;
-#endif
 // coop-specific
 char         configJoinIp[MAX_CONFIG_STRING] = "";
 unsigned int configJoinPort                      = DEFAULT_PORT;
@@ -159,6 +156,10 @@ bool         configDebugPrint                    = 0;
 bool         configDebugInfo                     = 0;
 bool         configDebugError                    = 0;
 char         configLanguage[MAX_CONFIG_STRING]   = "";
+bool         configForce4By3                     = false;
+char         configCoopNetIp[MAX_CONFIG_STRING]  = DEFAULT_COOPNET_IP;
+unsigned int configCoopNetPort                   = DEFAULT_COOPNET_PORT;
+char         configPassword[MAX_PLAYER_STRING]   = "";
 
 static const struct ConfigOption options[] = {
     {.name = "fullscreen",           .type = CONFIG_TYPE_BOOL, .boolValue = &configWindow.fullscreen},
@@ -168,6 +169,7 @@ static const struct ConfigOption options[] = {
     {.name = "window_h",             .type = CONFIG_TYPE_UINT, .uintValue = &configWindow.h},
     {.name = "vsync",                .type = CONFIG_TYPE_BOOL, .boolValue = &configWindow.vsync},
     {.name = "texture_filtering",    .type = CONFIG_TYPE_UINT, .uintValue = &configFiltering},
+    {.name = "msaa",                 .type = CONFIG_TYPE_UINT, .uintValue = &configWindow.msaa},
     {.name = "master_volume",        .type = CONFIG_TYPE_UINT, .uintValue = &configMasterVolume},
     {.name = "music_volume",         .type = CONFIG_TYPE_UINT, .uintValue = &configMusicVolume},
     {.name = "sfx_volume",           .type = CONFIG_TYPE_UINT, .uintValue = &configSfxVolume},
@@ -213,9 +215,6 @@ static const struct ConfigOption options[] = {
     #endif
     {.name = "skip_intro",           .type = CONFIG_TYPE_BOOL, .boolValue = &configSkipIntro},
     {.name = "enable_cheats",        .type = CONFIG_TYPE_BOOL, .boolValue = &configEnableCheats},
-    #ifdef DISCORDRPC
-    {.name = "discordrpc_enable",    .type = CONFIG_TYPE_BOOL, .boolValue = &configDiscordRPC},
-    #endif
     // debug
     {.name = "debug_offset",                   .type = CONFIG_TYPE_U64   , .u64Value    = &gPcDebug.bhvOffset},
     {.name = "debug_tags",                     .type = CONFIG_TYPE_U64   , .u64Value    = gPcDebug.tags},
@@ -254,7 +253,6 @@ static const struct ConfigOption options[] = {
     {.name = "coop_custom_palette_cap",        .type = CONFIG_TYPE_COLOR , .colorValue  = &configCustomPalette.parts[CAP]},
     {.name = "coop_stay_in_level_after_star",  .type = CONFIG_TYPE_UINT  , .uintValue   = &configStayInLevelAfterStar},
     {.name = "coop_singleplayer_pause",        .type = CONFIG_TYPE_BOOL  , .boolValue   = &configSingleplayerPause},
-    {.name = "share_lives",                    .type = CONFIG_TYPE_BOOL  , .boolValue   = &configShareLives},
     {.name = "disable_popups",                 .type = CONFIG_TYPE_BOOL  , .boolValue   = &configDisablePopups},
 #if defined(DEVELOPMENT)
     {.name = "lua_profiler",                   .type = CONFIG_TYPE_BOOL  , .boolValue   = &configLuaProfiler},
@@ -352,6 +350,10 @@ static const struct ConfigOption options[] = {
     {.name = "touch_slide",              .type = CONFIG_TYPE_BOOL, .boolValue = &configSlideTouch},
     {.name = "touch_snap",               .type = CONFIG_TYPE_BOOL, .boolValue = &configElementSnap},
 #endif
+    {.name = "force_4by3",                     .type = CONFIG_TYPE_BOOL,   .boolValue   = &configForce4By3},
+    {.name = "coopnet_ip",                     .type = CONFIG_TYPE_STRING, .stringValue = (char*)&configCoopNetIp, .maxStringLength = MAX_CONFIG_STRING},
+    {.name = "coopnet_port",                   .type = CONFIG_TYPE_UINT  , .uintValue   = &configCoopNetPort},
+    {.name = "coopnet_password",               .type = CONFIG_TYPE_STRING, .stringValue = (char*)&configPassword, .maxStringLength = MAX_CONFIG_STRING},
 };
 
 // FunctionConfigOption functions
@@ -640,8 +642,8 @@ NEXT_OPTION:
     if (configFrameLimit < 30)   { configFrameLimit = 30; }
     if (configFrameLimit > 3000) { configFrameLimit = 3000; }
 
-#ifndef DISCORD_SDK
-    configNetworkSystem = 1;
+#ifndef COOPNET
+    configNetworkSystem = NS_SOCKET;
 #endif
 }
 

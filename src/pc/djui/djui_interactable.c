@@ -27,7 +27,7 @@ struct DjuiBase* gDjuiHovered = NULL;
 struct DjuiBase* gDjuiCursorDownOn = NULL;
 struct DjuiBase* gInteractableFocus = NULL;
 struct DjuiBase* gInteractableBinding = NULL;
-static struct DjuiBase* sMouseDown    = NULL;
+struct DjuiBase* gInteractableMouseDown    = NULL;
 bool gInteractableOverridePad         = false;
 OSContPad gInteractablePad            = { 0 };
 static OSContPad sLastInteractablePad = { 0 };
@@ -399,21 +399,21 @@ void djui_interactable_update(void) {
     } else if ((padButtons & PAD_BUTTON_A) || (mouseButtons & MOUSE_BUTTON_1)) {
         // cursor down events
 #ifdef TOUCH_CONTROLS
-        if (sMouseDown == NULL)
+        if (gInteractableMouseDown == NULL)
             djui_interactable_cursor_update_active(&gDjuiRoot->base);
 #endif
         if (gDjuiHovered != NULL) {
-            sMouseDown = gDjuiHovered;
+            gInteractableMouseDown = gDjuiHovered;
             gDjuiHovered = NULL;
-            djui_interactable_on_cursor_down_begin(sMouseDown, !mouseButtons);
+            djui_interactable_on_cursor_down_begin(gInteractableMouseDown, !mouseButtons);
         } else {
-            djui_interactable_on_cursor_down(sMouseDown);
+            djui_interactable_on_cursor_down(gInteractableMouseDown);
         }
     } else {
         // cursor up event
-        if (sMouseDown != NULL) {
-            djui_interactable_on_cursor_down_end(sMouseDown);
-            sMouseDown = NULL;
+        if (gInteractableMouseDown != NULL) {
+            djui_interactable_on_cursor_down_end(gInteractableMouseDown);
+            gInteractableMouseDown = NULL;
         }
         struct DjuiBase* lastHovered = gDjuiHovered;
         gDjuiHovered = NULL;

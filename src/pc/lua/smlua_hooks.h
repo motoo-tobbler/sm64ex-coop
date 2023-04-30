@@ -43,6 +43,7 @@ enum LuaHookedEventType {
     HOOK_CHARACTER_SOUND,
     HOOK_BEFORE_SET_MARIO_ACTION,
     HOOK_JOINED_GAME,
+    HOOK_ON_OBJECT_ANIM_UPDATE,
     HOOK_MAX,
 };
 
@@ -79,6 +80,7 @@ static const char* LuaHookedEventTypeName[] = {
     "HOOK_CHARACTER_SOUND",
     "HOOK_BEFORE_SET_MARIO_ACTION",
     "HOOK_JOINED_GAME",
+    "HOOK_ON_OBJECT_ANIM_UPDATE",
     "HOOK_MAX"
 };
 
@@ -99,6 +101,7 @@ extern u32 gLuaMarioActionIndex;
 int smlua_hook_custom_bhv(BehaviorScript *bhvScript, const char *bhvName);
 
 void smlua_call_event_hooks(enum LuaHookedEventType hookType);
+void smlua_call_event_hooks_with_reset_func(enum LuaHookedEventType hookType, void (*resetFunc)(void));
 void smlua_call_event_hooks_bool_param(enum LuaHookedEventType hookType, bool value);
 void smlua_call_event_hooks_bool_param_ret_bool(enum LuaHookedEventType hookType, bool value, bool* returnValue);
 void smlua_call_event_hooks_mario_param(enum LuaHookedEventType hookType, struct MarioState* m);
@@ -118,6 +121,7 @@ void smlua_call_event_hooks_ret_bool(enum LuaHookedEventType hookType, bool* ret
 void smlua_call_event_hooks_on_chat_message(enum LuaHookedEventType hookType, struct MarioState* m, const char* message, bool* returnValue);
 bool smlua_call_event_hooks_mario_character_sound_param_ret_int(enum LuaHookedEventType hookType, struct MarioState* m, enum CharacterSound characterSound, s32* returnValue);
 void smlua_call_event_hooks_mario_action_params_ret_int(enum LuaHookedEventType hookType, struct MarioState *m, u32 action, u32* returnValue);
+void smlua_call_event_hooks_mario_param_and_int_ret_bool(enum LuaHookedEventType hookType, struct MarioState* m, s32 param, bool* returnValue);
 
 enum BehaviorId smlua_get_original_behavior_id(const BehaviorScript* behavior);
 const BehaviorScript* smlua_override_behavior(const BehaviorScript* behavior);

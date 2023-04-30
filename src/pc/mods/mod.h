@@ -5,6 +5,10 @@
 #include <types.h>
 #include "src/pc/platform.h"
 
+#define MOD_NAME_MAX_LENGTH 32
+#define MOD_INCOMPATIBLE_MAX_LENGTH 256
+#define MOD_DESCRIPTION_MAX_LENGTH 512
+
 struct Mods;
 
 struct ModFile {
@@ -30,8 +34,10 @@ struct Mod {
     bool enabled;
     bool selectable;
     size_t size;
+    u8 customBehaviorIndex;
 };
 
+size_t mod_get_lua_size(struct Mod* mod);
 void mod_activate(struct Mod* mod);
 void mod_clear(struct Mod* mod);
 bool mod_load(struct Mods* mods, char* basePath, char* modName);

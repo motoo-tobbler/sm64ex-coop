@@ -52,9 +52,6 @@
 
 #include "pc/lua/utils/smlua_audio_utils.h"
 
-#ifdef DISCORDRPC
-#include "pc/discord/discordrpc.h"
-#endif
 #include "pc/network/version.h"
 #include "pc/network/socket/domain_res.h"
 #include "pc/network/network_player.h"
@@ -68,6 +65,10 @@
 #include "pc/mods/mods.h"
 
 #include "menu/intro_geo.h"
+
+#ifdef DISCORD_SDK
+#include "pc/discord/discord.h"
+#endif
 
 OSMesg D_80339BEC;
 OSMesgQueue gSIEventMesgQueue;
@@ -257,9 +258,6 @@ void audio_shutdown(void) {
 }
 
 void game_deinit(void) {
-#ifdef DISCORDRPC
-    discord_shutdown();
-#endif
     configfile_save(configfile_name());
     controller_shutdown();
 #ifdef HAVE_BASS
@@ -267,7 +265,7 @@ void game_deinit(void) {
 #endif
     audio_shutdown();
     gfx_shutdown();
-    network_shutdown(true, true, false);
+    network_shutdown(true, true, false, false);
     smlua_shutdown();
     mods_shutdown();
     inited = false;
@@ -397,15 +395,15 @@ void main_func(void) {
         snprintf(gGetHostName, MAX_CONFIG_STRING, "%s", gCLIOpts.JoinIp);
         snprintf(configJoinIp, MAX_CONFIG_STRING, "%s", gCLIOpts.JoinIp);
         configJoinPort = gCLIOpts.NetworkPort;
-        network_init(NT_CLIENT);
+        network_init(NT_CLIENT, false);
     } else if (gCLIOpts.Network == NT_SERVER) {
         network_set_system(NS_SOCKET);
         configHostPort = gCLIOpts.NetworkPort;
-        network_init(NT_SERVER);
+        network_init(NT_SERVER, false);
         djui_panel_shutdown();
         djui_panel_modlist_create(NULL);
     } else {
-        network_init(NT_NONE);
+        network_init(NT_NONE, false);
     }
 
     audio_init();
@@ -430,14 +428,10 @@ void main_func(void) {
     }
 #endif
 
-#ifdef DISCORDRPC
-    discord_init();
-#endif
-
     while (true) {
         wm_api->main_loop(produce_one_frame);
-#ifdef DISCORDRPC
-        discord_update_rich_presence();
+#ifdef DISCORD_SDK
+        discord_update();
 #endif
 #ifdef DEBUG
         fflush(stdout);

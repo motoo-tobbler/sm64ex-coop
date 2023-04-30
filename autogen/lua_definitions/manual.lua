@@ -61,8 +61,9 @@ gServerSettings = {}
 --- @param replaceBehavior boolean
 --- @param initFunction fun(obj:Object)
 --- @param loopFunction fun(obj:Object)
+--- @param behaviorName string
 --- @return BehaviorId
-function hook_behavior(behaviorId, objectList, replaceBehavior, initFunction, loopFunction)
+function hook_behavior(behaviorId, objectList, replaceBehavior, initFunction, loopFunction, behaviorName)
     -- ...
 end
 
@@ -218,6 +219,19 @@ end
 --- @param tileH number
 --- @return nil
 function djui_hud_render_texture_tile_interpolated(texInfo, prevX, prevY, prevScaleW, prevScaleH, x, y, scaleW, scaleH, tileX, tileY, tileW, tileH)
+    -- ...
+end
+
+--- @param name string
+--- @param flags integer
+--- @param animYTransDivisor integer
+--- @param startFrame integer
+--- @param loopStart integer
+--- @param loopEnd integer
+--- @param values table
+--- @param index table
+--- @return nil
+function smlua_anim_util_register_animation(name, flags, animYTransDivisor, startFrame, loopStart, loopEnd, values, index)
     -- ...
 end
 

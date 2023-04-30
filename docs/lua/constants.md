@@ -70,6 +70,8 @@
 ## [area.h](#area.h)
 - INSTANT_WARP_INDEX_START
 - INSTANT_WARP_INDEX_STOP
+- LOADED_GRAPH_NODES_EXTENDED
+- LOADED_GRAPH_NODES_VANILLA
 - MAX_LOADED_GRAPH_NODES
 - WARP_TRANSITION_FADE_FROM_BOWSER
 - WARP_TRANSITION_FADE_FROM_CIRCLE
@@ -1690,7 +1692,8 @@
 | Identifier | Value |
 | :--------- | :---- |
 | NS_SOCKET | 0 |
-| NS_DISCORD | 1 |
+| NS_COOPNET | 1 |
+| NS_MAX | 2 |
 
 ### [enum PlayerInteractions](#PlayerInteractions)
 | Identifier | Value |
@@ -2946,7 +2949,8 @@
 | HOOK_CHARACTER_SOUND | 29 |
 | HOOK_BEFORE_SET_MARIO_ACTION | 30 |
 | HOOK_JOINED_GAME | 31 |
-| HOOK_MAX | 32 |
+| HOOK_ON_OBJECT_ANIM_UPDATE | 32 |
+| HOOK_MAX | 33 |
 
 [:arrow_up_small:](#)
 
@@ -3875,6 +3879,9 @@
 <br />
 
 ## [surface_terrains.h](#surface_terrains.h)
+- HAZARD_TYPE_LAVA_FLOOR
+- HAZARD_TYPE_LAVA_WALL
+- HAZARD_TYPE_QUICKSAND
 - SURFACE_0004
 - SURFACE_BOSS_FIGHT_CAMERA
 - SURFACE_BURNING

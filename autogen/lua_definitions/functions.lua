@@ -3663,6 +3663,18 @@ function djui_hud_print_text(message, x, y, scale)
     -- ...
 end
 
+--- @param message string
+--- @param prevX number
+--- @param prevY number
+--- @param prevScale number
+--- @param x number
+--- @param y number
+--- @param scale number
+--- @return nil
+function djui_hud_print_text_interpolated(message, prevX, prevY, prevScale, x, y, scale)
+    -- ...
+end
+
 --- @param x number
 --- @param y number
 --- @param width number
@@ -3682,6 +3694,11 @@ end
 --- @param height number
 --- @return nil
 function djui_hud_render_rect_interpolated(prevX, prevY, prevWidth, prevHeight, x, y, width, height)
+    -- ...
+end
+
+--- @return nil
+function djui_hud_reset_color()
     -- ...
 end
 
@@ -3715,6 +3732,14 @@ end
 --- @param resolutionType HudUtilsResolution
 --- @return nil
 function djui_hud_set_resolution(resolutionType)
+    -- ...
+end
+
+--- @param rotation integer
+--- @param pivotX number
+--- @param pivotY number
+--- @return nil
+function djui_hud_set_rotation(rotation, pivotX, pivotY)
     -- ...
 end
 
@@ -5641,12 +5666,6 @@ end
 
 --- @param localIndex integer
 --- @return string
-function network_discord_id_from_local_index(localIndex)
-    -- ...
-end
-
---- @param localIndex integer
---- @return string
 function network_get_player_text_color_string(localIndex)
     -- ...
 end
@@ -7373,6 +7392,14 @@ function obj_init_animation(obj, animIndex)
 end
 
 --- @param obj Object
+--- @param animIndex integer
+--- @param accel number
+--- @return nil
+function obj_init_animation_with_accel_and_sound(obj, animIndex, accel)
+    -- ...
+end
+
+--- @param obj Object
 --- @return integer
 function obj_is_hidden(obj)
     -- ...
@@ -7841,6 +7868,19 @@ function save_file_set_star_flags(fileIndex, courseIndex, starFlags)
     -- ...
 end
 
+--- @param obj Object
+--- @return string
+function smlua_anim_util_get_current_animation_name(obj)
+    -- ...
+end
+
+--- @param obj Object
+--- @param name string
+--- @return nil
+function smlua_anim_util_set_animation(obj, name)
+    -- ...
+end
+
 --- @param audio BassAudio
 --- @return nil
 function audio_sample_destroy(audio)
@@ -7996,11 +8036,11 @@ end
 --- @param startX number
 --- @param startY number
 --- @param startZ number
---- @param endX number
---- @param endY number
---- @param endZ number
+--- @param dirX number
+--- @param dirY number
+--- @param dirZ number
 --- @return RayIntersectionInfo
-function collision_find_surface_on_ray(startX, startY, startZ, endX, endY, endZ)
+function collision_find_surface_on_ray(startX, startY, startZ, dirX, dirY, dirZ)
     -- ...
 end
 
@@ -8012,6 +8052,18 @@ end
 --- @param name string
 --- @return Pointer_Collision
 function smlua_collision_util_get(name)
+    -- ...
+end
+
+--- @param localIndex integer
+--- @return string
+function network_discord_id_from_local_index(localIndex)
+    -- ...
+end
+
+--- @param levelNum integer
+--- @return boolean
+function level_is_vanilla_level(levelNum)
     -- ...
 end
 
@@ -8275,9 +8327,9 @@ function camera_unfreeze()
     -- ...
 end
 
---- @param levelNum integer
+--- @param courseNum integer
 --- @return boolean
-function course_is_main_course(levelNum)
+function course_is_main_course(courseNum)
     -- ...
 end
 
@@ -8399,6 +8451,20 @@ end
 --- @param height number
 --- @return nil
 function hud_render_power_meter(health, x, y, width, height)
+    -- ...
+end
+
+--- @param health integer
+--- @param prevX number
+--- @param prevY number
+--- @param prevWidth number
+--- @param prevHeight number
+--- @param x number
+--- @param y number
+--- @param width number
+--- @param height number
+--- @return nil
+function hud_render_power_meter_interpolated(health, prevX, prevY, prevWidth, prevHeight, x, y, width, height)
     -- ...
 end
 
@@ -8544,6 +8610,13 @@ end
 --- @param behaviorId BehaviorId
 --- @return integer
 function obj_count_objects_with_behavior_id(behaviorId)
+    -- ...
+end
+
+--- @param o Object
+--- @param index integer
+--- @return Object
+function obj_get_collided_object(o, index)
     -- ...
 end
 

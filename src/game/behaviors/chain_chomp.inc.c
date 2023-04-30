@@ -31,7 +31,9 @@ void bhv_chain_chomp_chain_part_update(void) {
     if (!sync_object_is_initialized(o->oSyncID)) {
         sync_object_init(o, SYNC_DISTANCE_ONLY_DEATH);
     }
-    
+
+    if (!o->parentObj) { return; }
+
     if (o->parentObj->activeFlags == ACTIVE_FLAG_DEACTIVATED || o->parentObj->oAction == CHAIN_CHOMP_ACT_UNLOAD_CHAIN) {
         obj_mark_for_deletion(o);
         network_send_object(o);
@@ -556,7 +558,7 @@ void bhv_chain_chomp_gate_init(void) {
  * Update function for chain chomp gate
  */
 void bhv_chain_chomp_gate_update(void) {
-    if (o->parentObj->oChainChompHitGate) {
+    if (o && o->parentObj && o->parentObj->oChainChompHitGate) {
         spawn_mist_particles_with_sound(SOUND_GENERAL_WALL_EXPLOSION);
         set_camera_shake_from_point(SHAKE_POS_SMALL, o->oPosX, o->oPosY, o->oPosZ);
         spawn_mist_particles_variable(0, 0x7F, 200.0f);

@@ -7,10 +7,6 @@
 u8 network_global_index_from_local(u8 localIndex);
 u8 network_local_index_from_global(u8 globalIndex);
 
-#ifdef DISCORD_SDK
-char* network_discord_id_from_local_index(u8 localIndex);
-#endif
-
 bool network_is_server(void);
 bool network_is_moderator(void);
 

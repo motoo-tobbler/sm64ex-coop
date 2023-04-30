@@ -7,6 +7,7 @@
 #include "pc/lua/utils/smlua_audio_utils.h"
 #include "pc/lua/utils/smlua_model_utils.h"
 #include "pc/lua/utils/smlua_level_utils.h"
+#include "pc/lua/utils/smlua_anim_utils.h"
 #include "pc/djui/djui.h"
 
 lua_State* gLuaState = NULL;
@@ -71,6 +72,7 @@ static void smlua_load_script(struct Mod* mod, struct ModFile* file, u16 remoteI
 
     gSmLuaConvertSuccess = true;
     gLuaInitializingScript = 1;
+    LOG_INFO("Loading lua script '%s'", file->cachedPath);
     if (luaL_loadfile(L, file->cachedPath) != LUA_OK) {
         LOG_LUA("Failed to load lua script '%s'.", file->cachedPath);
         LOG_LUA("%s", smlua_to_string(L, lua_gettop(L)));
@@ -166,6 +168,7 @@ void smlua_init(void) {
         gLuaLoadingMod = mod;
         gLuaActiveMod = mod;
         gLuaLastHookMod = mod;
+        gLuaLoadingMod->customBehaviorIndex = 0;
         gPcDebug.lastModRun = gLuaActiveMod;
         for (int j = 0; j < mod->fileCount; j++) {
             struct ModFile* file = &mod->files[j];
@@ -201,6 +204,7 @@ void smlua_shutdown(void) {
     smlua_clear_hooks();
     smlua_model_util_reset();
     smlua_level_util_reset();
+    smlua_anim_util_reset();
     lua_State* L = gLuaState;
     if (L != NULL) {
         lua_close(L);

@@ -331,6 +331,7 @@
 --- @field public echoLevel3 integer
 --- @field public fullName string
 --- @field public levelNum integer
+--- @field public modIndex integer
 --- @field public next CustomLevelInfo
 --- @field public script Pointer_LevelScript
 --- @field public scriptEntryName string
@@ -781,6 +782,7 @@
 
 --- @class Mod
 --- @field public basePath string
+--- @field public customBehaviorIndex integer
 --- @field public description string
 --- @field public enabled boolean
 --- @field public fileCount integer
@@ -1722,9 +1724,9 @@
 --- @field public enablePlayerList integer
 --- @field public enablePlayersInLevelDisplay integer
 --- @field public headlessServer integer
+--- @field public maxPlayers integer
 --- @field public playerInteractions PlayerInteractions
 --- @field public playerKnockbackStrength integer
---- @field public shareLives integer
 --- @field public skipIntro integer
 --- @field public stayInLevelAfterStar integer
 

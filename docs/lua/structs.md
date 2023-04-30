@@ -106,13 +106,13 @@
 | ----- | ---- | ------ |
 | animYTransDivisor | `integer` |  |
 | flags | `integer` |  |
-| index | `Pointer` <`integer`> | read-only |
+| index | `Pointer` <`integer`> |  |
 | length | `integer` |  |
 | loopEnd | `integer` |  |
 | loopStart | `integer` |  |
 | startFrame | `integer` |  |
 | unusedBoneCount | `integer` |  |
-| values | `Pointer` <`integer`> | read-only |
+| values | `Pointer` <`integer`> |  |
 
 [:arrow_up_small:](#)
 
@@ -524,6 +524,7 @@
 | echoLevel3 | `integer` |  |
 | fullName | `string` | read-only |
 | levelNum | `integer` |  |
+| modIndex | `integer` |  |
 | next | [CustomLevelInfo](structs.md#CustomLevelInfo) |  |
 | script | `Pointer` <`LevelScript`> | read-only |
 | scriptEntryName | `string` | read-only |
@@ -1114,6 +1115,7 @@
 | Field | Type | Access |
 | ----- | ---- | ------ |
 | basePath | `string` | read-only |
+| customBehaviorIndex | `integer` | read-only |
 | description | `string` | read-only |
 | enabled | `boolean` | read-only |
 | fileCount | `integer` | read-only |
@@ -2189,9 +2191,9 @@
 | enablePlayerList | `integer` |  |
 | enablePlayersInLevelDisplay | `integer` |  |
 | headlessServer | `integer` |  |
+| maxPlayers | `integer` |  |
 | playerInteractions | [enum PlayerInteractions](constants.md#enum-PlayerInteractions) |  |
 | playerKnockbackStrength | `integer` |  |
-| shareLives | `integer` |  |
 | skipIntro | `integer` |  |
 | stayInLevelAfterStar | `integer` |  |
 

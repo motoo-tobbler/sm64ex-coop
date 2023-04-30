@@ -40,6 +40,10 @@
 #include "pc/utils/misc.h"
 #include "pc/mods/mod_import.h"
 
+#ifndef GL_MAX_SAMPLES
+#define GL_MAX_SAMPLES 0x8D57
+#endif
+
 // TODO: figure out if this shit even works
 #ifdef VERSION_EU
 # define FRAMERATE 25
@@ -77,13 +81,16 @@ static void gfx_sdl_set_fullscreen(void) {
         SDL_SetWindowFullscreen(wnd, SDL_WINDOW_FULLSCREEN_DESKTOP);
     } else {
         SDL_SetWindowFullscreen(wnd, 0);
+        SDL_ShowCursor(1);
         configWindow.exiting_fullscreen = true;
     }
 }
 
 static void gfx_sdl_reset_dimension_and_pos(void) {
-    if (configWindow.exiting_fullscreen)
+    if (configWindow.exiting_fullscreen) {
         configWindow.exiting_fullscreen = false;
+        SDL_ShowCursor(0);
+    }
 
     if (configWindow.reset) {
         configWindow.x = WAPI_WIN_CENTERPOS;
@@ -117,6 +124,11 @@ static void gfx_sdl_init(const char *window_title) {
     SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
     #endif
 
+    if (configWindow.msaa > 0) {
+        SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+        SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, configWindow.msaa);
+    }
+
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
@@ -125,9 +137,6 @@ static void gfx_sdl_init(const char *window_title) {
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
     #endif
-
-    //SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-    //SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
 
     int xpos = (configWindow.x == WAPI_WIN_CENTERPOS) ? SDL_WINDOWPOS_CENTERED : configWindow.x;
     int ypos = (configWindow.y == WAPI_WIN_CENTERPOS) ? SDL_WINDOWPOS_CENTERED : configWindow.y;
@@ -304,6 +313,13 @@ static void gfx_sdl_delay(u32 ms) {
     SDL_Delay(ms);
 }
 
+static int gfx_sdl_get_max_msaa(void) {
+    int maxSamples = 0;
+    glGetIntegerv(GL_MAX_SAMPLES, &maxSamples);
+    if (maxSamples > 16) { maxSamples = 16; }
+    return maxSamples;
+}
+
 static void gfx_sdl_shutdown(void) {
     if (SDL_WasInit(0)) {
         if (ctx) { SDL_GL_DeleteContext(ctx); ctx = NULL; }
@@ -338,6 +354,7 @@ struct GfxWindowManagerAPI gfx_sdl = {
     gfx_sdl_set_clipboard_text,
     gfx_sdl_set_cursor_visible,
     gfx_sdl_delay,
+    gfx_sdl_get_max_msaa,
 };
 
 #endif // BACKEND_WM
