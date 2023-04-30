@@ -92,7 +92,7 @@ pkg install git wget make python getconf zip apksigner clang binutils mesa mesa-
 > Replace `/storage/emulated/0/baserom.us.z64` with the current location of your `baserom.us.z64`, or if you don't know the full path, try finding it with the "Amaze" file browser from step 19 and moving it to `/storage/emulated/0` before proceeding.
 
 ```bash
-git clone https://github.com/robertkirkman/sm64ex-coop.git
+git clone --recursive https://github.com/robertkirkman/sm64ex-coop.git
 cp /storage/emulated/0/baserom.us.z64 sm64ex-coop/baserom.us.z64
 cd sm64ex-coop
 ```
@@ -124,6 +124,16 @@ cp build/us_pc/sm64.us.apk /storage/emulated/0
 ![image](https://user-images.githubusercontent.com/31490854/208279190-d3204ce8-5030-44ca-a044-9c091ec75ea4.png)
 
 21. To play with others online, tell them to follow this guide first, then either port forward or follow the [VPN guide](README_vpn.md).
+
+22. To update the app when I release updates, assuming you haven't deleted anything from Termux, use these commands, then do step 20 again. You might need to uninstall the older version of the com.owokitty.sm64excoop app (not Termux) first:
+```bash
+pkg upgrade -y
+cd sm64ex-coop
+git pull
+git submodule update --init --recursive
+make
+cp build/us_pc/sm64.us.apk /storage/emulated/0
+```
 
 > To install Lua mods, put them in `/storage/emulated/0/com.owokitty.sm64excoop/user/mods`, or `/storage/emulated/0/Android/data/com.owokitty.sm64excoop/files/user/mods` if you don't accept the storage permission request.
 * Default mods:
