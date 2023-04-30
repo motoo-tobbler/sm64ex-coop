@@ -15,6 +15,8 @@
 #define MAX_DESCRIPTION_STRING 20
 
 #define DEFAULT_PORT 7777
+#define DEFAULT_COOPNET_IP "net.coop64.us"
+#define DEFAULT_COOPNET_PORT 34197
 
 typedef struct {
     unsigned int x, y, w, h;
@@ -23,6 +25,7 @@ typedef struct {
     bool fullscreen;
     bool exiting_fullscreen;
     bool settings_changed;
+    unsigned int msaa;
 } ConfigWindow;
 
 extern ConfigWindow configWindow;
@@ -74,13 +77,9 @@ extern bool         configCameraAnalog;
 #endif
 extern bool         configHUD;
 extern bool         configSkipIntro;
-extern bool         configShareLives;
 extern bool         configEnableCheats;
 extern bool         configBubbleDeath;
 extern unsigned int configAmountofPlayers;
-#ifdef DISCORDRPC
-extern bool         configDiscordRPC;
-#endif
 extern char         configJoinIp[];
 extern unsigned int configJoinPort;
 extern unsigned int configHostPort;
@@ -111,6 +110,10 @@ extern bool         configDebugPrint;
 extern bool         configDebugInfo;
 extern bool         configDebugError;
 extern char         configLanguage[];
+extern bool         configForce4By3;
+extern char         configCoopNetIp[];
+extern unsigned int configCoopNetPort;
+extern char         configPassword[];
 
 void configfile_load(void);
 void configfile_save(const char *filename);

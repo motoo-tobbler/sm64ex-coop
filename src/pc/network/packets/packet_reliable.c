@@ -35,6 +35,7 @@ static void remove_node_from_list(struct PacketLinkedList* node) {
 }
 
 void network_forget_all_reliable(void) {
+    LOG_INFO("Clearing all reliable!");
     struct PacketLinkedList* node = head;
     while (node != NULL) {
         struct PacketLinkedList* next = node->next;
@@ -47,6 +48,7 @@ void network_forget_all_reliable(void) {
 
 void network_forget_all_reliable_from(u8 localIndex) {
     if (localIndex == 0) { return; }
+    LOG_INFO("Clearing all reliable from %u", localIndex);
     struct PacketLinkedList* node = head;
     while (node != NULL) {
         struct PacketLinkedList* next = node->next;
@@ -155,6 +157,7 @@ void network_update_reliable(void) {
         f32 elapsed = (clock_elapsed() - node->lastSend);
         f32 maxElapsed = get_max_elapsed_time(node->sendAttempts);
         maxElapsed = adjust_max_elapsed(node->p.packetType, maxElapsed);
+        if (maxElapsed > 3) { maxElapsed = 3; }
 
         // adjust resend time based on ping
         struct NetworkPlayer* np = &gNetworkPlayers[node->p.localIndex];
@@ -173,7 +176,9 @@ void network_update_reliable(void) {
 
             node->lastSend = clock_elapsed();
             node->sendAttempts++;
-            if (node->sendAttempts >= MAX_RESEND_ATTEMPTS) {
+
+            int maxResendAttempts = node->p.packetType == PACKET_MOD_LIST_REQUEST ? 60 : MAX_RESEND_ATTEMPTS;
+            if (node->sendAttempts >= maxResendAttempts) {
                 struct PacketLinkedList* next = node->next;
                 remove_node_from_list(node);
                 node = next;

@@ -2198,7 +2198,33 @@
 - None
 
 ### C Prototype
-`void djui_hud_print_text(const char* message, float x, float y, float scale);`
+`void djui_hud_print_text(const char* message, f32 x, f32 y, f32 scale);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [djui_hud_print_text_interpolated](#djui_hud_print_text_interpolated)
+
+### Lua Example
+`djui_hud_print_text_interpolated(message, prevX, prevY, prevScale, x, y, scale)`
+
+### Parameters
+| Field | Type |
+| ----- | ---- |
+| message | `string` |
+| prevX | `number` |
+| prevY | `number` |
+| prevScale | `number` |
+| x | `number` |
+| y | `number` |
+| scale | `number` |
+
+### Returns
+- None
+
+### C Prototype
+`void djui_hud_print_text_interpolated(const char* message, f32 prevX, f32 prevY, f32 prevScale, f32 x, f32 y, f32 scale);`
 
 [:arrow_up_small:](#)
 
@@ -2249,6 +2275,24 @@
 
 ### C Prototype
 `void djui_hud_render_rect_interpolated(f32 prevX, f32 prevY, f32 prevWidth, f32 prevHeight, f32 x, f32 y, f32 width, f32 height);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [djui_hud_reset_color](#djui_hud_reset_color)
+
+### Lua Example
+`djui_hud_reset_color()`
+
+### Parameters
+- None
+
+### Returns
+- None
+
+### C Prototype
+`void djui_hud_reset_color(void);`
 
 [:arrow_up_small:](#)
 
@@ -2352,6 +2396,28 @@
 
 ### C Prototype
 `void djui_hud_set_resolution(enum HudUtilsResolution resolutionType);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [djui_hud_set_rotation](#djui_hud_set_rotation)
+
+### Lua Example
+`djui_hud_set_rotation(rotation, pivotX, pivotY)`
+
+### Parameters
+| Field | Type |
+| ----- | ---- |
+| rotation | `integer` |
+| pivotX | `number` |
+| pivotY | `number` |
+
+### Returns
+- None
+
+### C Prototype
+`void djui_hud_set_rotation(s16 rotation, f32 pivotX, f32 pivotY);`
 
 [:arrow_up_small:](#)
 
@@ -8264,26 +8330,6 @@
 
 <br />
 
-
-## [network_discord_id_from_local_index](#network_discord_id_from_local_index)
-
-### Lua Example
-`local stringValue = network_discord_id_from_local_index(localIndex)`
-
-### Parameters
-| Field | Type |
-| ----- | ---- |
-| localIndex | `integer` |
-
-### Returns
-- `string`
-
-### C Prototype
-`char* network_discord_id_from_local_index(u8 localIndex);`
-
-[:arrow_up_small:](#)
-
-<br />
 
 ## [network_get_player_text_color_string](#network_get_player_text_color_string)
 

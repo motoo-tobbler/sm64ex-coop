@@ -25,6 +25,7 @@ void network_send_mod_list_request(void) {
 
     network_send_to(PACKET_DESTINATION_SERVER, &p);
     LOG_INFO("sending mod list request");
+    gAllowOrderedPacketClear = 0;
 }
 
 void network_receive_mod_list_request(UNUSED struct Packet* p) {
@@ -57,12 +58,12 @@ void network_send_mod_list(void) {
         struct Mod* mod = gActiveMods.entries[i];
 
         u16 nameLength = strlen(mod->name);
-        if (nameLength > 31) { nameLength = 31; }
+        if (nameLength > MOD_NAME_MAX_LENGTH) { nameLength = MOD_NAME_MAX_LENGTH; }
 
         u16 incompatibleLength = 0;
         if (mod->incompatible) {
             incompatibleLength = strlen(mod->incompatible);
-            if (incompatibleLength > 31) { incompatibleLength = 31; }
+            if (incompatibleLength > MOD_INCOMPATIBLE_MAX_LENGTH) { incompatibleLength = MOD_INCOMPATIBLE_MAX_LENGTH; }
         }
 
         u16 relativePathLength = strlen(mod->relativePath);
@@ -140,7 +141,7 @@ void network_receive_mod_list(struct Packet* p) {
     packet_read(p, &remoteVersion, sizeof(u8) * MAX_VERSION_LENGTH);
     LOG_INFO("server has version: %s", version);
     if (memcmp(version, remoteVersion, MAX_VERSION_LENGTH) != 0) {
-        network_shutdown(true, false, false);
+        network_shutdown(true, false, false, false);
         LOG_ERROR("version mismatch");
         char mismatchMessage[256] = { 0 };
         snprintf(mismatchMessage, 256, "\\#ffa0a0\\Error:\\#c8c8c8\\ Version mismatch.\n\nYour version: \\#a0a0ff\\%s\\#c8c8c8\\\nTheir version: \\#a0a0ff\\%s\\#c8c8c8\\\n\nSomeone is out of date!\n", version, remoteVersion);
@@ -188,27 +189,27 @@ void network_receive_mod_list_entry(struct Packet* p) {
     // get name length
     u16 nameLength = 0;
     packet_read(p, &nameLength, sizeof(u16));
-    if (nameLength > 31) {
+    if (nameLength > MOD_NAME_MAX_LENGTH) {
         LOG_ERROR("Received name with invalid length!");
         return;
     }
 
     // get name
-    char name[32] = { 0 };
+    char name[MOD_NAME_MAX_LENGTH + 1] = { 0 };
     packet_read(p, name, nameLength * sizeof(u8));
     mod->name = strdup(name);
 
     // get incompatible length
     u16 incompatibleLength = 0;
     packet_read(p, &incompatibleLength, sizeof(u16));
-    if (incompatibleLength > 31) {
+    if (incompatibleLength > MOD_INCOMPATIBLE_MAX_LENGTH) {
         LOG_ERROR("Received name with invalid length!");
         return;
     }
 
     // get incompatible
     if (incompatibleLength > 0) {
-        char incompatible[32] = { 0 };
+        char incompatible[MOD_INCOMPATIBLE_MAX_LENGTH + 1] = { 0 };
         packet_read(p, incompatible, incompatibleLength * sizeof(u8));
         mod->incompatible = strdup(incompatible);
     } else {
@@ -241,7 +242,7 @@ void network_receive_mod_list_entry(struct Packet* p) {
     // sanity check mod size
     if (mod->size >= MAX_MOD_SIZE) {
         djui_popup_create(DLANG(NOTIF, DISCONNECT_BIG_MOD), 4);
-        network_shutdown(false, false, false);
+        network_shutdown(false, false, false, false);
         return;
     }
 

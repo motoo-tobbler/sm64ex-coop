@@ -343,7 +343,13 @@ INSTANT_WARP_INDEX_START = 0x00
 INSTANT_WARP_INDEX_STOP = 0x04
 
 --- @type integer
-MAX_LOADED_GRAPH_NODES = 0x100
+LOADED_GRAPH_NODES_EXTENDED = 512
+
+--- @type integer
+LOADED_GRAPH_NODES_VANILLA = 256
+
+--- @type integer
+MAX_LOADED_GRAPH_NODES = (LOADED_GRAPH_NODES_VANILLA + LOADED_GRAPH_NODES_EXTENDED)
 
 --- @type integer
 WARP_TRANSITION_FADE_FROM_BOWSER = 0x12
@@ -4727,7 +4733,10 @@ SYNC_DISTANCE_INFINITE = 0
 NS_SOCKET = 0
 
 --- @type NetworkSystemType
-NS_DISCORD = 1
+NS_COOPNET = 1
+
+--- @type NetworkSystemType
+NS_MAX = 2
 
 --- @class PlayerInteractions
 
@@ -4741,13 +4750,13 @@ PLAYER_INTERACTIONS_SOLID = 1
 PLAYER_INTERACTIONS_PVP = 2
 
 --- @type integer
-MAX_RX_SEQ_IDS = 64
+MAX_RX_SEQ_IDS = 256
 
 --- @type integer
-NETWORK_PLAYER_PING_TIMEOUT = 1
+NETWORK_PLAYER_PING_TIMEOUT = 3
 
 --- @type integer
-NETWORK_PLAYER_TIMEOUT = 10
+NETWORK_PLAYER_TIMEOUT = 15
 
 --- @type integer
 UNKNOWN_GLOBAL_INDEX = (-1)
@@ -8245,7 +8254,10 @@ HOOK_BEFORE_SET_MARIO_ACTION = 30
 HOOK_JOINED_GAME = 31
 
 --- @type LuaHookedEventType
-HOOK_MAX = 32
+HOOK_ON_OBJECT_ANIM_UPDATE = 32
+
+--- @type LuaHookedEventType
+HOOK_MAX = 33
 
 --- @class HudDisplayFlags
 
@@ -10930,6 +10942,15 @@ SOUND_TERRAIN_WATER = 2
 SOUND_VIBRATO = 0x2000000
 
 --- @type integer
+HAZARD_TYPE_LAVA_FLOOR = 1
+
+--- @type integer
+HAZARD_TYPE_LAVA_WALL = 2
+
+--- @type integer
+HAZARD_TYPE_QUICKSAND = 3
+
+--- @type integer
 SURFACE_0004 = 0x0004
 
 --- @type integer
@@ -11516,19 +11537,19 @@ SPTASK_STATE_FINISHED = 3
 SPTASK_STATE_FINISHED_DP = 4
 
 --- @type integer
-MAX_LOCAL_VERSION_LENGTH = 12
+MAX_LOCAL_VERSION_LENGTH = 32
 
 --- @type integer
-MAX_VERSION_LENGTH = 10
+MAX_VERSION_LENGTH = 28
 
 --- @type integer
-MINOR_VERSION_NUMBER = 1
+MINOR_VERSION_NUMBER = 0
 
 --- @type integer
 PATCH_VERSION_NUMBER = 0
 
 --- @type integer
-VERSION_NUMBER = 33
+VERSION_NUMBER = 34
 
 --- @type string
 VERSION_TEXT = "beta"

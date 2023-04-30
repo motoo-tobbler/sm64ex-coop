@@ -48,10 +48,10 @@ EXT_OPTIONS_MENU ?= 1
 TEXTSAVES ?= 0
 # Load resources from external files
 EXTERNAL_DATA ?= 0
-# Enable Discord Rich Presence (outdated, no longer supported)
-DISCORDRPC ?= 0
-# Enable Discord Game SDK (used for Discord server hosting)
+# Enable Discord Game SDK (used for Discord invites)
 DISCORD_SDK ?= 1
+# Enable CoopNet SDK (used for CoopNet server hosting)
+COOPNET ?= 1
 # Enable docker build workarounds
 DOCKERBUILD ?= 0
 # Sets your optimization level for building.
@@ -106,19 +106,6 @@ dev:; @$(MAKE) DEVELOPMENT=1
 COMPILER = gcc
 $(eval $(call validate-option,COMPILER,ido gcc clang))
 
-ifeq ($(WINDOWS_AUTO_BUILDER),1)
-  export SHELL=sh.exe
-  EXTRA_INCLUDES := -I ../include/1 -I ../include/2 -I ../include/3 -I ../include/4
-  EXTRA_CFLAGS += -Wno-expansion-to-defined
-
-  EXTRA_CPP_INCLUDES := -I ../include/cpp
-  EXTRA_CPP_FLAGS := -Wno-class-conversion -Wno-packed-not-aligned
-else
-  EXTRA_INCLUDES ?=
-
-  EXTRA_CPP_INCLUDES ?=
-endif
-
 # Attempt to detect OS
 
 ifeq ($(OS),Windows_NT)
@@ -166,6 +153,24 @@ endif
 
 ifneq ($(TARGET_BITS),0)
   BITS := -m$(TARGET_BITS)
+endif
+
+ifeq ($(WINDOWS_AUTO_BUILDER),1)
+  export SHELL=sh.exe
+
+  ifeq ($(TARGET_BITS), 32)
+    EXTRA_INCLUDES := ../include/1 ../include/2 ../include/3 ../include/4
+    EXTRA_CPP_INCLUDES := ../include/cpp
+  else
+    EXTRA_INCLUDES :=
+    EXTRA_CPP_INCLUDES :=
+  endif
+
+  EXTRA_CFLAGS += -Wno-expansion-to-defined
+  EXTRA_CPP_FLAGS := -Wno-class-conversion -Wno-packed-not-aligned
+else
+  EXTRA_INCLUDES ?=
+  EXTRA_CPP_INCLUDES ?=
 endif
 
 
@@ -486,10 +491,11 @@ ifeq ($(TARGET_BITS), 32)
   _ := $(shell rm -rf sound/samples/sfx_custom_luigi_peach/*.aiff)
   _ := $(shell rm -rf sound/samples/sfx_custom_wario/*.aiff)
   _ := $(shell rm -rf sound/samples/sfx_custom_wario_peach/*.aiff)
-endif
 
 # Copy missing character sounds from mario sound banks
 _ := $(shell $(PYTHON) $(TOOLS_DIR)/copy_mario_sounds.py)
+
+endif
 
 # Copy missing instrument samples from the music sound banks
 _ := $(shell $(PYTHON) $(TOOLS_DIR)/copy_extended_sounds.py)
@@ -526,14 +532,10 @@ SRC_DIRS := src src/engine src/game src/audio src/bass_audio src/menu src/buffer
 BIN_DIRS := bin bin/$(VERSION)
 
 # PC files
-SRC_DIRS += src/pc src/pc/gfx src/pc/audio src/pc/controller src/pc/fs src/pc/fs/packtypes src/pc/mods src/pc/network src/pc/network/packets src/pc/network/socket src/pc/utils src/pc/utils/miniz src/pc/djui src/pc/lua src/pc/lua/utils
-
-#ifeq ($(DISCORDRPC),1)
-#  SRC_DIRS += src/pc/discord
-#endif
+SRC_DIRS += src/pc src/pc/gfx src/pc/audio src/pc/controller src/pc/fs src/pc/fs/packtypes src/pc/mods src/pc/network src/pc/network/packets src/pc/network/socket src/pc/network/coopnet src/pc/utils src/pc/utils/miniz src/pc/djui src/pc/lua src/pc/lua/utils
 
 ifeq ($(DISCORD_SDK),1)
-  SRC_DIRS += src/pc/network/discord
+  SRC_DIRS += src/pc/discord
 endif
 
 ULTRA_SRC_DIRS := lib/src lib/src/math lib/asm lib/data
@@ -605,18 +607,8 @@ ULTRA_O_FILES := $(foreach file,$(ULTRA_S_FILES),$(BUILD_DIR)/$(file:.s=.o)) \
 GODDARD_O_FILES := $(foreach file,$(GODDARD_C_FILES),$(BUILD_DIR)/$(file:.c=.o))
 
 RPC_LIBS :=
-#ifeq ($(DISCORDRPC),1)
-#  ifeq ($(WINDOWS_BUILD),1)
-#    RPC_LIBS := lib/discord/libdiscord-rpc.dll
-#  else ifeq ($(OSX_BUILD),1)
-#    # needs testing
-#    RPC_LIBS := lib/discord/libdiscord-rpc.dylib
-#  else
-#    RPC_LIBS := lib/discord/libdiscord-rpc.so
-#  endif
-#endif
-
 DISCORD_SDK_LIBS :=
+
 ifeq ($(DISCORD_SDK), 1)
   ifeq ($(WINDOWS_BUILD),1)
     ifeq ($(TARGET_BITS), 32)
@@ -756,7 +748,6 @@ else
   CP := cp
 endif
 
-#ifeq ($(DISCORDRPC),1)
 ifeq ($(DISCORD_SDK),1)
   LD := $(CXX)
 else ifeq ($(WINDOWS_BUILD),1)
@@ -786,7 +777,7 @@ INCLUDE_DIRS := include $(BUILD_DIR) $(BUILD_DIR)/include src .
 ifeq ($(TARGET_N64),1)
   INCLUDE_DIRS += include/libc
 else
-  INCLUDE_DIRS += sound lib/lua/include $(EXTRA_INCLUDES)
+  INCLUDE_DIRS += sound lib/lua/include lib/coopnet/include $(EXTRA_INCLUDES)
 endif
 
 # Connfigure backend flags
@@ -921,9 +912,6 @@ else ifeq ($(OSX_BUILD),1)
   LDFLAGS := -lm $(BACKEND_LDFLAGS) -lpthread
 else
   LDFLAGS := $(BITS) -march=$(TARGET_ARCH) -lm $(BACKEND_LDFLAGS) -no-pie -lpthread
-#  ifeq ($(DISCORDRPC),1)
-#    LDFLAGS += -ldl -Wl,-rpath .
-#  endif
 endif
 
 # icon
@@ -942,7 +930,7 @@ endif
 # precomp custom sounds
 # hacky stupid thing for windows builds (non-auto-builder)
 # this way it won't fail to compile custom sounds anymore
-ifeq ($(WINDOWS_BUILD),1)
+ifeq ($(WINDOWS_BUILD),999)
   ifeq ($(WINDOWS_AUTO_BUILDER),1)
   else
     ifeq ($(filter clean distclean,$(MAKECMDGOALS)),)
@@ -979,6 +967,30 @@ else ifeq ($(TARGET_RPI),1)
   endif
 else
   LDFLAGS += -Llib/lua/linux -l:liblua53.a -ldl
+endif
+
+# coopnet
+COOPNET_LIBS :=
+ifeq ($(COOPNET),1)
+  ifeq ($(WINDOWS_BUILD),1)
+    ifeq ($(TARGET_BITS), 32)
+      LDFLAGS += -Llib/coopnet/win32 -l:libcoopnet.a -l:libjuice.a -lbcrypt -lws2_32
+    else
+      LDFLAGS += -Llib/coopnet/win64 -l:libcoopnet.a -l:libjuice.a -lbcrypt -lws2_32
+    endif
+  else ifeq ($(OSX_BUILD),1)
+    LDFLAGS += -Wl,-rpath,@loader_path -L./lib/coopnet/mac/ -l coopnet
+    COOPNET_LIBS += ./lib/coopnet/mac/libcoopnet.dylib
+    COOPNET_LIBS += ./lib/coopnet/mac/libjuice.1.2.2.dylib
+  else ifeq ($(TARGET_RPI),1)
+    ifneq (,$(findstring aarch64,$(machine)))
+      LDFLAGS += -Llib/coopnet/linux -l:libcoopnet-arm64.a -l:libjuice.a
+    else
+      LDFLAGS += -Llib/coopnet/linux -l:libcoopnet-arm.a -l:libjuice.a
+    endif
+  else
+    LDFLAGS += -Llib/coopnet/linux -l:libcoopnet.a -l:libjuice.a
+  endif
 endif
 
 # Network/Discord/Bass (ugh, needs cleanup)
@@ -1057,16 +1069,16 @@ endif
   CFLAGS += -DNODRAWINGDISTANCE
 #endif
 
-# Check for Discord Rich Presence option
-#ifeq ($(DISCORDRPC),1)
-#  CC_CHECK_CFLAGS += -DDISCORDRPC
-#  CFLAGS += -DDISCORDRPC
-#endif
-
 # Check for Discord SDK option
 ifeq ($(DISCORD_SDK),1)
   CC_CHECK_CFLAGS += -DDISCORD_SDK
   CFLAGS += -DDISCORD_SDK
+endif
+
+# Check for COOPNET option
+ifeq ($(COOPNET),1)
+  CC_CHECK_CFLAGS += -DCOOPNET
+  CFLAGS += -DCOOPNET
 endif
 
 # Check for development option
@@ -1247,6 +1259,9 @@ $(BUILD_DIR)/$(DISCORD_SDK_LIBS):
 
 $(BUILD_DIR)/$(BASS_LIBS):
 	@$(CP) -f $(BASS_LIBS) $(BUILD_DIR)
+
+$(BUILD_DIR)/$(COOPNET_LIBS):
+	@$(CP) -f $(COOPNET_LIBS) $(BUILD_DIR)
 
 $(BUILD_DIR)/$(LANG_DIR):
 	@$(CP) -f -r $(LANG_DIR) $(BUILD_DIR)
@@ -1498,17 +1513,17 @@ $(GLOBAL_ASM_DEP).$(NON_MATCHING):
 # Compile C++ code
 $(BUILD_DIR)/%.o: %.cpp
 	$(call print,Compiling:,$<,$@)
-	@$(CXX) $(PROF_FLAGS) -fsyntax-only $(EXTRA_CPP_FLAGS) $(EXTRA_CPP_INCLUDES) $(CFLAGS) -MMD -MP -MT $@ -MF $(BUILD_DIR)/$*.d $<
+	$(V)$(CXX) $(PROF_FLAGS) -fsyntax-only $(EXTRA_CPP_FLAGS) $(EXTRA_CPP_INCLUDES) $(CFLAGS) -MMD -MP -MT $@ -MF $(BUILD_DIR)/$*.d $<
 	$(V)$(CXX) $(PROF_FLAGS) -c $(EXTRA_CPP_FLAGS) $(EXTRA_CPP_INCLUDES) $(CFLAGS) -o $@ $<
 
 # Compile C code
 $(BUILD_DIR)/%.o: %.c
 	$(call print,Compiling:,$<,$@)
-	@$(CC_CHECK) $(PROF_FLAGS) $(CC_CHECK_CFLAGS) -MMD -MP -MT $@ -MF $(BUILD_DIR)/$*.d $<
+	$(V)$(CC_CHECK) $(PROF_FLAGS) $(CC_CHECK_CFLAGS) -MMD -MP -MT $@ -MF $(BUILD_DIR)/$*.d $<
 	$(V)$(CC) $(PROF_FLAGS) -c $(CFLAGS) -o $@ $<
 $(BUILD_DIR)/%.o: $(BUILD_DIR)/%.c
 	$(call print,Compiling:,$<,$@)
-	@$(CC_CHECK) $(PROF_FLAGS) $(CC_CHECK_CFLAGS) -MMD -MP -MT $@ -MF $(BUILD_DIR)/$*.d $<
+	$(V)$(CC_CHECK) $(PROF_FLAGS) $(CC_CHECK_CFLAGS) -MMD -MP -MT $@ -MF $(BUILD_DIR)/$*.d $<
 	$(V)$(CC) $(PROF_FLAGS) -c $(CFLAGS) -o $@ $<
 
 # Alternate compiler flags needed for matching
@@ -1617,7 +1632,7 @@ ifeq ($(TARGET_N64),1)
   $(BUILD_DIR)/$(TARGET).objdump: $(ELF)
 	$(OBJDUMP) -D $< > $@
 else
-  $(EXE): $(O_FILES) $(MIO0_FILES:.mio0=.o) $(ULTRA_O_FILES) $(GODDARD_O_FILES) $(BUILD_DIR)/$(RPC_LIBS) $(BUILD_DIR)/$(DISCORD_SDK_LIBS) $(BUILD_DIR)/$(BASS_LIBS) $(BUILD_DIR)/$(LANG_DIR) $(BUILD_DIR)/$(MOD_DIR)
+  $(EXE): $(O_FILES) $(MIO0_FILES:.mio0=.o) $(ULTRA_O_FILES) $(GODDARD_O_FILES) $(BUILD_DIR)/$(RPC_LIBS) $(BUILD_DIR)/$(DISCORD_SDK_LIBS) $(BUILD_DIR)/$(BASS_LIBS) $(BUILD_DIR)/$(COOPNET_LIBS) $(BUILD_DIR)/$(LANG_DIR) $(BUILD_DIR)/$(MOD_DIR)
 	@$(PRINT) "$(GREEN)Linking executable: $(BLUE)$@ $(NO_COL)\n"
 	$(V)$(LD) $(PROF_FLAGS) -L $(BUILD_DIR) -o $@ $(O_FILES) $(ULTRA_O_FILES) $(GODDARD_O_FILES) $(LDFLAGS) $(EXTRA_INCLUDES)
 endif

@@ -148,9 +148,10 @@ void print_intro_text(void) {
 }
 
 u32 get_mario_spawn_type(struct Object *o) {
-    if (o == NULL) { return 0; }
+    if (o == NULL || o->behavior == NULL) { return 0; }
 
     const BehaviorScript *behavior = virtual_to_segmented(0x13, o->behavior);
+    if (behavior == NULL) { return 0; }
 
     for (s32 i = 0; i < 20; i++) {
         if (sWarpBhvSpawnTable[i] == behavior) {
@@ -182,7 +183,7 @@ struct ObjectWarpNode *area_get_warp_node_from_params(struct Object *o) {
 }
 
 void load_obj_warp_nodes(void) {
-    struct ObjectWarpNode *sp24;
+    struct ObjectWarpNode *sp24 = NULL;
     struct Object *sp20 = (struct Object *) gObjParentGraphNode.children;
 
     do {
@@ -424,8 +425,13 @@ void render_game(void) {
 
         gDPSetScissor(gDisplayListHead++, G_SC_NON_INTERLACE, 0, BORDER_HEIGHT, SCREEN_WIDTH,
                       SCREEN_HEIGHT - BORDER_HEIGHT);
-        if (gDjuiRenderBehindHud && !gDjuiPanelPauseCreated) {
-            djui_render();
+
+        if (!gDjuiDisabled && gDjuiRenderBehindHud) {
+            djui_reset_hud_params();
+            create_dl_ortho_matrix();
+            djui_gfx_displaylist_begin();
+            smlua_call_event_hooks_with_reset_func(HOOK_ON_HUD_RENDER, djui_reset_hud_params);
+            djui_gfx_displaylist_end();
         }
         render_hud();
 
@@ -469,6 +475,12 @@ void render_game(void) {
         } else {
             clear_frame_buffer(gWarpTransFBSetColor);
         }
+    }
+
+    if (use_forced_4by3()) {
+        gDPSetFillColor(gDisplayListHead++, GPACK_RGBA5551(0, 0, 0, 1));
+        gDPFillRectangle(gDisplayListHead++, GFX_DIMENSIONS_RECT_FROM_LEFT_EDGE(0), 0, 0, SCREEN_HEIGHT);
+        gDPFillRectangle(gDisplayListHead++, SCREEN_WIDTH, 0, GFX_DIMENSIONS_RECT_FROM_RIGHT_EDGE(0), SCREEN_HEIGHT);
     }
 
     D_8032CE74 = NULL;

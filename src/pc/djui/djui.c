@@ -91,8 +91,16 @@ void djui_lua_error(char* text) {
     sDjuiLuaErrorTimeout = 30 * 5;
 }
 
+void djui_reset_hud_params(void) {
+    djui_hud_set_resolution(RESOLUTION_DJUI);
+    djui_hud_set_font(FONT_NORMAL);
+    djui_hud_set_rotation(0, 0, 0);
+    djui_hud_reset_color();
+}
+
 void djui_render(void) {
     if (gDjuiDisabled) { return; }
+    djui_reset_hud_params();
 
     sSavedDisplayListHead = gDisplayListHead;
     gDjuiHudUtilsZ = 0;
@@ -100,7 +108,10 @@ void djui_render(void) {
     create_dl_ortho_matrix();
     djui_gfx_displaylist_begin();
 
-    smlua_call_event_hooks(HOOK_ON_HUD_RENDER);
+    if (!gDjuiRenderBehindHud) {
+        djui_reset_hud_params();
+        smlua_call_event_hooks_with_reset_func(HOOK_ON_HUD_RENDER, djui_reset_hud_params);
+    }
 
     djui_panel_update();
     djui_popup_update();

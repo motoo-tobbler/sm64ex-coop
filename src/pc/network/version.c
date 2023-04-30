@@ -6,7 +6,11 @@ static char sVersionString[MAX_VERSION_LENGTH] = { 0 };
 static char sLocalVersionString[MAX_LOCAL_VERSION_LENGTH] = { 0 };
 
 char* get_version(void) {
-    snprintf(sVersionString, MAX_VERSION_LENGTH, "%s %d.%d", VERSION_TEXT, VERSION_NUMBER, MINOR_VERSION_NUMBER);
+    if (MINOR_VERSION_NUMBER > 0) {
+        snprintf(sVersionString, MAX_VERSION_LENGTH, "%s %d.%d", VERSION_TEXT, VERSION_NUMBER, MINOR_VERSION_NUMBER);
+    } else {
+        snprintf(sVersionString, MAX_VERSION_LENGTH, "%s %d", VERSION_TEXT, VERSION_NUMBER);
+    }
     return sVersionString;
 }
 

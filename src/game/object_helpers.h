@@ -55,7 +55,7 @@ struct SpawnParticlesInfo
 {
     /*0x00*/ s8 behParam;
     /*0x01*/ s8 count;
-    /*0x02*/ u8 model;
+    /*0x02*/ u16 model;
     /*0x03*/ s8 offsetY;
     /*0x04*/ s8 forwardVelBase;
     /*0x05*/ s8 forwardVelRange;
@@ -135,6 +135,7 @@ void obj_scale_xyz(struct Object* obj, f32 xScale, f32 yScale, f32 zScale);
 void obj_scale(struct Object *obj, f32 scale);
 void cur_obj_scale(f32 scale);
 void cur_obj_init_animation_with_sound(s32 animIndex);
+void obj_init_animation_with_accel_and_sound(struct Object *obj, s32 animIndex, f32 accel);
 void cur_obj_init_animation_with_accel_and_sound(s32 animIndex, f32 accel);
 void cur_obj_init_animation(s32 animIndex);
 void obj_init_animation_with_sound(struct Object *obj, const struct Animation * const* animations, s32 animIndex);

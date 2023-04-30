@@ -7,7 +7,6 @@
 #include "pc/utils/misc.h"
 #include "pc/configfile.h"
 #include "pc/cheats.h"
-#include "pc/network/discord/lobby.h"
 #include "djui_inputbox.h"
 
 static unsigned int sKnockbackIndex = 0;
@@ -61,7 +60,6 @@ void djui_panel_host_settings_create(struct DjuiBase* caller) {
         djui_selectionbox_create(body, DLANG(HOST_SETTINGS, ON_STAR_COLLECTION), lChoices, 3, &configStayInLevelAfterStar, NULL);
 
         djui_checkbox_create(body, DLANG(HOST_SETTINGS, SKIP_INTRO_CUTSCENE), &configSkipIntro, NULL);
-        djui_checkbox_create(body, DLANG(HOST_SETTINGS, SHARE_LIVES), &configShareLives, NULL);
         djui_checkbox_create(body, DLANG(HOST_SETTINGS, ENABLE_CHEATS), &configEnableCheats, NULL);
         djui_checkbox_create(body, DLANG(HOST_SETTINGS, BUBBLE_ON_DEATH), &configBubbleDeath, NULL);
 

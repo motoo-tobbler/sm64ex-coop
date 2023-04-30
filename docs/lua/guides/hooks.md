@@ -24,6 +24,7 @@ Hooks are a way for SM64 to trigger Lua code, whereas the functions listed in [f
 | replaceBehavior | `bool` | Prevents the original behavior code from running |
 | initFunction | `Lua Function` ([Object](structs.md#Object) obj) | Runs once per object |
 | loopFunction | `Lua Function` ([Object](structs.md#Object) obj) | Runs once per frame per object |
+| behaviorName | `string` | Optional, name to give to the behavior |
 
 ### Returns
 - [enum BehaviorId](constants.md#enum-BehaviorId)
@@ -40,7 +41,7 @@ function bhv_example_loop(obj)
     obj.oPosY = obj.oPosY + 1
 end
 
-id_bhvExample = hook_behavior(0, OBJ_LIST_DEFAULT, bhv_example_init, bhv_example_loop)
+id_bhvExample = hook_behavior(nil, OBJ_LIST_DEFAULT, true, bhv_example_init, bhv_example_loop, "bhvExample")
 ```
 
 [:arrow_up_small:](#)
@@ -112,12 +113,13 @@ The lua functions sent to `hook_event()` will be automatically called by SM64 wh
 | HOOK_USE_ACT_SELECT | Called when the level changes, return `true` to show act selection screen and `false` otherwise | `integer` levelNum |
 | HOOK_ON_CHANGE_CAMERA_ANGLE | Called when the player changes the camera mode to Lakitu cam or Mario cam, return `false` to prevent the change. | `integer` mode |
 | HOOK_ON_SCREEN_TRANSITION | Called when the game is about to play a transition, return `false` to prevent the transition from playing. | `integer` type |
-| HOOK_ALLOW_HAZARD_SURFACE | Called once per player per frame. Return `false` to prevent the player from being affected by lava or quicksand. | [MarioState](structs.md#MarioState) mario |
+| HOOK_ALLOW_HAZARD_SURFACE | Called once per player per frame. Return `false` to prevent the player from being affected by lava or quicksand. | [MarioState](structs.md#MarioState) mario, `integer` hazardType |
 | HOOK_ON_CHAT_MESSAGE | Called when a chat message gets sent. Return `false` to prevent the message from being sent. | [MarioState](structs.md#MarioState) messageSender, `string` messageSent |
 | HOOK_OBJECT_SET_MODEL | Called when a behavior changes models. Also runs when a behavior spawns. | [Object](structs.md#Object) obj, `integer` modelID |
 | HOOK_CHARACTER_SOUND | Called when mario retrieves a character sound to play, return a character sound or `0` to override it. | [MarioState](structs.md#MarioState) mario, [enum CharacterSound](constants.md#enum-CharacterSound) characterSound |
 | HOOK_JOINED_GAME | Called when the local player finishes the join process (if the player isn't the host) | None |
 | HOOK_BEFORE_SET_MARIO_ACTION | Called before Mario's action changes. Return an action to change the incoming action or `1` to cancel the action change. | [MarioState](structs.md#MarioState) mario, `integer` incomingAction |
+| HOOK_ON_OBJECT_ANIM_UPDATE | Called when an object's animation is updated. | [Object](structs.md#Object) objNode |
 
 ### Parameters
 

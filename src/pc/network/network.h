@@ -36,11 +36,12 @@ extern struct MarioState gMarioStates[];
 
 enum NetworkSystemType {
     NS_SOCKET,
-    NS_DISCORD,
+    NS_COOPNET,
+    NS_MAX,
 };
 
 struct NetworkSystem {
-    bool (*initialize)(enum NetworkType);
+    bool (*initialize)(enum NetworkType, bool reconnecting);
     s64 (*get_id)(u8 localIndex);
     char* (*get_id_str)(u8 localIndex);
     void (*save_id)(u8 localIndex, s64 networkId);
@@ -49,7 +50,9 @@ struct NetworkSystem {
     bool (*match_addr)(void* addr1, void* addr2);
     void (*update)(void);
     int  (*send)(u8 localIndex, void* addr, u8* data, u16 dataLength);
-    void (*shutdown)(void);
+    void (*get_lobby_id)(char* destination, u32 destLength);
+    void (*get_lobby_secret)(char* destination, u32 destLength);
+    void (*shutdown)(bool reconnecting);
     bool requireServerBroadcast;
     char* name;
 };
@@ -65,12 +68,12 @@ struct ServerSettings {
     u8 playerKnockbackStrength;
     u8 stayInLevelAfterStar;
     u8 skipIntro;
-    u8 shareLives;
     u8 enableCheats;
     u8 bubbleDeath;
     u8 enablePlayersInLevelDisplay;
     u8 enablePlayerList;
     u8 headlessServer;
+    u8 maxPlayers;
 };
 
 // Networking-specific externs
@@ -82,18 +85,16 @@ extern u32 gNetworkAreaTimer;
 extern u32 gNetworkAreaTimerClock;
 extern void* gNetworkServerAddr;
 extern struct ServerSettings gServerSettings;
-extern struct StringLinkedList gRegisteredMods;
 extern bool gNetworkSentJoin;
 extern u16 gNetworkRequestLocationTimer;
 extern u8 gDebugPacketIdBuffer[];
 extern u8 gDebugPacketSentBuffer[];
 extern u8 gDebugPacketOnBuffer;
 extern u32 gNetworkStartupTimer;
-extern bool gDiscordReconnecting;
 
 // network.c
 void network_set_system(enum NetworkSystemType nsType);
-bool network_init(enum NetworkType inNetworkType);
+bool network_init(enum NetworkType inNetworkType, bool reconnecting);
 void network_on_init_area(void);
 void network_on_loaded_area(void);
 bool network_allow_unknown_local_index(enum PacketType packetType);
@@ -106,7 +107,6 @@ void network_reconnect_begin(void);
 bool network_is_reconnecting(void);
 void network_rehost_begin(void);
 void network_update(void);
-void network_register_mod(char* modName);
-void network_shutdown(bool sendLeaving, bool exiting, bool popup);
+void network_shutdown(bool sendLeaving, bool exiting, bool popup, bool reconnecting);
 
 #endif

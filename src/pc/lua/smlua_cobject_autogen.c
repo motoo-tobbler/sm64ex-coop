@@ -42,13 +42,13 @@ static struct LuaObjectField sAnimInfoFields[LUA_ANIM_INFO_FIELD_COUNT] = {
 static struct LuaObjectField sAnimationFields[LUA_ANIMATION_FIELD_COUNT] = {
     { "animYTransDivisor", LVT_S16,   offsetof(struct Animation, animYTransDivisor), false, LOT_NONE    },
     { "flags",             LVT_S16,   offsetof(struct Animation, flags),             false, LOT_NONE    },
-    { "index",             LVT_U16_P, offsetof(struct Animation, index),             true,  LOT_POINTER },
+    { "index",             LVT_U16_P, offsetof(struct Animation, index),             false, LOT_POINTER },
     { "length",            LVT_U32,   offsetof(struct Animation, length),            false, LOT_NONE    },
     { "loopEnd",           LVT_S16,   offsetof(struct Animation, loopEnd),           false, LOT_NONE    },
     { "loopStart",         LVT_S16,   offsetof(struct Animation, loopStart),         false, LOT_NONE    },
     { "startFrame",        LVT_S16,   offsetof(struct Animation, startFrame),        false, LOT_NONE    },
     { "unusedBoneCount",   LVT_S16,   offsetof(struct Animation, unusedBoneCount),   false, LOT_NONE    },
-    { "values",            LVT_S16_P, offsetof(struct Animation, values),            true,  LOT_POINTER },
+    { "values",            LVT_S16_P, offsetof(struct Animation, values),            false, LOT_POINTER },
 };
 
 #define LUA_AREA_FIELD_COUNT 18
@@ -394,7 +394,7 @@ static struct LuaObjectField sControllerFields[LUA_CONTROLLER_FIELD_COUNT] = {
     { "stickY",         LVT_F32, offsetof(struct Controller, stickY),         false, LOT_NONE },
 };
 
-#define LUA_CUSTOM_LEVEL_INFO_FIELD_COUNT 11
+#define LUA_CUSTOM_LEVEL_INFO_FIELD_COUNT 12
 static struct LuaObjectField sCustomLevelInfoFields[LUA_CUSTOM_LEVEL_INFO_FIELD_COUNT] = {
     { "acousticReach",   LVT_U32,           offsetof(struct CustomLevelInfo, acousticReach),   false, LOT_NONE            },
     { "courseNum",       LVT_S16,           offsetof(struct CustomLevelInfo, courseNum),       false, LOT_NONE            },
@@ -403,6 +403,7 @@ static struct LuaObjectField sCustomLevelInfoFields[LUA_CUSTOM_LEVEL_INFO_FIELD_
     { "echoLevel3",      LVT_U32,           offsetof(struct CustomLevelInfo, echoLevel3),      false, LOT_NONE            },
     { "fullName",        LVT_STRING_P,      offsetof(struct CustomLevelInfo, fullName),        true,  LOT_NONE            },
     { "levelNum",        LVT_S16,           offsetof(struct CustomLevelInfo, levelNum),        false, LOT_NONE            },
+    { "modIndex",        LVT_S32,           offsetof(struct CustomLevelInfo, modIndex),        false, LOT_NONE            },
     { "next",            LVT_COBJECT_P,     offsetof(struct CustomLevelInfo, next),            false, LOT_CUSTOMLEVELINFO },
     { "script",          LVT_LEVELSCRIPT_P, offsetof(struct CustomLevelInfo, script),          true,  LOT_POINTER         },
     { "scriptEntryName", LVT_STRING_P,      offsetof(struct CustomLevelInfo, scriptEntryName), true,  LOT_NONE            },
@@ -893,19 +894,20 @@ static struct LuaObjectField sMarioStateFields[LUA_MARIO_STATE_FIELD_COUNT] = {
     { "waterLevel",               LVT_S16,       offsetof(struct MarioState, waterLevel),               false, LOT_NONE              },
 };
 
-#define LUA_MOD_FIELD_COUNT 10
+#define LUA_MOD_FIELD_COUNT 11
 static struct LuaObjectField sModFields[LUA_MOD_FIELD_COUNT] = {
-    { "basePath",     LVT_STRING,   offsetof(struct Mod, basePath),     true, LOT_NONE },
-    { "description",  LVT_STRING_P, offsetof(struct Mod, description),  true, LOT_NONE },
-    { "enabled",      LVT_BOOL,     offsetof(struct Mod, enabled),      true, LOT_NONE },
-    { "fileCount",    LVT_U16,      offsetof(struct Mod, fileCount),    true, LOT_NONE },
-    { "incompatible", LVT_STRING_P, offsetof(struct Mod, incompatible), true, LOT_NONE },
-    { "index",        LVT_S32,      offsetof(struct Mod, index),        true, LOT_NONE },
-    { "isDirectory",  LVT_BOOL,     offsetof(struct Mod, isDirectory),  true, LOT_NONE },
-    { "name",         LVT_STRING_P, offsetof(struct Mod, name),         true, LOT_NONE },
-    { "relativePath", LVT_STRING,   offsetof(struct Mod, relativePath), true, LOT_NONE },
-    { "selectable",   LVT_BOOL,     offsetof(struct Mod, selectable),   true, LOT_NONE },
-//  { "size",         LVT_???,      offsetof(struct Mod, size),         true, LOT_???  }, <--- UNIMPLEMENTED
+    { "basePath",            LVT_STRING,   offsetof(struct Mod, basePath),            true, LOT_NONE },
+    { "customBehaviorIndex", LVT_U8,       offsetof(struct Mod, customBehaviorIndex), true, LOT_NONE },
+    { "description",         LVT_STRING_P, offsetof(struct Mod, description),         true, LOT_NONE },
+    { "enabled",             LVT_BOOL,     offsetof(struct Mod, enabled),             true, LOT_NONE },
+    { "fileCount",           LVT_U16,      offsetof(struct Mod, fileCount),           true, LOT_NONE },
+    { "incompatible",        LVT_STRING_P, offsetof(struct Mod, incompatible),        true, LOT_NONE },
+    { "index",               LVT_S32,      offsetof(struct Mod, index),               true, LOT_NONE },
+    { "isDirectory",         LVT_BOOL,     offsetof(struct Mod, isDirectory),         true, LOT_NONE },
+    { "name",                LVT_STRING_P, offsetof(struct Mod, name),                true, LOT_NONE },
+    { "relativePath",        LVT_STRING,   offsetof(struct Mod, relativePath),        true, LOT_NONE },
+    { "selectable",          LVT_BOOL,     offsetof(struct Mod, selectable),          true, LOT_NONE },
+//  { "size",                LVT_???,      offsetof(struct Mod, size),                true, LOT_???  }, <--- UNIMPLEMENTED
 };
 
 #define LUA_MOD_FILE_FIELD_COUNT 3
@@ -1894,9 +1896,9 @@ static struct LuaObjectField sServerSettingsFields[LUA_SERVER_SETTINGS_FIELD_COU
     { "enablePlayerList",            LVT_U8,  offsetof(struct ServerSettings, enablePlayerList),            false, LOT_NONE },
     { "enablePlayersInLevelDisplay", LVT_U8,  offsetof(struct ServerSettings, enablePlayersInLevelDisplay), false, LOT_NONE },
     { "headlessServer",              LVT_U8,  offsetof(struct ServerSettings, headlessServer),              false, LOT_NONE },
+    { "maxPlayers",                  LVT_U8,  offsetof(struct ServerSettings, maxPlayers),                  false, LOT_NONE },
     { "playerInteractions",          LVT_S32, offsetof(struct ServerSettings, playerInteractions),          false, LOT_NONE },
     { "playerKnockbackStrength",     LVT_U8,  offsetof(struct ServerSettings, playerKnockbackStrength),     false, LOT_NONE },
-    { "shareLives",                  LVT_U8,  offsetof(struct ServerSettings, shareLives),                  false, LOT_NONE },
     { "skipIntro",                   LVT_U8,  offsetof(struct ServerSettings, skipIntro),                   false, LOT_NONE },
     { "stayInLevelAfterStar",        LVT_U8,  offsetof(struct ServerSettings, stayInLevelAfterStar),        false, LOT_NONE },
 };
@@ -1930,7 +1932,7 @@ static struct LuaObjectField sSpawnParticlesInfoFields[LUA_SPAWN_PARTICLES_INFO_
     { "forwardVelBase",  LVT_S8,  offsetof(struct SpawnParticlesInfo, forwardVelBase),  false, LOT_NONE },
     { "forwardVelRange", LVT_S8,  offsetof(struct SpawnParticlesInfo, forwardVelRange), false, LOT_NONE },
     { "gravity",         LVT_S8,  offsetof(struct SpawnParticlesInfo, gravity),         false, LOT_NONE },
-    { "model",           LVT_U8,  offsetof(struct SpawnParticlesInfo, model),           true,  LOT_NONE },
+    { "model",           LVT_U16, offsetof(struct SpawnParticlesInfo, model),           true,  LOT_NONE },
     { "offsetY",         LVT_S8,  offsetof(struct SpawnParticlesInfo, offsetY),         false, LOT_NONE },
     { "sizeBase",        LVT_F32, offsetof(struct SpawnParticlesInfo, sizeBase),        false, LOT_NONE },
     { "sizeRange",       LVT_F32, offsetof(struct SpawnParticlesInfo, sizeRange),       false, LOT_NONE },

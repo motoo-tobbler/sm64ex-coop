@@ -9,9 +9,11 @@
 #include "audio/external.h"
 #include "object_fields.h"
 #include "engine/math_util.h"
+#include "engine/level_script.h"
 #include "pc/djui/djui_hud_utils.h"
 #include "include/level_misc_macros.h"
 #include "include/macro_presets.h"
+#include "utils/smlua_anim_utils.h"
 
 bool smlua_functions_valid_param_count(lua_State* L, int expected) {
     int top = lua_gettop(L);
@@ -499,23 +501,41 @@ s32 smlua_func_level_script_parse_callback(u8 type, void *cmd) {
 
         // OBJECT_WITH_ACTS_EXT
         case 0x3F: {
-            const char *bhvStr = dynos_level_get_token(dynos_level_cmd_get(cmd, 20));
-            if (bhvStr) {
-                bhvId = (u32) smlua_get_any_integer_mod_variable(bhvStr);
-                bhvArgs = (u32) dynos_level_cmd_get(cmd, 16);
-                pBhvId = &bhvId;
-                pBhvArgs = &bhvArgs;
+            if (gLevelScriptModIndex != -1) {
+                const char *bhvStr = dynos_level_get_token(dynos_level_cmd_get(cmd, 20));
+                if (bhvStr) {
+                    gSmLuaConvertSuccess = true;
+                    bhvId = (u32) smlua_get_integer_mod_variable(gLevelScriptModIndex, bhvStr);
+                    if (!gSmLuaConvertSuccess) {
+                        gSmLuaConvertSuccess = true;
+                        bhvId = (u32) smlua_get_any_integer_mod_variable(bhvStr);
+                    }
+                    if (gSmLuaConvertSuccess) {
+                        bhvArgs = (u32) dynos_level_cmd_get(cmd, 16);
+                        pBhvId = &bhvId;
+                        pBhvArgs = &bhvArgs;
+                    }
+                }
             }
         } break;
 
         // OBJECT_WITH_ACTS_EXT2
         case 0x40: {
-            const char *bhvStr = dynos_level_get_token(dynos_level_cmd_get(cmd, 24));
-            if (bhvStr) {
-                bhvId = (u32) smlua_get_any_integer_mod_variable(bhvStr);
-                bhvArgs = (u32) dynos_level_cmd_get(cmd, 16);
-                pBhvId = &bhvId;
-                pBhvArgs = &bhvArgs;
+            if (gLevelScriptModIndex != -1) {
+                const char *bhvStr = dynos_level_get_token(dynos_level_cmd_get(cmd, 24));
+                if (bhvStr) {
+                    gSmLuaConvertSuccess = true;
+                    bhvId = (u32) smlua_get_integer_mod_variable(gLevelScriptModIndex, bhvStr);
+                    if (!gSmLuaConvertSuccess) {
+                        gSmLuaConvertSuccess = true;
+                        bhvId = (u32) smlua_get_any_integer_mod_variable(bhvStr);
+                    }
+                    if (gSmLuaConvertSuccess) {
+                        bhvArgs = (u32) dynos_level_cmd_get(cmd, 16);
+                        pBhvId = &bhvId;
+                        pBhvArgs = &bhvArgs;
+                    }
+                }
             }
         } break;
 
@@ -612,7 +632,83 @@ void smlua_func_level_script_parse(lua_State* L) {
         LOG_LUA("Failed to find script: %lld", levelNum);
         return;
     }
+    s32 modIndex = dynos_level_get_mod_index(levelNum);
+
+    // Back up current values
+    LevelScript *currLevelScript = gLevelScriptActive;
+    s32 currModIndex = gLevelScriptModIndex;
+
+    // Parse script
+    gLevelScriptActive = (LevelScript *) script;
+    gLevelScriptModIndex = modIndex;
     dynos_level_parse_script(script, smlua_func_level_script_parse_callback);
+
+    // Restore current values
+    gLevelScriptActive = currLevelScript;
+    gLevelScriptModIndex = currModIndex;
+}
+
+  ///////////////////////
+ // custom animations //
+///////////////////////
+
+static u16 *smlua_to_u16_list(lua_State* L, int index) {
+
+    // Get number of values
+    s32 length = lua_rawlen(L, index);
+    if (!length) { LOG_LUA("smlua_to_u16_list: Table must not be empty"); return NULL; }
+    u16 *values = calloc(length, sizeof(u16));
+
+    // Retrieve values
+    lua_pushnil(L);
+    s32 top = lua_gettop(L);
+    while (lua_next(L, index) != 0) {
+        int indexKey = lua_gettop(L) - 1;
+        int indexValue = lua_gettop(L) - 0;
+
+        s32 key = smlua_to_integer(L, indexKey);
+        if (!gSmLuaConvertSuccess) { LOG_LUA("smlua_to_u16_list: Failed to convert table key"); return 0; }
+            
+        u16 value = smlua_to_integer(L, indexValue);
+        if (!gSmLuaConvertSuccess) { LOG_LUA("smlua_to_u16_list: Failed to convert table value"); return 0; }
+
+        values[key - 1] = value;
+        lua_settop(L, top);
+    }
+    lua_settop(L, top);
+    return values;
+}
+
+int smlua_func_smlua_anim_util_register_animation(lua_State* L) {
+    if (!smlua_functions_valid_param_count(L, 8)) { return 0; }
+
+    const char *name = smlua_to_string(L, 1);
+    if (!gSmLuaConvertSuccess) { LOG_LUA("smlua_anim_util_register_animation: Failed to convert parameter 'name'"); return 0; }
+
+    s16 flags = smlua_to_integer(L, 2);
+    if (!gSmLuaConvertSuccess) { LOG_LUA("smlua_anim_util_register_animation: Failed to convert parameter 'flags'"); return 0; }
+
+    s16 animYTransDivisor = smlua_to_integer(L, 3);
+    if (!gSmLuaConvertSuccess) { LOG_LUA("smlua_anim_util_register_animation: Failed to convert parameter 'animYTransDivisor'"); return 0; }
+
+    s16 startFrame = smlua_to_integer(L, 4);
+    if (!gSmLuaConvertSuccess) { LOG_LUA("smlua_anim_util_register_animation: Failed to convert parameter 'startFrame'"); return 0; }
+
+    s16 loopStart = smlua_to_integer(L, 5);
+    if (!gSmLuaConvertSuccess) { LOG_LUA("smlua_anim_util_register_animation: Failed to convert parameter 'loopStart'"); return 0; }
+
+    s16 loopEnd = smlua_to_integer(L, 6);
+    if (!gSmLuaConvertSuccess) { LOG_LUA("smlua_anim_util_register_animation: Failed to convert parameter 'loopEnd'"); return 0; }
+
+    s16 *values = (s16 *) smlua_to_u16_list(L, 7);
+    if (!values) { LOG_LUA("smlua_anim_util_register_animation: Failed to convert parameter 'values'"); return 0; }
+    
+    u16 *index = (u16 *) smlua_to_u16_list(L, 8);
+    if (!index) { LOG_LUA("smlua_anim_util_register_animation: Failed to convert parameter 'index'"); return 0; }
+
+    smlua_anim_util_register_animation(name, flags, animYTransDivisor, startFrame, loopStart, loopEnd, values, index);
+
+    return 1;
 }
 
   //////////
@@ -639,4 +735,5 @@ void smlua_bind_functions(void) {
     smlua_bind_function(L, "djui_hud_render_texture_interpolated", smlua_func_djui_hud_render_texture_interpolated);
     smlua_bind_function(L, "djui_hud_render_texture_tile_interpolated", smlua_func_djui_hud_render_texture_tile_interpolated);
     smlua_bind_function(L, "level_script_parse", smlua_func_level_script_parse);
+    smlua_bind_function(L, "smlua_anim_util_register_animation", smlua_func_smlua_anim_util_register_animation);
 }
