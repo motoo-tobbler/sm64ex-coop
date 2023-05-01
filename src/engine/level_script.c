@@ -26,9 +26,10 @@
 #include "surface_collision.h"
 #include "surface_load.h"
 #include "level_table.h"
-#include "src/pc/lua/utils/smlua_model_utils.h"
-#include "src/pc/lua/smlua.h"
-#include "src/pc/djui/djui.h"
+#include "pc/lua/utils/smlua_model_utils.h"
+#include "pc/lua/smlua.h"
+#include "pc/djui/djui.h"
+#include "pc/debug_context.h"
 #include "game/hardcoded.h"
 #include "menu/intro_geo.h"
 #ifdef TOUCH_CONTROLS
@@ -1138,6 +1139,7 @@ struct LevelCommand *level_script_execute(struct LevelCommand *cmd) {
     sScriptStatus = SCRIPT_RUNNING;
     sCurrentCmd = cmd;
 
+    CTX_BEGIN(CTX_LEVEL_SCRIPT);
     while (sScriptStatus == SCRIPT_RUNNING) {
         sCurrentCmd = dynos_swap_cmd(sCurrentCmd);
         void *dynosCurrCmd = (void *) sCurrentCmd;
@@ -1145,6 +1147,7 @@ struct LevelCommand *level_script_execute(struct LevelCommand *cmd) {
         void *dynosNextCmd = dynos_update_cmd(dynosCurrCmd);
         if (dynosNextCmd) sCurrentCmd = dynosNextCmd;
     }
+    CTX_END(CTX_LEVEL_SCRIPT);
 
     profiler_log_thread5_time(LEVEL_SCRIPT_EXECUTE);
     init_render_image();
