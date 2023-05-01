@@ -278,7 +278,7 @@ void fade_into_special_warp(u32 arg, u32 color) {
 
     fadeout_music(190);
     play_transition(WARP_TRANSITION_FADE_INTO_COLOR, 0x10, color, color, color);
-    level_set_transition(30, NULL);
+    level_set_transition(16, NULL);
 
     warp_special(arg);
 }
@@ -401,8 +401,8 @@ void set_mario_initial_action(struct MarioState *m, u32 spawnType, u32 actionArg
 
 void init_mario_after_warp(void) {
     struct ObjectWarpNode *spawnNode = area_get_warp_node(sWarpDest.nodeId);
-    if (spawnNode == NULL || spawnNode->object == NULL) { spawnNode = &gCurrentArea->warpNodes[0xFA]; }
-    if (spawnNode == NULL || spawnNode->object == NULL) { spawnNode = &gCurrentArea->warpNodes[0x00]; }
+    if (spawnNode == NULL || spawnNode->object == NULL) { if (gCurrentArea) { spawnNode = &gCurrentArea->warpNodes[0xFA]; } }
+    if (spawnNode == NULL || spawnNode->object == NULL) { if (gCurrentArea) { spawnNode = &gCurrentArea->warpNodes[0x00]; } }
     if (spawnNode == NULL || spawnNode->object == NULL) { return; }
     u32 marioSpawnType = get_mario_spawn_type(spawnNode->object);
 
