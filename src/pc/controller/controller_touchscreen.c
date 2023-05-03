@@ -274,8 +274,9 @@ void touch_motion(struct TouchEvent* event) {
                 }
             }
             // slide touch
-            else if (TRIGGER_DETECT(size) && 
-                     ControlElements[TOUCH_MOUSE].touchID != event->touchID && 
+            else if (TRIGGER_DETECT(size) &&
+                     (ControlElements[TOUCH_MOUSE].touchID != event->touchID ||
+                      !configCameraMouse) &&
                      configSlideTouch) {
                 switch (ControlElements[i].type) {
                     case Joystick:
@@ -407,7 +408,10 @@ void render_touch_controls(void) {
                 DrawSprite(pos.x + 4 + ControlElements[i].joyX, pos.y + 4 + ControlElements[i].joyY, 2);
                 break;
             case Mouse:
-                if ((before_x > 0 || before_y > 0) && ControlElements[i].touchID && !gInTouchConfig) {
+                if ((before_x > 0 || before_y > 0) &&
+                    ControlElements[i].touchID &&
+                    configCameraMouse &&
+                    !gInTouchConfig) {
                     touch_cam_last_x = before_x > 0 ? before_x : touch_cam_last_x;
                     touch_cam_last_y = before_y > 0 ? before_y : touch_cam_last_y;
                     DrawSprite(touch_cam_last_x, touch_cam_last_y, 2);
