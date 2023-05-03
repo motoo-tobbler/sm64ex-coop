@@ -27,7 +27,6 @@ s16 touch_x = 0;
 s16 touch_y = 0;
 s16 touch_cam_last_x = 0;
 s16 touch_cam_last_y = 0;
-static u32 touch_cam_timer = 0;
 
 // Config
 // TOUCH_MOUSE used as None
@@ -200,6 +199,9 @@ void touch_down(struct TouchEvent* event) {
                     }
                     break;
                 case Mouse:
+                    if (TRIGGER_DETECT(size)) {
+                        ControlElements[i].touchID = event->touchID;
+                    }
                     break;
                 case Button:
                     if (TRIGGER_DETECT(size)) {
@@ -218,23 +220,8 @@ void touch_down(struct TouchEvent* event) {
 }
 
 void touch_motion(struct TouchEvent* event) {
-    // Mouselook
-    struct Position pos = get_pos(&configControlElements[TOUCH_MOUSE], 0);
-    s32 size = configControlElements[TOUCH_MOUSE].size[0];
-    if (touch_cam_timer != gGlobalTimer && TRIGGER_DETECT(size)) {
-        if (before_x > 0)
-            touch_x = CORRECT_TOUCH_X(event->x) - before_x;
-        before_x = CORRECT_TOUCH_X(event->x);
-        if (before_y > 0)
-            touch_y = CORRECT_TOUCH_Y(event->y) - before_y;
-        if ((u16)touch_x < configStickDeadzone / 4)
-            touch_x = 0;
-        if ((u16)touch_y < configStickDeadzone / 4)
-            touch_y = 0;
-        before_y = CORRECT_TOUCH_Y(event->y);
-        touch_cam_timer = gGlobalTimer;
-    }
-    // Everything else
+    struct Position pos;
+    s32 size;
     for(u32 i = 0; i < ControlElementsLength; i++) {
         pos = get_pos(&configControlElements[i], 0);
         if (pos.y == HIDE_POS) continue;
@@ -267,6 +254,16 @@ void touch_motion(struct TouchEvent* event) {
                         ControlElements[i].joyY = y;
                         break;
                     case Mouse:
+                        if (before_x > 0)
+                            touch_x = CORRECT_TOUCH_X(event->x) - before_x;
+                        if (before_y > 0)
+                            touch_y = CORRECT_TOUCH_Y(event->y) - before_y;
+                        before_x = CORRECT_TOUCH_X(event->x);
+                        before_y = CORRECT_TOUCH_Y(event->y);
+                        if ((u16)touch_x < configStickDeadzone / 4)
+                            touch_x = 0;
+                        if ((u16)touch_y < configStickDeadzone / 4)
+                            touch_y = 0;
                         break;
                     case Button:
                         if (ControlElements[i].slideTouch && !TRIGGER_DETECT(size)) {
@@ -276,21 +273,22 @@ void touch_motion(struct TouchEvent* event) {
                         break;
                 }
             }
-            else {
+            // slide touch
+            else if (TRIGGER_DETECT(size) && 
+                     ControlElements[TOUCH_MOUSE].touchID != event->touchID && 
+                     configSlideTouch) {
                 switch (ControlElements[i].type) {
                     case Joystick:
                         break;
                     case Mouse:
                         break;
                     case Button:
-                        if (TRIGGER_DETECT(size) && configSlideTouch) {
-                            ControlElements[i].slideTouch = 1;
-                            ControlElements[i].touchID = event->touchID;
-                            if (ControlElements[i].buttonID == CHAT_BUTTON)
-                                djui_interactable_on_key_down(configKeyChat[0]);
-                            if (ControlElements[i].buttonID == PLAYERLIST_BUTTON)
-                                djui_interactable_on_key_down(configKeyPlayerList[0]);
-                        }
+                        ControlElements[i].slideTouch = 1;
+                        ControlElements[i].touchID = event->touchID;
+                        if (ControlElements[i].buttonID == CHAT_BUTTON)
+                            djui_interactable_on_key_down(configKeyChat[0]);
+                        if (ControlElements[i].buttonID == PLAYERLIST_BUTTON)
+                            djui_interactable_on_key_down(configKeyPlayerList[0]);
                         break;
                 }
             }
@@ -308,6 +306,8 @@ static void handle_touch_up(u32 i) { // separated for when the layout changes
             ControlElements[i].joyY = 0;
             break;
         case Mouse:
+            touch_x = before_x = 0;
+            touch_y = before_y = 0;
             break;
         case Button:
             if (ControlElements[i].buttonID == CHAT_BUTTON && !gInTouchConfig)
@@ -334,15 +334,6 @@ void touch_up(struct TouchEvent* event) {
         }
         double_tap_timer_last = double_tap_timer;
         double_tap_timer = gGlobalTimer;
-    }
-    else {
-        // Mouselook
-        struct Position pos = get_pos(&configControlElements[TOUCH_MOUSE], 0);
-        s32 size = configControlElements[TOUCH_MOUSE].size[0];
-        if (gGlobalTimer - touch_cam_timer > 1 || TRIGGER_DETECT(size)) {
-            touch_x = before_x = 0;
-            touch_y = before_y = 0;
-        }
     }
     // Everything else
     for(u32 i = 0; i < ControlElementsLength; i++) {
@@ -416,7 +407,7 @@ void render_touch_controls(void) {
                 DrawSprite(pos.x + 4 + ControlElements[i].joyX, pos.y + 4 + ControlElements[i].joyY, 2);
                 break;
             case Mouse:
-                if ((before_x > 0 || before_y > 0) && !gInTouchConfig) {
+                if ((before_x > 0 || before_y > 0) && ControlElements[i].touchID && !gInTouchConfig) {
                     touch_cam_last_x = before_x > 0 ? before_x : touch_cam_last_x;
                     touch_cam_last_y = before_y > 0 ? before_y : touch_cam_last_y;
                     DrawSprite(touch_cam_last_x, touch_cam_last_y, 2);
