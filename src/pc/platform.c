@@ -87,9 +87,6 @@ void sys_fatal(const char *fmt, ...) {
 
 #ifdef __ANDROID__
 #include "platform.h"
-const char *SDL_AndroidGetExternalStoragePath(void);
-const char *SDL_AndroidGetTopExternalStoragePath(void);
-SDL_bool SDL_AndroidRequestPermission(const char *permission);
 // The purpose of this code is to store/use the game data in /storage/emulated/0
 // instead of /storage/emulated/0/Android/data if the user permits it, which
 // results in Android not deleting the game data when the app is uninstalled
