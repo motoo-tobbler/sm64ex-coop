@@ -84,7 +84,7 @@ termux-setup-storage
 
 ```bash
 pkg install x11-repo
-pkg install git wget make python getconf zip apksigner clang binutils mesa mesa-dev aapt
+pkg install git wget make python getconf zip apksigner clang binutils mesa mesa-dev aapt which
 ```
 
 17. Clone this repository and place your `baserom.us.z64` in it. If you don't already have a `baserom.us.z64`, [here's the guide to obtain one](https://github.com/sanni/cartreader/wiki/What-to-order):
