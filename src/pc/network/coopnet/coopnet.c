@@ -1,3 +1,4 @@
+#include <inttypes.h>
 #include "libcoopnet.h"
 #include "coopnet.h"
 #include "coopnet_id.h"
