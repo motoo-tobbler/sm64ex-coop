@@ -109,7 +109,7 @@ lua_Integer smlua_to_integer(lua_State* L, int index) {
 u64 smlua_to_unsigned_integer(lua_State* L, int index) {
     if (lua_type(L, index) == LUA_TBOOLEAN ||
         lua_type(L, index) != LUA_TNUMBER) {
-        LOG_LUA_LINE("smlua_to_integer received improper type '%d'", lua_type(L, index));
+        LOG_LUA_LINE("smlua_to_unsigned_integer received improper type '%d'", lua_type(L, index));
         gSmLuaConvertSuccess = false;
         return 0;
     }
@@ -214,7 +214,11 @@ void* smlua_to_cobject(lua_State* L, int index, u16 lot) {
 
     // get pointer
     lua_getfield(L, index, "_pointer");
+#ifdef __ANDROID__
+    void* pointer = (void*)(intptr_t)smlua_to_unsigned_integer(L, -1);
+#else
     void* pointer = (void*)(intptr_t)smlua_to_integer(L, -1);
+#endif
     lua_pop(L, 1);
     if (!gSmLuaConvertSuccess) { return NULL; }
 
@@ -260,7 +264,11 @@ void* smlua_to_cpointer(lua_State* L, int index, u16 lvt) {
 
     // get pointer
     lua_getfield(L, index, "_pointer");
+#ifdef __ANDROID__
+    void* pointer = (void*)(intptr_t)smlua_to_unsigned_integer(L, -1);
+#else
     void* pointer = (void*)(intptr_t)smlua_to_integer(L, -1);
+#endif
     lua_pop(L, 1);
     if (!gSmLuaConvertSuccess) { return NULL; }
 
