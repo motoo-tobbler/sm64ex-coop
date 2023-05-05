@@ -84,7 +84,8 @@ termux-setup-storage
 
 ```bash
 pkg install x11-repo
-pkg install git wget make python getconf zip apksigner clang binutils mesa mesa-dev aapt which
+pkg install git wget make python getconf zip \
+apksigner clang binutils mesa mesa-dev aapt which
 ```
 
 17. Clone this repository and place your `baserom.us.z64` in it. If you don't already have a `baserom.us.z64`, [here's the guide to obtain one](https://github.com/sanni/cartreader/wiki/What-to-order):
@@ -92,8 +93,10 @@ pkg install git wget make python getconf zip apksigner clang binutils mesa mesa-
 > Replace `/storage/emulated/0/baserom.us.z64` with the current location of your `baserom.us.z64`, or if you don't know the full path, try finding it with the "Amaze" file browser from step 19 and moving it to `/storage/emulated/0` before proceeding.
 
 ```bash
-git clone --recursive https://github.com/robertkirkman/sm64ex-coop.git
-cp /storage/emulated/0/baserom.us.z64 sm64ex-coop/baserom.us.z64
+git clone --recursive \
+https://github.com/robertkirkman/sm64ex-coop.git
+cp /storage/emulated/0/baserom.us.z64 \
+sm64ex-coop/baserom.us.z64
 cd sm64ex-coop
 ```
 
