@@ -82,10 +82,12 @@ termux-setup-storage
 
 16. Install dependencies:
 
+> WARNING: As of 5/5/23, the Termux package **`libglvnd`** itself (_not_ `libglvnd-dev`) now has a compile-time conflict with this app. If you have it installed during your build, then you will get an error at run-time: "`'libGLESv2.so.2' not found`".
+
 ```bash
-pkg install x11-repo
+pkg remove libglvnd
 pkg install git wget make python getconf zip \
-apksigner clang binutils mesa mesa-dev aapt which
+apksigner clang binutils libglvnd-dev aapt which
 ```
 
 17. Clone this repository and place your `baserom.us.z64` in it. If you don't already have a `baserom.us.z64`, [here's the guide to obtain one](https://github.com/sanni/cartreader/wiki/What-to-order):
