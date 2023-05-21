@@ -1868,6 +1868,14 @@ $(APK_SIGNED): $(APK_ALIGNED)
 	apksigner sign --cert platform/android/certificate.pem --key platform/android/key.pk8 $@
 endif
 
+# Ugly but I don't have a better idea right now
+ifeq ($(TARGET_BSD), 1)
+  DUMMY != mkdir -p ~/.local/share/sm64ex-coop/mods && \
+           mkdir -p ~/.local/share/sm64ex-coop/lang && \
+           cp -r mods/ ~/.local/share/sm64ex-coop/mods && \
+           cp -r lang/ ~/.local/share/sm64ex-coop/lang
+endif
+
   $(EXE): $(O_FILES) $(MIO0_FILES:.mio0=.o) $(ULTRA_O_FILES) $(GODDARD_O_FILES) $(BUILD_DIR)/$(RPC_LIBS) $(BUILD_DIR)/$(DISCORD_SDK_LIBS) $(BUILD_DIR)/$(BASS_LIBS) $(BUILD_DIR)/$(COOPNET_LIBS) $(BUILD_DIR)/$(LANG_DIR) $(BUILD_DIR)/$(MOD_DIR)
 	@$(PRINT) "$(GREEN)Linking executable: $(BLUE)$@ $(NO_COL)\n"
 	$(V)$(LD) $(PROF_FLAGS) -L $(BUILD_DIR) -o $@ $(O_FILES) $(ULTRA_O_FILES) $(GODDARD_O_FILES) $(LDFLAGS)
