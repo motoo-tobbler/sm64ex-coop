@@ -2,7 +2,7 @@
 
 #Download
 echo Downloading: libjuice
-dl_ver=1.2.3
+dl_ver=1.2.2
 curl -L https://github.com/paullouisageneau/libjuice/archive/refs/tags/v"$dl_ver".tar.gz -o libjuice.tar.gz
 tar -xf libjuice.tar.gz
 
@@ -16,6 +16,6 @@ make -j2
 #Copy to lib/coopnet/mac/libjuice.dylib
 echo "
 Copying: libjuice to 'lib/coopnet/mac'"
-cp libjuice."$dl_ver".dylib ../../lib/coopnet/mac/libjuice.dylib
+cp libjuice."$dl_ver".dylib ../../lib/coopnet/mac/libjuice.1.2.2.dylib
 
 echo Done
