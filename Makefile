@@ -981,7 +981,7 @@ ifeq ($(COOPNET),1)
   else ifeq ($(OSX_BUILD),1)
     LDFLAGS += -Wl,-rpath,@loader_path -L./lib/coopnet/mac/ -l coopnet
     COOPNET_LIBS += ./lib/coopnet/mac/libcoopnet.dylib
-    COOPNET_LIBS += ./lib/coopnet/mac/libjuice.dylib
+    COOPNET_LIBS += ./lib/coopnet/mac/libjuice.1.2.2.dylib
   else ifeq ($(TARGET_RPI),1)
     ifneq (,$(findstring aarch64,$(machine)))
       LDFLAGS += -Llib/coopnet/linux -l:libcoopnet-arm64.a -l:libjuice.a
