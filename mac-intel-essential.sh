@@ -16,6 +16,6 @@ make -j2
 #Copy to lib/coopnet/mac/libjuice.dylib
 echo "
 Copying: libjuice to 'lib/coopnet/mac'"
-cp libjuice."$dl_ver".dylib ../../lib/coopnet/mac/libjuice.1.2.2.dylib
+cp libjuice."$dl_ver".dylib ../../lib/coopnet/mac/libjuice.$dl_ver.dylib
 
 echo Done
