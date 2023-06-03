@@ -122,9 +122,17 @@ void djui_panel_display_create(struct DjuiBase* caller) {
         char* drawDistanceChoices[6] = { DLANG(DISPLAY, D0P5X), DLANG(DISPLAY, D1X), DLANG(DISPLAY, D1P5X), DLANG(DISPLAY, D3X), DLANG(DISPLAY, D10X), DLANG(DISPLAY, D100X) };
         djui_selectionbox_create(body, DLANG(DISPLAY, DRAW_DISTANCE), drawDistanceChoices, 6, &configDrawDistance, NULL);
 
+#ifdef TOUCH_CONTROLS
+        struct DjuiButton* dynosButton = djui_button_create(body, DLANG(DISPLAY, DYNOS_PACKS), DJUI_BUTTON_STYLE_NORMAL, djui_panel_dynos_create);
+        djui_base_set_size(&dynosButton->base, 1.0f, 46);
+
+        struct DjuiButton* backButton = djui_button_create(body, DLANG(MENU, BACK), DJUI_BUTTON_STYLE_BACK, djui_panel_menu_back);
+        djui_base_set_size(&backButton->base, 1.0f, 46);
+#else
         djui_button_create(body, DLANG(DISPLAY, DYNOS_PACKS), DJUI_BUTTON_STYLE_NORMAL, djui_panel_dynos_create);
 
         djui_button_create(body, DLANG(MENU, BACK), DJUI_BUTTON_STYLE_BACK, djui_panel_menu_back);
+#endif
 
         sRestartText = djui_text_create(body, "");
         djui_text_set_alignment(sRestartText, DJUI_HALIGN_CENTER, DJUI_VALIGN_TOP);
