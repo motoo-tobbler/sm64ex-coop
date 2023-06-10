@@ -82,7 +82,9 @@ termux-setup-storage
 
 16. Install dependencies:
 
-> WARNING: As of 5/5/23, the Termux package **`libglvnd`** itself (_not_ `libglvnd-dev`) now has a compile-time conflict with this app. If you have it installed during your build, then you will get an error at run-time: "`'libGLESv2.so.2' not found`".
+> WARNING: As of 5/5/23, the Termux package **`libglvnd`** itself (_not_ `libglvnd-dev`) now has a compile-time conflict with this app. If you have it installed during your build, then you will get an error at run-time: "`'libGLESv2.so.2' not found`". It's OK if you see this:
+> ![image](https://github.com/robertkirkman/sm64ex-coop/assets/31490854/7cef75ee-7503-4723-8343-d06e298c3cf8)
+> If you see that error, just ignore it and continue to `pkg install`. It's just important for anyone who does have `libglvnd` to remove it.
 
 ```bash
 pkg remove libglvnd
