@@ -5,6 +5,7 @@
 - [behavior_table.h](#behavior_tableh)
     - [enum BehaviorId](#enum-BehaviorId)
 - [camera.h](#camerah)
+    - [enum RomhackCameraOverride](#enum-RomhackCameraOverride)
 - [characters.h](#charactersh)
     - [enum CharacterSound](#enum-CharacterSound)
     - [enum CharacterType](#enum-CharacterType)
@@ -19,8 +20,8 @@
 - [geo_commands.h](#geo_commandsh)
 - [graph_node.h](#graph_nodeh)
 - [interaction.c](#interactionc)
-    - [enum InteractionFlag](#enum-InteractionFlag)
 - [interaction.h](#interactionh)
+    - [enum InteractionFlag](#enum-InteractionFlag)
     - [enum InteractionType](#enum-InteractionType)
 - [level_commands.h](#level_commandsh)
 - [level_defines.h](#level_definesh)
@@ -70,9 +71,7 @@
 ## [area.h](#area.h)
 - INSTANT_WARP_INDEX_START
 - INSTANT_WARP_INDEX_STOP
-- LOADED_GRAPH_NODES_EXTENDED
-- LOADED_GRAPH_NODES_VANILLA
-- MAX_LOADED_GRAPH_NODES
+- MAX_AREAS
 - WARP_TRANSITION_FADE_FROM_BOWSER
 - WARP_TRANSITION_FADE_FROM_CIRCLE
 - WARP_TRANSITION_FADE_FROM_COLOR
@@ -819,6 +818,13 @@
 - SHAKE_SHOCK
 - SHAKE_SMALL_DAMAGE
 
+### [enum RomhackCameraOverride](#RomhackCameraOverride)
+| Identifier | Value |
+| :--------- | :---- |
+| RCO_ALL | 0 |
+| RCO_ALL_EXCEPT_BOWSER | 1 |
+| RCO_NONE | 2 |
+
 [:arrow_up_small:](#)
 
 <br />
@@ -1193,22 +1199,6 @@
 <br />
 
 ## [interaction.c](#interaction.c)
-- INT_ANY_ATTACK
-- INT_ATTACK_NOT_FROM_BELOW
-- INT_ATTACK_NOT_WEAK_FROM_ABOVE
-- INT_ATTACK_SLIDE
-
-### [enum InteractionFlag](#InteractionFlag)
-| Identifier | Value |
-| :--------- | :---- |
-| INT_GROUND_POUND_OR_TWIRL | (1 << 0) |
-| INT_PUNCH | (1 << 1) |
-| INT_KICK | (1 << 2) |
-| INT_TRIP | (1 << 3) |
-| INT_SLIDE_KICK | (1 << 4) |
-| INT_FAST_ATTACK_OR_SHELL | (1 << 5) |
-| INT_HIT_FROM_ABOVE | (1 << 6) |
-| INT_HIT_FROM_BELOW | (1 << 7) |
 
 [:arrow_up_small:](#)
 
@@ -1221,6 +1211,10 @@
 - ATTACK_GROUND_POUND_OR_TWIRL
 - ATTACK_KICK_OR_TRIP
 - ATTACK_PUNCH
+- INT_ANY_ATTACK
+- INT_ATTACK_NOT_FROM_BELOW
+- INT_ATTACK_NOT_WEAK_FROM_ABOVE
+- INT_ATTACK_SLIDE
 - INT_STATUS_ATTACKED_MARIO
 - INT_STATUS_ATTACK_MASK
 - INT_STATUS_GRABBED_MARIO
@@ -1253,6 +1247,20 @@
 - INT_SUBTYPE_SIGN
 - INT_SUBTYPE_STAR_DOOR
 - INT_SUBTYPE_TWIRL_BOUNCE
+
+### [enum InteractionFlag](#InteractionFlag)
+| Identifier | Value |
+| :--------- | :---- |
+| INT_GROUND_POUND | (1 << 0) |
+| INT_PUNCH | (1 << 1) |
+| INT_KICK | (1 << 2) |
+| INT_TRIP | (1 << 3) |
+| INT_SLIDE_KICK | (1 << 4) |
+| INT_FAST_ATTACK_OR_SHELL | (1 << 5) |
+| INT_HIT_FROM_ABOVE | (1 << 6) |
+| INT_HIT_FROM_BELOW | (1 << 7) |
+| INT_TWIRL | (1 << 8) |
+| INT_GROUND_POUND_OR_TWIRL | (INT_GROUND_POUND | INT_TWIRL) |
 
 ### [enum InteractionType](#InteractionType)
 | Identifier | Value |
@@ -2614,6 +2622,7 @@
 - ACT_FLAG_CONTROL_JUMP_HEIGHT
 - ACT_FLAG_CUSTOM_ACTION
 - ACT_FLAG_DIVING
+- ACT_FLAG_FLYING
 - ACT_FLAG_HANGING
 - ACT_FLAG_IDLE
 - ACT_FLAG_INTANGIBLE
@@ -2894,6 +2903,10 @@
 - PARTICLE_VERTICAL_STAR
 - PARTICLE_WATER_SPLASH
 - PARTICLE_WAVE_TRAIL
+- STEP_TYPE_AIR
+- STEP_TYPE_GROUND
+- STEP_TYPE_HANG
+- STEP_TYPE_WATER
 - VALID_BUTTONS
 - WATER_STEP_CANCELLED
 - WATER_STEP_HIT_CEILING
@@ -2950,7 +2963,8 @@
 | HOOK_BEFORE_SET_MARIO_ACTION | 30 |
 | HOOK_JOINED_GAME | 31 |
 | HOOK_ON_OBJECT_ANIM_UPDATE | 32 |
-| HOOK_MAX | 33 |
+| HOOK_ON_DIALOG | 33 |
+| HOOK_MAX | 34 |
 
 [:arrow_up_small:](#)
 
@@ -4068,7 +4082,9 @@
 - COOP_OBJ_FLAG_LUA
 - COOP_OBJ_FLAG_NETWORK
 - COOP_OBJ_FLAG_NON_SYNC
+- GRAPH_NODE_GUARD
 - MAX_PLAYERS
+- OBJECT_MAX_BHV_STACK
 - PLAY_MODE_CHANGE_AREA
 - PLAY_MODE_CHANGE_LEVEL
 - PLAY_MODE_FRAME_ADVANCE
@@ -4101,6 +4117,10 @@
 - MINOR_VERSION_NUMBER
 - PATCH_VERSION_NUMBER
 - VERSION_NUMBER
+- VERSION_REGION
+- VERSION_REGION
+- VERSION_REGION
+- VERSION_REGION
 - VERSION_TEXT
 
 [:arrow_up_small:](#)

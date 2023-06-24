@@ -86,7 +86,7 @@ void DynOS_Lvl_Activate(s32 modIndex, const SysPath &aFilename, const char *aLev
     auto& newScriptNode = newScripts[newScripts.Count() - 1];
     const void* originalScript = DynOS_Builtin_ScriptPtr_GetFromName(newScriptNode->mName.begin());
     if (originalScript == NULL) {
-        Print("Could not find level to override: '%s'", newScriptNode->mName.begin());
+        PrintError("Could not find level to override: '%s'", newScriptNode->mName.begin());
         return;
     }
 
@@ -96,12 +96,13 @@ void DynOS_Lvl_Activate(s32 modIndex, const SysPath &aFilename, const char *aLev
 
 GfxData* DynOS_Lvl_GetActiveGfx(void) {
     auto& _CustomLevelScripts = DynOS_Lvl_GetArray();
-
     for (s32 i = 0; i < _CustomLevelScripts.Count(); ++i) {
         auto& gfxData = _CustomLevelScripts[i].second;
         auto& scripts = gfxData->mLevelScripts;
-        if (gLevelScriptActive == scripts[scripts.Count() - 1]->mData) {
-            return gfxData;
+        for (auto& s : scripts) {
+            if (gLevelScriptActive == s->mData) {
+                return gfxData;
+            }
         }
     }
     return NULL;
@@ -155,7 +156,7 @@ void DynOS_Lvl_LoadBackground(void *aPtr) {
 double_break:
 
     if (foundList == NULL) {
-        Print("Could not find custom background");
+        PrintError("Could not find custom background");
         return;
     }
 
@@ -173,7 +174,6 @@ double_break:
 
 void *DynOS_Lvl_Override(void *aCmd) {
     auto& _OverrideLevelScripts = DynosOverrideLevelScripts();
-
     for (auto& overrideStruct : _OverrideLevelScripts) {
         if (aCmd == overrideStruct.originalScript || aCmd == overrideStruct.newScript) {
             aCmd = (void*)overrideStruct.newScript;
@@ -181,6 +181,18 @@ void *DynOS_Lvl_Override(void *aCmd) {
             gLevelScriptActive = (LevelScript*)aCmd;
         }
     }
+
+    auto& _CustomLevelScripts = DynOS_Lvl_GetArray();
+    for (auto& script : _CustomLevelScripts) {
+        auto& scripts = script.second->mLevelScripts;
+        for (auto& s : scripts) {
+            if (aCmd == s->mData) {
+                gLevelScriptModIndex = script.second->mModIndex;
+                gLevelScriptActive = (LevelScript*)aCmd;
+            }
+        }
+    }
+
     return aCmd;
 }
 

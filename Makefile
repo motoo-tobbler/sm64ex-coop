@@ -73,6 +73,8 @@ OPT_LEVEL ?= -1
 DEBUG_INFO_LEVEL ?= 2
 # Enable profiling
 PROFILE ?= 0
+# Enable address sanitizer
+ASAN ?= 0
 # Compile headless
 HEADLESS ?= 0
 # Enable Game ICON
@@ -616,7 +618,7 @@ SRC_DIRS := src src/engine src/game src/audio src/menu src/buffers actors levels
 BIN_DIRS := bin bin/$(VERSION)
 
 # PC files
-SRC_DIRS += src/pc src/pc/gfx src/pc/audio src/pc/controller src/pc/fs src/pc/fs/packtypes src/pc/mods src/dev src/pc/network src/pc/network/packets src/pc/network/socket src/pc/network/coopnet src/pc/utils src/pc/utils/miniz src/pc/djui src/pc/lua src/pc/lua/utils
+SRC_DIRS += src/pc src/pc/gfx src/pc/audio src/pc/controller src/pc/fs src/pc/fs/packtypes src/pc/mods src/dev src/pc/network src/pc/network/packets src/pc/network/socket src/pc/network/coopnet src/pc/utils src/pc/utils/miniz src/pc/djui src/pc/lua src/pc/lua/utils src/pc/os
 
 ifeq ($(TARGET_ANDROID),1)
   SRC_DIRS += platform/android
@@ -1044,6 +1046,10 @@ else
   endif
 endif
 
+ifeq ($(WINDOWS_BUILD),0)
+  LDFLAGS += -rdynamic
+endif
+
 # icon
 ifeq ($(WINDOWS_BUILD),1)
   ifeq ($(ICON),1)
@@ -1057,22 +1063,18 @@ ifeq ($(WINDOWS_BUILD),1)
   endif
 endif
 
-# precomp custom sounds
-# hacky stupid thing for windows builds (non-auto-builder)
-# this way it won't fail to compile custom sounds anymore
-ifeq ($(WINDOWS_BUILD),999)
-  ifeq ($(WINDOWS_AUTO_BUILDER),1)
-  else
-    ifeq ($(filter clean distclean,$(MAKECMDGOALS)),)
-      $(info Copying precomp samples...)
-      Command := mkdir -p "$(BUILD_DIR)/sound"
-      Resp := $(shell $(call Command))
-      Command := mkdir -p "$(BUILD_DIR)/sound/samples"
-      Resp := $(shell $(call Command))
-      Command := unzip -o "sound/precomp/samples.zip" -d "$(BUILD_DIR)/sound/"
-      Resp := $(shell $(call Command))
-    endif
+ifeq ($(ASAN),1)
+
+  ifeq ($(COMPILER),gcc)
+    EXTRA_CFLAGS += -fsanitize=address -fsanitize=bounds-strict -fsanitize=undefined -ggdb
+    EXTRA_CPP_FLAGS += -fsanitize=address -fsanitize=bounds-strict -fsanitize=undefined -ggdb
+    LDFLAGS += -fsanitize=address -fsanitize=bounds-strict -fsanitize=undefined -static-libasan
+  else ifeq ($(COMPILER),clang)
+    EXTRA_CFLAGS += -fsanitize=address -fsanitize=undefined -ggdb
+    EXTRA_CPP_FLAGS += -fsanitize=address -fsanitize=undefined -ggdb
+    LDFLAGS += -fsanitize=address -fsanitize=undefined
   endif
+
 endif
 
 # Coop specific libraries
@@ -1110,9 +1112,9 @@ COOPNET_LIBS :=
 ifeq ($(COOPNET),1)
   ifeq ($(WINDOWS_BUILD),1)
     ifeq ($(TARGET_BITS), 32)
-      LDFLAGS += -Llib/coopnet/win32 -l:libcoopnet.a -l:libjuice.a -lbcrypt -lws2_32
+      LDFLAGS += -Llib/coopnet/win32 -l:libcoopnet.a -l:libjuice.a -lbcrypt -lws2_32 -liphlpapi
     else
-      LDFLAGS += -Llib/coopnet/win64 -l:libcoopnet.a -l:libjuice.a -lbcrypt -lws2_32
+      LDFLAGS += -Llib/coopnet/win64 -l:libcoopnet.a -l:libjuice.a -lbcrypt -lws2_32 -liphlpapi
     endif
   else ifeq ($(OSX_BUILD),1)
     LDFLAGS += -Wl,-rpath,@loader_path -L./lib/coopnet/mac/ -l coopnet
@@ -1294,7 +1296,6 @@ N64CKSUM              := $(TOOLS_DIR)/n64cksum
 N64GRAPHICS           := $(TOOLS_DIR)/n64graphics
 N64GRAPHICS_CI        := $(TOOLS_DIR)/n64graphics_ci
 TEXTCONV              := $(TOOLS_DIR)/textconv
-AIFF_EXTRACT_FAILSAFE := $(TOOLS_DIR)/aiff_extract_codebook_failsafe.py
 AIFF_EXTRACT_CODEBOOK := $(TOOLS_DIR)/aiff_extract_codebook
 VADPCM_ENC            := $(TOOLS_DIR)/vadpcm_enc
 EXTRACT_DATA_FOR_MIO  := $(TOOLS_DIR)/extract_data_for_mio
@@ -1466,6 +1467,12 @@ ifeq ($(VERSION),eu)
   $(BUILD_DIR)/levels/menu/leveldata.o: $(BUILD_DIR)/text/us/define_courses.inc.c
   $(BUILD_DIR)/levels/menu/leveldata.o: $(BUILD_DIR)/text/de/define_courses.inc.c
   $(BUILD_DIR)/levels/menu/leveldata.o: $(BUILD_DIR)/text/fr/define_courses.inc.c
+  $(BUILD_DIR)/src/game/level_info.o: $(BUILD_DIR)/include/text_strings.h
+  $(BUILD_DIR)/src/game/level_info.o: $(BUILD_DIR)/text/us/define_courses.inc.c
+  $(BUILD_DIR)/src/game/level_info.o: $(BUILD_DIR)/text/de/define_courses.inc.c
+  $(BUILD_DIR)/src/game/level_info.o: $(BUILD_DIR)/text/fr/define_courses.inc.c
+  
+  O_FILES += $(BUILD_DIR)/bin/eu/translation_en.o $(BUILD_DIR)/bin/eu/translation_de.o $(BUILD_DIR)/bin/eu/translation_fr.o
 else
   ifeq ($(VERSION),sh)
     TEXT_DIRS := text/jp

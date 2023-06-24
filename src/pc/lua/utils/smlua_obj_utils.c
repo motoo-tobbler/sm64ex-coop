@@ -23,11 +23,6 @@ static struct Object* spawn_object_internal(enum BehaviorId behaviorId, enum Mod
     }
 
     u16 loadedModelId = smlua_model_util_load(modelId);
-    if (loadedModelId >= MAX_LOADED_GRAPH_NODES) {
-        LOG_ERROR("failed to load model  %u", modelId);
-        return NULL;
-    }
-
     struct Object* obj = spawn_object(gMarioStates[0].marioObj, loadedModelId, behavior);
 
     if (obj == NULL) {
@@ -87,18 +82,20 @@ struct Object* spawn_non_sync_object(enum BehaviorId behaviorId, enum ModelExten
 }
 
 s32 obj_has_behavior_id(struct Object *o, enum BehaviorId behaviorId) {
+    if (!o) { return 0; }
     const BehaviorScript *behavior = get_behavior_from_id(behaviorId);
     return o->behavior == smlua_override_behavior(behavior);
 }
 
 s32 obj_has_model_extended(struct Object *o, enum ModelExtendedId modelId) {
+    if (!o) { return 0; }
     u16 slot = smlua_model_util_load(modelId);
-    if (slot >= MAX_LOADED_GRAPH_NODES) { return false; }
-    struct GraphNode *model = gLoadedGraphNodes[slot];
+    struct GraphNode *model = dynos_model_get_geo(slot);
     return o->header.gfx.sharedChild == model;
 }
 
 void obj_set_model_extended(struct Object *o, enum ModelExtendedId modelId) {
+    if (!o) { return; }
     obj_set_model(o, smlua_model_util_load(modelId));
 }
 
@@ -123,10 +120,12 @@ struct Object *obj_get_first(enum ObjectList objList) {
 
 struct Object *obj_get_first_with_behavior_id(enum BehaviorId behaviorId) {
     const BehaviorScript* behavior = get_behavior_from_id(behaviorId);
+    u32 sanityDepth = 0;
     behavior = smlua_override_behavior(behavior);
     if (behavior) {
         enum ObjectList objList = get_object_list_from_behavior(behavior);
         for (struct Object *obj = obj_get_first(objList); obj != NULL; obj = obj_get_next(obj)) {
+            if (++sanityDepth > 10000) { break; }
             if (obj->behavior == behavior && obj->activeFlags != ACTIVE_FLAG_DEACTIVATED) {
                 return obj;
             }
@@ -136,11 +135,14 @@ struct Object *obj_get_first_with_behavior_id(enum BehaviorId behaviorId) {
 }
 
 struct Object *obj_get_first_with_behavior_id_and_field_s32(enum BehaviorId behaviorId, s32 fieldIndex, s32 value) {
+    if (fieldIndex < 0 || fieldIndex >= 0x50) { return NULL; }
     const BehaviorScript* behavior = get_behavior_from_id(behaviorId);
+    u32 sanityDepth = 0;
     behavior = smlua_override_behavior(behavior);
     if (behavior) {
         enum ObjectList objList = get_object_list_from_behavior(behavior);
         for (struct Object *obj = obj_get_first(objList); obj != NULL; obj = obj_get_next(obj)) {
+            if (++sanityDepth > 10000) { break; }
             if (obj->behavior == behavior && obj->activeFlags != ACTIVE_FLAG_DEACTIVATED && obj->OBJECT_FIELD_S32(fieldIndex) == value) {
                 return obj;
             }
@@ -150,6 +152,7 @@ struct Object *obj_get_first_with_behavior_id_and_field_s32(enum BehaviorId beha
 }
 
 struct Object *obj_get_first_with_behavior_id_and_field_f32(enum BehaviorId behaviorId, s32 fieldIndex, f32 value) {
+    if (fieldIndex < 0 || fieldIndex >= 0x50) { return NULL; }
     const BehaviorScript* behavior = get_behavior_from_id(behaviorId);
     behavior = smlua_override_behavior(behavior);
     if (behavior) {
@@ -223,6 +226,7 @@ struct Object *obj_get_next_with_same_behavior_id(struct Object *o) {
 }
 
 struct Object *obj_get_next_with_same_behavior_id_and_field_s32(struct Object *o, s32 fieldIndex, s32 value) {
+    if (fieldIndex < 0 || fieldIndex >= 0x50) { return NULL; }
     if (o) {
         for (struct Object *obj = obj_get_next(o); obj != NULL; obj = obj_get_next(obj)) {
             if (obj->behavior == o->behavior && obj->activeFlags != ACTIVE_FLAG_DEACTIVATED && obj->OBJECT_FIELD_S32(fieldIndex) == value) {
@@ -234,6 +238,7 @@ struct Object *obj_get_next_with_same_behavior_id_and_field_s32(struct Object *o
 }
 
 struct Object *obj_get_next_with_same_behavior_id_and_field_f32(struct Object *o, s32 fieldIndex, f32 value) {
+    if (fieldIndex < 0 || fieldIndex >= 0x50) { return NULL; }
     if (o) {
         for (struct Object *obj = obj_get_next(o); obj != NULL; obj = obj_get_next(obj)) {
             if (obj->behavior == o->behavior && obj->activeFlags != ACTIVE_FLAG_DEACTIVATED && obj->OBJECT_FIELD_F32(fieldIndex) == value) {
@@ -256,10 +261,6 @@ struct SpawnParticlesInfo* obj_get_temp_spawn_particles_info(enum ModelExtendedI
     memset(&sTmpSpi, 0, sizeof(struct SpawnParticlesInfo));
 
     u16 loadedModelId = smlua_model_util_load(modelId);
-    if (loadedModelId >= MAX_LOADED_GRAPH_NODES) {
-        LOG_ERROR("failed to load model  %u", modelId);
-        return NULL;
-    }
     sTmpSpi.model = loadedModelId;
 
     return &sTmpSpi;
@@ -397,6 +398,7 @@ void obj_move_xyz(struct Object *o, f32 dx, f32 dy, f32 dz) {
 
 void set_whirlpools(f32 x, f32 y, f32 z, s16 strength, s16 area, s32 index) {
     static struct Whirlpool whirlpool;
+    if (index < 0 || index >= 2) { return; }
 
     gAreas[area].whirlpools[index] = &whirlpool;
     gAreas[area].whirlpools[index]->pos[0] = x;
@@ -404,3 +406,24 @@ void set_whirlpools(f32 x, f32 y, f32 z, s16 strength, s16 area, s32 index) {
     gAreas[area].whirlpools[index]->pos[2] = z;
     gAreas[area].whirlpools[index]->strength = strength;
 }
+
+#ifdef DEVELOPMENT
+void obj_randomize(struct Object* o) {
+    if (!o) { return; }
+    for (int i = 0; i < 80; i++) {
+        if (rand() % 10 < 5) {
+            o->rawData.asU32[i] = rand() % 10;
+        } else {
+            o->rawData.asU32[i] = rand();
+        }
+    }
+    struct Object* objs[] = { NULL, gMarioStates[0].marioObj, o };
+    if (rand()%4 > 0) { o->parentObj = objs[rand()%3]; }
+    if (rand()%4 > 0) { o->prevObj = objs[rand()%3]; }
+    if (rand()%4 > 0) { o->usingObj = objs[rand()%3]; }
+
+    if (rand() % 10 < 5) {
+        o->oAction = rand() % 10;
+    }
+}
+#endif

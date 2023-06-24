@@ -106,7 +106,7 @@ struct Object *gMarioObjects[MAX_PLAYERS];
  * This object is used frequently in object behavior code, and so is often
  * aliased as "o".
  */
-struct Object *gCurrentObject;
+struct Object *gCurrentObject = NULL;
 
 /**
  * The next object behavior command to be executed.
@@ -142,15 +142,11 @@ s32 gNumStaticSurfaceNodes;
  */
 s32 gNumStaticSurfaces;
 
-/**
- * A pool used by chain chomp and wiggler to allocate their body parts.
- */
-struct MemoryPool *gObjectMemoryPool;
-
 struct Object* gCheckingSurfaceCollisionsForObject = NULL;
 s16 gCheckingSurfaceCollisionsForCamera;
 s16 gFindFloorIncludeSurfaceIntangible;
 s16 *gEnvironmentRegions;
+s32 gEnvironmentRegionsLength = 0;
 s32 gEnvironmentLevels[20];
 s8 gDoorAdjacentRooms[60][2];
 s16 gMarioCurrentRoom;
@@ -275,11 +271,12 @@ void bhv_mario_update(void) {
 
     // set mario state to the current player
     s32 stateIndex = (gCurrentObject->oBehParams - 1);
+    if (stateIndex >= MAX_PLAYERS || stateIndex < 0) { return; }
     gMarioState = &gMarioStates[stateIndex];
 
     // sanity check torsoPos, it isn't updated off-screen otherwise
     extern u32 gGlobalTimer;
-    if (gMarioState->marioBodyState->updateTorsoTime != (gGlobalTimer - 1)) {
+    if (gMarioState->marioBodyState && gMarioState->marioBodyState->updateTorsoTime != (gGlobalTimer - 1)) {
         vec3f_copy(gMarioState->marioBodyState->torsoPos, gMarioState->pos);
     }
 
@@ -346,10 +343,14 @@ void bhv_mario_update(void) {
  * including firstObj itself. Return the number of objects that were updated.
  */
 s32 update_objects_starting_at(struct ObjectNode *objList, struct ObjectNode *firstObj) {
+    if (!firstObj) { return 0; }
+
     s32 count = 0;
+    struct Object* prevObject = gCurrentObject;
 
     while (objList != firstObj) {
         gCurrentObject = (struct Object *) firstObj;
+        if (!gCurrentObject) { break; }
 
         gCurrentObject->header.gfx.node.flags |= GRAPH_RENDER_HAS_ANIMATION;
         cur_obj_update();
@@ -357,6 +358,8 @@ s32 update_objects_starting_at(struct ObjectNode *objList, struct ObjectNode *fi
         firstObj = firstObj->next;
         count += 1;
     }
+
+    gCurrentObject = prevObject;
 
     return count;
 }
@@ -371,11 +374,14 @@ s32 update_objects_starting_at(struct ObjectNode *objList, struct ObjectNode *fi
  * updated)
  */
 s32 update_objects_during_time_stop(struct ObjectNode *objList, struct ObjectNode *firstObj) {
+    if (!firstObj) { return 0; }
     s32 count = 0;
     s32 unfrozen;
+    struct Object* prevObject = gCurrentObject;
 
     while (objList != firstObj) {
         gCurrentObject = (struct Object *) firstObj;
+        if (!gCurrentObject) { break; }
 
         unfrozen = FALSE;
 
@@ -408,6 +414,8 @@ s32 update_objects_during_time_stop(struct ObjectNode *objList, struct ObjectNod
         count++;
     }
 
+    gCurrentObject = prevObject;
+
     return count;
 }
 
@@ -432,10 +440,13 @@ s32 update_objects_in_list(struct ObjectNode *objList) {
  * Unload any objects in the list that have been deactivated.
  */
 s32 unload_deactivated_objects_in_list(struct ObjectNode *objList) {
+    if (!objList) { return 0; }
     struct ObjectNode *obj = objList->next;
+    struct Object* prevObject = gCurrentObject;
 
     while (objList != obj) {
         gCurrentObject = (struct Object *) obj;
+        if (!gCurrentObject) { break; }
 
         obj = obj->next;
 
@@ -449,6 +460,8 @@ s32 unload_deactivated_objects_in_list(struct ObjectNode *objList) {
             unload_object(gCurrentObject);
         }
     }
+
+    gCurrentObject = prevObject;
 
     return 0;
 }
@@ -465,6 +478,7 @@ void set_object_respawn_info_bits(struct Object *obj, u8 bits) {
     u16 *info16;
     u8 oldRespawnInfoBits = 0;
     u8 newRespawnInfoBits = 0;
+    if (!obj || !obj->respawnInfo) { return; }
 
     switch (obj->respawnInfoType) {
         case RESPAWN_INFO_TYPE_32:
@@ -640,7 +654,6 @@ void clear_objects(void) {
         geo_reset_object_node(&gObjectPool[i].header.gfx);
     }
 
-    gObjectMemoryPool = mem_pool_init(0x800, MEMORY_POOL_LEFT);
     gObjectLists = gObjectListArray;
 
     clear_dynamic_surfaces();

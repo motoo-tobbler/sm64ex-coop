@@ -13,8 +13,9 @@ struct ObjectHitbox sSparkleSpawnStarHitbox = {
 };
 
 void bhv_spawned_star_init(void) {
-    if (!(o->oInteractionSubtype & INT_SUBTYPE_NO_EXIT))
+    if (!(o->oInteractionSubtype & INT_SUBTYPE_NO_EXIT) && o->parentObj) {
         o->oBehParams = o->parentObj->oBehParams;
+    }
     s32 sp24 = (o->oBehParams >> 24) & 0xFF;
     if (bit_shift_left(sp24) & save_file_get_star_flags(gCurrSaveFileNum - 1, gCurrCourseNum - 1))
         cur_obj_set_model(smlua_model_util_load(E_MODEL_TRANSPARENT_STAR));
@@ -130,7 +131,7 @@ void bhv_spawned_star_loop(void) {
         }
         spawn_object(o, MODEL_NONE, bhvSparkleSpawn);
     } else if (o->oAction == 2) {
-        if (gCamera->cutscene == 0 && gRecentCutscene == 0) {
+        if (gCamera && gCamera->cutscene == 0 && gRecentCutscene == 0) {
             gMarioStates[0].freeze = 0;
             clear_time_stop_flags(TIME_STOP_ENABLED | TIME_STOP_MARIO_AND_DOORS);
             o->activeFlags &= ~ACTIVE_FLAG_INITIATED_TIME_STOP;

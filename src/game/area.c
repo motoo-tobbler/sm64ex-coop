@@ -29,8 +29,7 @@
 #include "pc/djui/djui_panel_pause.h"
 
 struct SpawnInfo gPlayerSpawnInfos[MAX_PLAYERS];
-struct GraphNode *D_8033A160[MAX_LOADED_GRAPH_NODES];
-struct Area gAreaData[8];
+struct Area gAreaData[MAX_AREAS];
 
 struct WarpTransition gWarpTransition;
 
@@ -43,7 +42,6 @@ s16 gPauseScreenMode;
 s16 gSaveOptSelectIndex;
 
 struct SpawnInfo *gMarioSpawnInfo = &gPlayerSpawnInfos[0];
-struct GraphNode **gLoadedGraphNodes = D_8033A160;
 struct Area *gAreas = gAreaData;
 struct Area *gCurrentArea = NULL;
 struct CreditsEntry *gCurrCreditsEntry = NULL;
@@ -174,6 +172,21 @@ struct ObjectWarpNode *area_get_warp_node(u8 id) {
     return node;
 }
 
+struct ObjectWarpNode *area_get_any_warp_node(void) {
+    if (!gCurrentArea || !gCurrentArea->warpNodes) { return NULL; }
+
+    struct ObjectWarpNode *node = NULL;
+    struct ObjectWarpNode *pick = NULL;
+
+    for (node = gCurrentArea->warpNodes; node != NULL; node = node->next) {
+        if (node->node.destLevel != gCurrLevelNum) { continue; }
+        if (!pick) { pick = node; continue; }
+        if (node->node.destArea < pick->node.destArea) { pick = node; }
+    }
+
+    return pick;
+}
+
 struct ObjectWarpNode *area_get_warp_node_from_params(struct Object *o) {
     if (o == NULL) { return NULL; }
 
@@ -296,7 +309,10 @@ void load_mario_area(void) {
     stop_sounds_in_continuous_banks();
     load_area(gMarioSpawnInfo->areaIndex);
 
+    if (!gCurrentArea) { return; }
+
     for (s32 i = 0; i < MAX_PLAYERS; i++) {
+        if (!gMarioStates[i].spawnInfo) { continue; }
         gMarioStates[i].spawnInfo->areaIndex = gCurrentArea->index;
     }
 
@@ -489,6 +505,7 @@ void render_game(void) {
 
 void get_area_minimum_y(u8* hasMinY, f32* minY) {
     if (!gCameraUseCourseSpecificSettings) { return; }
+    if (gCamera && gCamera->mode == CAMERA_MODE_ROM_HACK) { return; }
     switch (gCurrCourseNum) {
         case COURSE_WF:    *hasMinY = TRUE; *minY = 8; break;
         case COURSE_CCM:   *hasMinY = TRUE; *minY = (gCurrAreaIndex == 2) ? -5856 : -5068; break;

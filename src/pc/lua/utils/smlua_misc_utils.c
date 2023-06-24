@@ -44,17 +44,26 @@ s32 deref_s32_pointer(s32* pointer) {
 
 ///
 
+void djui_popup_create_global(const char* message, int lines) {
+    djui_popup_create(message, lines);
+    network_send_global_popup(message, lines);
+}
+
+///
+
 void hud_hide(void) {
-    gOverrideHideHud = 1;
+    gOverrideHideHud = TRUE;
 }
 
 void hud_show(void) {
-    gOverrideHideHud = 0;
+    gOverrideHideHud = FALSE;
 }
 
 bool hud_is_hidden(void) {
     return gOverrideHideHud;
 }
+
+///
 
 extern u8 gLastCollectedStarOrKey;
 s32 get_last_star_or_key(void) {
@@ -65,10 +74,50 @@ void set_last_star_or_key(u8 value) {
     gLastCollectedStarOrKey = value;
 }
 
+extern u8 gLastCompletedCourseNum;
+u8 get_last_completed_course_num(void) {
+    return gLastCompletedCourseNum;
+}
+
+void set_last_completed_course_num(u8 courseNum) {
+    gLastCompletedCourseNum = courseNum;
+}
+
+extern u8 gLastCompletedStarNum;
+u8 get_last_completed_star_num(void) {
+    return gLastCompletedStarNum;
+}
+
+void set_last_completed_star_num(u8 starNum) {
+    gLastCompletedStarNum = starNum;
+}
+
+extern u8 gGotFileCoinHiScore;
+bool get_got_file_coin_hi_score(void) {
+    return gGotFileCoinHiScore;
+}
+
+void set_got_file_coin_hi_score(bool value) {
+    gGotFileCoinHiScore = value ? TRUE : FALSE;
+}
+
+extern s8 gSaveFileModified;
+bool get_save_file_modified(void) {
+    return gSaveFileModified;
+}
+
+void set_save_file_modified(bool value) {
+    gSaveFileModified = value ? TRUE : FALSE;
+}
+
+///
+
 extern s8 gDialogBoxState;
 s8 get_dialog_box_state() {
     return gDialogBoxState;
 }
+
+///
 
 s32 hud_get_value(enum HudDisplayValue type) {
     switch (type) {
@@ -167,6 +216,35 @@ void hud_render_power_meter_interpolated(s32 health, f32 prevX, f32 prevY, f32 p
 
 ///
 
+struct CameraOverride {
+    unsigned int value;
+    bool override;
+};
+
+struct CameraOverride sOverrideCameraXSens   = { 0 };
+struct CameraOverride sOverrideCameraYSens   = { 0 };
+struct CameraOverride sOverrideCameraAggr    = { 0 };
+struct CameraOverride sOverrideCameraPan     = { 0 };
+struct CameraOverride sOverrideCameraDegrade = { 0 };
+struct CameraOverride sOverrideCameraInvertX = { 0 };
+struct CameraOverride sOverrideCameraInvertY = { 0 };
+struct CameraOverride sOverrideEnableCamera  = { 0 };
+struct CameraOverride sOverrideCameraAnalog  = { 0 };
+struct CameraOverride sOverrideCameraMouse   = { 0 };
+
+void camera_reset_overrides(void) {
+    sOverrideCameraXSens.override = false;
+    sOverrideCameraYSens.override = false;
+    sOverrideCameraAggr.override = false;
+    sOverrideCameraPan.override = false;
+    sOverrideCameraDegrade.override = false;
+    sOverrideCameraInvertX.override = false;
+    sOverrideCameraInvertY.override = false;
+    sOverrideEnableCamera.override = false;
+    sOverrideCameraAnalog.override = false;
+    sOverrideCameraMouse.override = false;
+}
+
 void camera_freeze(void) {
     gOverrideFreezeCamera = TRUE;
 }
@@ -179,9 +257,17 @@ bool camera_is_frozen(void) {
     return gOverrideFreezeCamera;
 }
 
+void camera_set_romhack_override(enum RomhackCameraOverride rco) {
+    gOverrideRomhackCamera = rco;
+}
+
+void camera_romhack_allow_centering(u8 allow) {
+    gRomhackCameraAllowCentering = allow;
+}
+
 bool camera_config_is_free_cam_enabled(void) {
 #ifdef BETTERCAMERA
-    return configEnableCamera;
+    return sOverrideEnableCamera.override ? sOverrideEnableCamera.value : configEnableCamera;
 #else
     return false;
 #endif
@@ -189,7 +275,7 @@ bool camera_config_is_free_cam_enabled(void) {
 
 bool camera_config_is_analog_cam_enabled(void) {
 #ifdef BETTERCAMERA
-    return configCameraAnalog;
+    return sOverrideCameraAnalog.override ? sOverrideCameraAnalog.value : configCameraAnalog;
 #else
     return false;
 #endif
@@ -197,7 +283,7 @@ bool camera_config_is_analog_cam_enabled(void) {
 
 bool camera_config_is_mouse_look_enabled(void) {
 #ifdef BETTERCAMERA
-    return configCameraMouse;
+    return sOverrideCameraMouse.override ? sOverrideCameraMouse.value : configCameraMouse;
 #else
     return false;
 #endif
@@ -205,7 +291,7 @@ bool camera_config_is_mouse_look_enabled(void) {
 
 bool camera_config_is_x_inverted(void) {
 #ifdef BETTERCAMERA
-    return configCameraInvertX;
+    return sOverrideCameraInvertX.override ? sOverrideCameraInvertX.value : configCameraInvertX;
 #else
     return false;
 #endif
@@ -213,7 +299,7 @@ bool camera_config_is_x_inverted(void) {
 
 bool camera_config_is_y_inverted(void) {
 #ifdef BETTERCAMERA
-    return configCameraInvertY;
+    return sOverrideCameraInvertY.override ? sOverrideCameraInvertY.value : configCameraInvertY;
 #else
     return false;
 #endif
@@ -221,7 +307,7 @@ bool camera_config_is_y_inverted(void) {
 
 u32 camera_config_get_x_sensitivity(void) {
 #ifdef BETTERCAMERA
-    return configCameraXSens;
+    return sOverrideCameraXSens.override ? sOverrideCameraXSens.value : configCameraXSens;
 #else
     return 0;
 #endif
@@ -229,7 +315,7 @@ u32 camera_config_get_x_sensitivity(void) {
 
 u32 camera_config_get_y_sensitivity(void) {
 #ifdef BETTERCAMERA
-    return configCameraYSens;
+    return sOverrideCameraYSens.override ? sOverrideCameraYSens.value : configCameraYSens;
 #else
     return 0;
 #endif
@@ -237,7 +323,7 @@ u32 camera_config_get_y_sensitivity(void) {
 
 u32 camera_config_get_aggression(void) {
 #ifdef BETTERCAMERA
-    return configCameraAggr;
+    return sOverrideCameraAggr.override ? sOverrideCameraAggr.value : configCameraAggr;
 #else
     return 0;
 #endif
@@ -245,7 +331,7 @@ u32 camera_config_get_aggression(void) {
 
 u32 camera_config_get_pan_level(void) {
 #ifdef BETTERCAMERA
-    return configCameraPan;
+    return sOverrideCameraPan.override ? sOverrideCameraPan.value : configCameraPan;
 #else
     return 0;
 #endif
@@ -253,7 +339,7 @@ u32 camera_config_get_pan_level(void) {
 
 u32 camera_config_get_deceleration(void) {
 #ifdef BETTERCAMERA
-    return configCameraDegrade;
+    return sOverrideCameraDegrade.override ? sOverrideCameraDegrade.value : configCameraDegrade;
 #else
     return 0;
 #endif
@@ -261,70 +347,80 @@ u32 camera_config_get_deceleration(void) {
 
 void camera_config_enable_free_cam(bool enable) {
 #ifdef BETTERCAMERA
-    configEnableCamera = enable;
+    sOverrideEnableCamera.value = enable;
+    sOverrideEnableCamera.override = true;
     newcam_init_settings();
 #endif
 }
 
 void camera_config_enable_analog_cam(bool enable) {
 #ifdef BETTERCAMERA
-    configCameraAnalog = enable;
+    sOverrideCameraAnalog.value = enable;
+    sOverrideCameraAnalog.override = true;
     newcam_init_settings();
 #endif
 }
 
 void camera_config_enable_mouse_look(bool enable) {
 #ifdef BETTERCAMERA
-    configCameraMouse = enable;
+    sOverrideCameraMouse.value = enable;
+    sOverrideCameraMouse.override = true;
     newcam_init_settings();
 #endif
 }
 
 void camera_config_invert_x(bool invert) {
 #ifdef BETTERCAMERA
-    configCameraInvertX = invert;
+    sOverrideCameraInvertX.value = invert;
+    sOverrideCameraInvertX.override = true;
     newcam_init_settings();
 #endif
 }
 
 void camera_config_invert_y(bool invert) {
 #ifdef BETTERCAMERA
-    configCameraInvertY = invert;
+    sOverrideCameraInvertY.value = invert;
+    sOverrideCameraInvertY.override = true;
     newcam_init_settings();
 #endif
 }
 
 void camera_config_set_x_sensitivity(u32 value) {
 #ifdef BETTERCAMERA
-    configCameraXSens = MIN(MAX(value, 1), 100);
+    sOverrideCameraXSens.value = MIN(MAX(value, 1), 100);
+    sOverrideCameraXSens.override = true;
     newcam_init_settings();
 #endif
 }
 
 void camera_config_set_y_sensitivity(u32 value) {
 #ifdef BETTERCAMERA
-    configCameraYSens = MIN(MAX(value, 1), 100);
+    sOverrideCameraYSens.value = MIN(MAX(value, 1), 100);
+    sOverrideCameraYSens.override = true;
     newcam_init_settings();
 #endif
 }
 
 void camera_config_set_aggression(u32 value) {
 #ifdef BETTERCAMERA
-    configCameraAggr = MIN(MAX(value, 0), 100);
+    sOverrideCameraAggr.value = MIN(MAX(value, 0), 100);
+    sOverrideCameraAggr.override = true;
     newcam_init_settings();
 #endif
 }
 
 void camera_config_set_pan_level(u32 value) {
 #ifdef BETTERCAMERA
-    configCameraPan = MIN(MAX(value, 0), 100);
+    sOverrideCameraPan.value = MIN(MAX(value, 0), 100);
+    sOverrideCameraPan.override = true;
     newcam_init_settings();
 #endif
 }
 
 void camera_config_set_deceleration(u32 value) {
 #ifdef BETTERCAMERA
-    configCameraDegrade = MIN(MAX(value, 0), 100);
+    sOverrideCameraDegrade.value = MIN(MAX(value, 0), 100);
+    sOverrideCameraDegrade.override = true;
     newcam_init_settings();
 #endif
 }
@@ -352,16 +448,19 @@ u32 allocate_mario_action(u32 actFlags) {
 ///
 
 f32 get_hand_foot_pos_x(struct MarioState* m, u8 index) {
+    if (!m) { return 0; }
     if (index >= 4) { index = 0; }
     return m->marioBodyState->handFootPos[index][0];
 }
 
 f32 get_hand_foot_pos_y(struct MarioState* m, u8 index) {
+    if (!m) { return 0; }
     if (index >= 4) { index = 0; }
     return m->marioBodyState->handFootPos[index][1];
 }
 
 f32 get_hand_foot_pos_z(struct MarioState* m, u8 index) {
+    if (!m) { return 0; }
     if (index >= 4) { index = 0; }
     return m->marioBodyState->handFootPos[index][2];
 }
@@ -373,9 +472,13 @@ s16 get_current_save_file_num(void) {
     return gCurrSaveFileNum;
 }
 
+extern u8 gSaveFileUsingBackupSlot;
+bool save_file_get_using_backup_slot(void) {
+    return gSaveFileUsingBackupSlot;
+}
+
 void save_file_set_using_backup_slot(bool usingBackupSlot) {
-    extern u8 gSaveFileUsingBackupSlot;
-    gSaveFileUsingBackupSlot = usingBackupSlot ? 1 : 0;
+    gSaveFileUsingBackupSlot = usingBackupSlot ? TRUE : FALSE;
 }
 
 ///
@@ -387,15 +490,17 @@ void movtexqc_register(const char* name, s16 level, s16 area, s16 type) {
 ///
 
 f32 get_environment_region(u8 index) {
-    if (gEnvironmentRegions != NULL && index > 0 && index <= gEnvironmentRegions[0]) {
-        return gEnvironmentRegions[6 * (int)index];
+    s32 idx = 6 * index;
+    if (gEnvironmentRegions != NULL && index > 0 && index <= gEnvironmentRegions[0] && gEnvironmentRegionsLength > idx) {
+        return gEnvironmentRegions[idx];
     }
     return gLevelValues.floorLowerLimit;
 }
 
 void set_environment_region(u8 index, s32 value) {
-    if (gEnvironmentRegions != NULL && index > 0 && index <= gEnvironmentRegions[0]) {
-        gEnvironmentRegions[6 * (int)index] = value;
+    s32 idx = 6 * index;
+    if (gEnvironmentRegions != NULL && index > 0 && index <= gEnvironmentRegions[0] && gEnvironmentRegionsLength > idx) {
+        gEnvironmentRegions[idx] = value;
     }
 }
 
@@ -432,8 +537,17 @@ f32 get_lighting_dir(u8 index) {
 
 void set_lighting_dir(u8 index, f32 value) {
     if (index > 2) { return; }
-
     gLightingDir[index] = value;
+}
+
+u8 get_lighting_color(u8 index) {
+    if (index > 2) { return 0; }
+    return gLightingColor[index];
+}
+
+void set_lighting_color(u8 index, u8 value) {
+    if (index > 2) { return; }
+    gLightingColor[index] = value;
 }
 
 ///
@@ -477,6 +591,8 @@ u16 get_envfx(void) {
 void set_override_envfx(s32 envfx) {
     gOverrideEnvFx = envfx;
 }
+
+///
 
 char* get_os_name(void) {
 #if defined(_WIN32) || defined(_WIN64)

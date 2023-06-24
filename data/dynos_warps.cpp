@@ -99,7 +99,7 @@ bool DynOS_Warp_ExitLevel(s32 aDelay) {
     play_shell_music();
     stop_shell_music();
     stop_cap_music();
-    func_80321080(0);
+    stop_secondary_music(0);
     fadeout_music(0);
     fadeout_level_music(0);
 
@@ -131,7 +131,7 @@ bool DynOS_Warp_ToCastle(s32 aLevel) {
     play_shell_music();
     stop_shell_music();
     stop_cap_music();
-    func_80321080(0);
+    stop_secondary_music(0);
     fadeout_music(0);
     fadeout_level_music(0);
 
@@ -185,7 +185,7 @@ void DynOS_Warp_SetParam(s32 aLevel, s32 aIndex) {
         break;
 
     case LEVEL_WDW:
-        if (gEnvironmentRegions) {
+        if (gEnvironmentRegions && gEnvironmentRegionsLength > 6) {
         switch (aIndex) {
             case 1: gEnvironmentRegions[6] = *gEnvironmentLevels =   31; gWdwWaterLevelSet = 1; break;
             case 2: gEnvironmentRegions[6] = *gEnvironmentLevels = 1024; gWdwWaterLevelSet = 1; break;
@@ -238,7 +238,7 @@ static void *DynOS_Warp_UpdateWarp(void *aCmd, bool aIsLevelInitDone) {
         play_shell_music();
         stop_shell_music();
         stop_cap_music();
-        func_80321080(0);
+        stop_secondary_music(0);
         fadeout_music(0);
         fadeout_level_music(0);
 
@@ -246,7 +246,6 @@ static void *DynOS_Warp_UpdateWarp(void *aCmd, bool aIsLevelInitDone) {
         clear_objects();
         clear_area_graph_nodes();
         clear_areas();
-        main_pool_pop_state();
 
         // Reset Mario's state
         gMarioState->healCounter = 0;
@@ -414,7 +413,6 @@ static void *DynOS_Warp_UpdateExit(void *aCmd, bool aIsLevelInitDone) {
         clear_objects();
         clear_area_graph_nodes();
         clear_areas();
-        main_pool_pop_state();
 
         // Reset Mario's state
         gMarioState->healCounter = 0;

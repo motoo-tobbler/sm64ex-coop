@@ -60,26 +60,29 @@ in_files = [
     "src/pc/utils/misc.h",
     "src/game/level_update.h",
     "src/game/area.h",
-    "src/engine/level_script.h"
+    "src/engine/level_script.h",
+    "src/game/ingame_menu.h"
 ]
 
 override_allowed_functions = {
-    "src/audio/external.h":                 [ " play_", "fade", "current_background", "stop_", "sound_banks" ],
+    "src/audio/external.h":                 [ " play_", "fade", "current_background", "stop_", "sound_banks", "drop_queued_background_music" ],
     "src/game/rumble_init.c":               [ "queue_rumble_", "reset_rumble_timers" ],
     "src/pc/djui/djui_popup.h" :            [ "create" ],
-    "src/game/save_file.h":                 [ "save_file_get_", "save_file_set_flags", "save_file_clear_flags", "save_file_reload", "save_file_erase_current_backup_save", "save_file_set_star_flags" ],
+    "src/game/save_file.h":                 [ "save_file_get_", "save_file_set_flags", "save_file_clear_flags", "save_file_reload", "save_file_erase_current_backup_save", "save_file_set_star_flags", "save_file_is_cannon_unlocked", "touch_coin_score_age", "save_file_set_course_coin_score", "save_file_do_save" ],
     "src/pc/lua/utils/smlua_model_utils.h": [ "smlua_model_util_get_id" ],
     "src/game/object_list_processor.h":     [ "set_object_respawn_info_bits" ],
     "src/game/mario_misc.h":                [ "bhv_toad.*", "bhv_unlock_door.*" ],
     "src/pc/utils/misc.h":                  [ "update_all_mario_stars" ],
-    "src/game/level_update.h":              [ "level_trigger_warp" ],
+    "src/game/level_update.h":              [ "level_trigger_warp", "get_painting_warp_node", "initiate_painting_warp" ],
     "src/game/area.h":                      [ "area_get_warp_node" ],
-    "src/engine/level_script.h":            [ "area_create_warp_node" ]
+    "src/engine/level_script.h":            [ "area_create_warp_node" ],
+    "src/game/ingame_menu.h":               [ "set_min_dialog_width", "set_dialog_override_pos", "reset_dialog_override_pos", "set_dialog_override_color", "reset_dialog_override_color" ]
 }
 
 override_disallowed_functions = {
     "src/audio/external.h":                [ " func_" ],
     "src/engine/math_util.h":              [ "atan2s", "atan2f", "vec3s_sub" ],
+    "src/engine/surface_load.h":           [ "alloc_surface_poools" ],
     "src/engine/surface_collision.h":      [ " debug_", "f32_find_wall_collision" ],
     "src/game/mario_actions_airborne.c":   [ "^[us]32 act_.*" ],
     "src/game/mario_actions_automatic.c":  [ "^[us]32 act_.*" ],
@@ -106,11 +109,17 @@ override_disallowed_functions = {
     "src/pc/djui/djui_hud_utils.h":         [ "djui_hud_render_texture", "djui_hud_render_texture_raw", "djui_hud_render_texture_tile", "djui_hud_render_texture_tile_raw" ],
     "src/pc/lua/utils/smlua_level_utils.h": [ "smlua_level_util_reset" ],
     "src/pc/lua/utils/smlua_anim_utils.h":  [ "smlua_anim_util_reset", "smlua_anim_util_register_animation" ],
-    "src/pc/network/lag_compensation.h":    [ "lag_compensation_clear", "lag_compensation_store" ],
+    "src/pc/network/lag_compensation.h":    [ "lag_compensation_clear", "lag_compensation_store" ]
 }
 
 override_hide_functions = {
     "smlua_deprecated.h" : [ ".*" ],
+}
+
+override_function_version_excludes = {
+    "bhv_play_music_track_when_touched_loop": "VERSION_JP",
+    "play_knockback_sound": "VERSION_JP",
+    "cur_obj_spawn_star_at_y_offset": "VERSION_JP"
 }
 
 lua_function_params = {
@@ -506,6 +515,9 @@ def reject_line(line):
         return True
 
 def normalize_type(t):
+    if 'char' not in t:
+        t = t.replace('const', '')
+
     t = t.strip()
     if ' ' in t:
         parts = t.split(' ', 1)
@@ -567,7 +579,7 @@ def build_call(function):
 
     if ftype == 'void':
         return '    %s;\n' % ccall
-    # We can't possibly know the type of a void pointer, 
+    # We can't possibly know the type of a void pointer,
     # So we just don't return anything from it
     elif ftype == 'void *':
         return '    %s;\n' % ccall
@@ -597,10 +609,19 @@ def build_function(function, do_extern):
     s = ''
     fid = function['identifier']
 
+    if fid in override_function_version_excludes:
+        s += '#ifndef ' + override_function_version_excludes[fid] + '\n'
+
     if len(function['params']) <= 0:
-        s = 'int smlua_func_%s(UNUSED lua_State* L) {\n' % function['identifier']
+        s += 'int smlua_func_%s(UNUSED lua_State* L) {\n' % function['identifier']
     else:
-        s = 'int smlua_func_%s(lua_State* L) {\n' % function['identifier']
+        s += 'int smlua_func_%s(lua_State* L) {\n' % function['identifier']
+
+    # make sure the bhv functions have a current object
+    fname = function['filename']
+    if fname == 'behavior_actions.h' or fname == 'obj_behaviors_2.h' or fname == 'obj_behaviors.h':
+        if 'bhv_' in fid:
+            s += '    if (!gCurrentObject) { return 0; }\n'
 
     s += """    if (L == NULL) { return 0; }\n
     int top = lua_gettop(L);
@@ -634,6 +655,9 @@ def build_function(function, do_extern):
 
     s += '    return 1;\n}\n'
 
+    if fid in override_function_version_excludes:
+        s += '#endif\n'
+
     function['implemented'] = 'UNIMPLEMENTED' not in s
     if 'UNIMPLEMENTED' in s:
         s = "/*\n" + s + "*/\n"
@@ -649,13 +673,20 @@ def build_functions(processed_files):
         s += gen_comment_header(processed_file['filename'])
 
         for function in processed_file['functions']:
+            function['filename'] = processed_file['filename']
             s += build_function(function, processed_file['extern'])
     return s
 
 def build_bind(function):
-    s = 'smlua_bind_function(L, "%s", smlua_func_%s);' % (function['identifier'], function['identifier'])
+    fid = function['identifier']
+    s = 'smlua_bind_function(L, "%s", smlua_func_%s);' % (fid, fid)
     if function['implemented']:
         s = '    ' + s
+        # There is no point in adding the ifndef statement if the function is commented out here anyways.
+        # So we only do it on implemented functions.
+        if fid in override_function_version_excludes:
+            s = '#ifndef ' + override_function_version_excludes[fid] + '\n' + s
+            s += '\n#endif'
     else:
         s = '    //' + s + ' <--- UNIMPLEMENTED'
     return s + "\n"
@@ -773,6 +804,53 @@ def process_files():
         processed_files.append(process_file(f))
     return processed_files
 
+
+############################################################################
+
+fuzz_from = '/home/djoslin/.local/share/sm64ex-coop/mods/test-fuzz.lua'
+fuzz_to = '/home/djoslin/.local/share/sm64ex-coop/mods/test-fuzz.lua'
+fuzz_functions = ""
+
+def output_fuzz_function(fname, function):
+    first = True
+    comment = ' -- '
+    fid = function['identifier']
+
+    line = '        function() return ' + fid + '('
+
+    for param in function['params']:
+        if first:
+            first = False
+        else:
+            line += ', '
+            comment += ', '
+        pid = param['identifier']
+        ptype = param['type']
+        ptype, plink = translate_type_to_lua(ptype)
+
+        if '(' in pid or '[' in pid or ']' in pid:
+            continue
+
+        line += translate_type_to_rnd(ptype)
+
+        comment += ptype
+
+    line += ') end,\n'
+    #if len(line) >= 80:
+    #    line = line + '\n        ' + comment + '\n'
+    #else:
+    #    line = line.ljust(80) + comment + '\n'
+
+    global fuzz_functions
+    fuzz_functions += line
+
+def output_fuzz_file():
+    global fuzz_functions
+    with open(fuzz_from) as f:
+        file_str = f.read()
+    with open(fuzz_to, 'w') as f:
+        f.write(file_str.replace('-- $[FUNCS]', fuzz_functions))
+
 ############################################################################
 
 def doc_should_document(fname, identifier):
@@ -833,6 +911,10 @@ def doc_lua_func_param(param):
 def doc_function(fname, function):
     if not function['implemented']:
         return ''
+
+    # debug print out lua nuke functions
+    if len(sys.argv) >= 2 and sys.argv[1] == 'fuzz':
+        output_fuzz_function(fname, function)
 
     if not doc_should_document(fname, function['identifier']):
         return ''
@@ -1027,6 +1109,9 @@ def main():
 
     global total_functions
     print('Total functions: ' + str(total_functions))
+
+    if len(sys.argv) >= 2 and sys.argv[1] == 'fuzz':
+        output_fuzz_file()
 
 if __name__ == '__main__':
    main()

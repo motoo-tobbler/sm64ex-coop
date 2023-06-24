@@ -319,8 +319,13 @@ Gfx *geo_wdw_set_initial_water_level(s32 callContext, UNUSED struct GraphNode *n
         } else {
             wdwWaterHeight = 1024;
         }
-        for (i = 0; i < *gEnvironmentRegions; i++) {
-            gEnvironmentRegions[i * 6 + 6] = wdwWaterHeight;
+        if (gEnvironmentRegions) {
+            for (i = 0; i < *gEnvironmentRegions; i++) {
+                s32 idx = (i + 1) * 6;
+                if (idx < gEnvironmentRegionsLength) {
+                    gEnvironmentRegions[idx] = wdwWaterHeight;
+                }
+            }
         }
         gWdwWaterLevelSet = TRUE;
     }
@@ -625,7 +630,7 @@ Gfx *geo_movtex_draw_water_regions(s32 callContext, struct GraphNode *node, UNUS
 
     if (callContext == GEO_CONTEXT_RENDER) {
         gMovtexVtxColor = MOVTEX_VTX_COLOR_DEFAULT;
-        if (gEnvironmentRegions == NULL) {
+        if (gEnvironmentRegions == NULL || gEnvironmentRegionsLength <= 0) {
             return NULL;
         }
         s16 numWaterBoxes = gEnvironmentRegions[0];
@@ -664,6 +669,7 @@ Gfx *geo_movtex_draw_water_regions(s32 callContext, struct GraphNode *node, UNUS
         movtex_change_texture_format(asGenerated->parameter, &gfx);
         gMovetexLastTextureId = -1;
         for (s32 i = 0; i < numWaterBoxes; i++) {
+            if (((i+1)*6) >= gEnvironmentRegionsLength) { break; }
             s16 waterId = gEnvironmentRegions[i * 6 + 1];
             s16 waterY = gEnvironmentRegions[i * 6 + 6];
             Gfx *subList = movtex_gen_quads_id(waterId, waterY, quadCollection);
@@ -716,6 +722,7 @@ Gfx *geo_movtex_draw_water_regions_ext(s32 callContext, struct GraphNode *node, 
         movtex_change_texture_format(asGenerated->parameter, &gfx);
         gMovetexLastTextureId = -1;
         for (s32 i = 0; i < numWaterBoxes; i++) {
+            if (((i+1)*6) >= gEnvironmentRegionsLength) { break; }
             s16 waterId = gEnvironmentRegions[i * 6 + 1];
             s16 waterY = gEnvironmentRegions[i * 6 + 6];
             Gfx *subList = movtex_gen_quads_id(waterId, waterY, quadCollection);

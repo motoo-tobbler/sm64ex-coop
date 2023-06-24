@@ -114,69 +114,6 @@ s32 DynOS_String_Width(const u8 *aStr64) {
 }
 
 //
-// Geo
-//
-
-static void _RelocateGraphNodePointers(struct GraphNode *aHead, u64 aOffset) {
-    struct GraphNode *_Node = aHead;
-    do {
-        if (_Node->prev) {
-            _Node->prev = (struct GraphNode *) ((u64) _Node->prev + aOffset);
-        }
-        if (_Node->next) {
-            _Node->next = (struct GraphNode *) ((u64) _Node->next + aOffset);
-        }
-        if (_Node->parent) {
-            _Node->parent = (struct GraphNode *) ((u64) _Node->parent + aOffset);
-        }
-        if (_Node->children) {
-            _Node->children = (struct GraphNode *) ((u64) _Node->children + aOffset);
-            _RelocateGraphNodePointers(_Node->children, aOffset);
-        }
-        _Node = _Node->next;
-    } while (_Node != aHead);
-}
-
-static Array<Pair<void *, void *>> sLoadedGraphNodes = {};
-
-void *DynOS_Geo_GetGraphNode(const void *aGeoLayout, bool aKeepInMemory) {
-    if (aKeepInMemory) {
-        s32 _LoadedGraphNodeIndex = sLoadedGraphNodes.FindIf([&aGeoLayout](const Pair<void *, void *> &aLoadedGraphNode) { return aLoadedGraphNode.first == aGeoLayout; });
-        if (_LoadedGraphNodeIndex != -1) {
-            return sLoadedGraphNodes[_LoadedGraphNodeIndex].second;
-        }
-    }
-
-    // Process the geo layout on a large pool of memory (16 MB)
-    struct AllocOnlyPool *_Pool = (struct AllocOnlyPool *) calloc(1, 0x1000000);
-    _Pool->totalSpace = 0x1000000    - sizeof(struct AllocOnlyPool);
-    _Pool->usedSpace  = 0;
-    _Pool->startPtr   = (u8 *) _Pool + sizeof(struct AllocOnlyPool);
-    _Pool->freePtr    = (u8 *) _Pool + sizeof(struct AllocOnlyPool);
-    void *_Processed  = process_geo_layout(_Pool, (void *) aGeoLayout);
-
-    // Copy the graph node data to the minimum amount of memory needed
-    if (_Processed && _Pool->usedSpace != 0) {
-        struct GraphNode *_Node = (struct GraphNode *) calloc(1, _Pool->usedSpace);
-        memcpy(_Node, _Pool->startPtr, _Pool->usedSpace);
-
-        // Relocate all graph pointers
-        u64 _Offset = (u64) _Node - (u64) _Pool->startPtr;
-        _RelocateGraphNodePointers(_Node, _Offset);
-
-        // Add it to loaded graph nodes
-        if (aKeepInMemory) {
-            sLoadedGraphNodes.Add({ (void *) aGeoLayout, (void *) _Node });
-        }
-
-        free(_Pool);
-        return _Node;
-    }
-    free(_Pool);
-    return NULL;
-}
-
-//
 // Scroll Targets
 //
 

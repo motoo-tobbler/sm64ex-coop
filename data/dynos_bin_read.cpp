@@ -129,6 +129,8 @@ void DynOS_Read_Source(GfxData *aGfxData, const SysPath &aFilename) {
     fclose(_File);
 
     // Scanning the loaded data
+    u32 _LineNumber = 1;
+    u32 pDataLineNumber = 1;
     s32 _DataType = DATA_TYPE_NONE;
     String* pDataName = NULL;
     Array<String> *pDataTokens = NULL;
@@ -179,6 +181,8 @@ void DynOS_Read_Source(GfxData *aGfxData, const SysPath &aFilename) {
                     // Ignore struct keyword
                 } else if (_Buffer == "u64") {
                     _DataType = DATA_TYPE_UNUSED;
+                } else if (_Buffer == "Lights0") {
+                    _DataType = DATA_TYPE_LIGHT_0;
                 } else if (_Buffer == "Lights1") {
                     _DataType = DATA_TYPE_LIGHT;
                 } else if (_Buffer == "Light_t") {
@@ -217,7 +221,7 @@ void DynOS_Read_Source(GfxData *aGfxData, const SysPath &aFilename) {
                 } else if (_Buffer == "BehaviorScript") {
                     _DataType = DATA_TYPE_BEHAVIOR_SCRIPT;
                 } else {
-                    PrintError("  ERROR: Unknown type name: %s", _Buffer.begin());
+                    PrintDataError("  ERROR: Unknown type name: %s", _Buffer.begin());
                 }
                 _Buffer.Clear();
             }
@@ -240,6 +244,7 @@ void DynOS_Read_Source(GfxData *aGfxData, const SysPath &aFilename) {
             else if (_Buffer.Length() != 0) {
                 switch (_DataType) {
                     case DATA_TYPE_LIGHT:           AppendNewNode(aGfxData, aGfxData->mLights,       _Buffer, pDataName, pDataTokens);    break;
+                    case DATA_TYPE_LIGHT_0:         AppendNewNode(aGfxData, aGfxData->mLight0s,      _Buffer, pDataName, pDataTokens);    break;
                     case DATA_TYPE_LIGHT_T:         AppendNewNode(aGfxData, aGfxData->mLightTs,      _Buffer, pDataName, pDataTokens);    break;
                     case DATA_TYPE_AMBIENT_T:       AppendNewNode(aGfxData, aGfxData->mAmbientTs,    _Buffer, pDataName, pDataTokens);    break;
                     case DATA_TYPE_TEXTURE:         AppendNewNode(aGfxData, aGfxData->mTextures,     _Buffer, pDataName, pDataTokens);    break;
@@ -263,10 +268,11 @@ void DynOS_Read_Source(GfxData *aGfxData, const SysPath &aFilename) {
 
         // Looking for data
         else if (pDataStart == 0) {
+            pDataLineNumber = _LineNumber;
             if (*c == '=') {
                 pDataStart = c + 1;
             } else if (*c == ';') {
-                PrintError("  ERROR: %s: Unexpected end of data", pDataName->begin());
+                PrintDataError("  ERROR: %s: Unexpected end of data", pDataName->begin());
             }
         }
 
@@ -277,10 +283,12 @@ void DynOS_Read_Source(GfxData *aGfxData, const SysPath &aFilename) {
                 String _Token = "";
                 for (u8 _Bracket = 0; pDataStart <= pDataEnd; pDataStart++) {
                     if (*pDataStart == '(') _Bracket++;
+                    if (*pDataStart == '\n') pDataLineNumber++;
                     if (*pDataStart == ' ' || *pDataStart == '\t' || *pDataStart == '\r' || *pDataStart == '\n') continue;
                     if (_Bracket <= 1 && (*pDataStart == '(' || *pDataStart == ')' || *pDataStart == ',' || *pDataStart == '{' || *pDataStart == '}' || *pDataStart == ';')) {
                         if (_Token.Length() != 0) {
                             pDataTokens->Add(_Token);
+                            // TODO: store pDataLineNumber in the node or something
                             _Token.Clear();
                         }
                     } else {
@@ -295,6 +303,11 @@ void DynOS_Read_Source(GfxData *aGfxData, const SysPath &aFilename) {
             pDataStart  = NULL;
             _DataIgnore = false;
             _Buffer     = "";
+        }
+
+        // increase line number
+        if (c && *c == '\n') {
+            _LineNumber++;
         }
     }
 

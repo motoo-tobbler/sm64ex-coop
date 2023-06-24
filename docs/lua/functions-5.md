@@ -470,6 +470,64 @@
 
 <br />
 
+## [camera_reset_overrides](#camera_reset_overrides)
+
+### Lua Example
+`camera_reset_overrides()`
+
+### Parameters
+- None
+
+### Returns
+- None
+
+### C Prototype
+`void camera_reset_overrides(void);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [camera_romhack_allow_centering](#camera_romhack_allow_centering)
+
+### Lua Example
+`camera_romhack_allow_centering(allow)`
+
+### Parameters
+| Field | Type |
+| ----- | ---- |
+| allow | `integer` |
+
+### Returns
+- None
+
+### C Prototype
+`void camera_romhack_allow_centering(u8 allow);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [camera_set_romhack_override](#camera_set_romhack_override)
+
+### Lua Example
+`camera_set_romhack_override(rco)`
+
+### Parameters
+| Field | Type |
+| ----- | ---- |
+| rco | [enum RomhackCameraOverride](constants.md#enum-RomhackCameraOverride) |
+
+### Returns
+- None
+
+### C Prototype
+`void camera_set_romhack_override(enum RomhackCameraOverride rco);`
+
+[:arrow_up_small:](#)
+
+<br />
+
 ## [camera_unfreeze](#camera_unfreeze)
 
 ### Lua Example
@@ -523,6 +581,27 @@
 
 ### C Prototype
 `s32 deref_s32_pointer(s32* pointer);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [djui_popup_create_global](#djui_popup_create_global)
+
+### Lua Example
+`djui_popup_create_global(message, lines)`
+
+### Parameters
+| Field | Type |
+| ----- | ---- |
+| message | `string` |
+| lines | `integer` |
+
+### Returns
+- None
+
+### C Prototype
+`void djui_popup_create_global(const char* message, int lines);`
 
 [:arrow_up_small:](#)
 
@@ -620,6 +699,24 @@
 
 <br />
 
+## [get_got_file_coin_hi_score](#get_got_file_coin_hi_score)
+
+### Lua Example
+`local booleanValue = get_got_file_coin_hi_score()`
+
+### Parameters
+- None
+
+### Returns
+- `boolean`
+
+### C Prototype
+`bool get_got_file_coin_hi_score(void);`
+
+[:arrow_up_small:](#)
+
+<br />
+
 ## [get_hand_foot_pos_x](#get_hand_foot_pos_x)
 
 ### Lua Example
@@ -683,6 +780,42 @@
 
 <br />
 
+## [get_last_completed_course_num](#get_last_completed_course_num)
+
+### Lua Example
+`local integerValue = get_last_completed_course_num()`
+
+### Parameters
+- None
+
+### Returns
+- `integer`
+
+### C Prototype
+`u8 get_last_completed_course_num(void);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [get_last_completed_star_num](#get_last_completed_star_num)
+
+### Lua Example
+`local integerValue = get_last_completed_star_num()`
+
+### Parameters
+- None
+
+### Returns
+- `integer`
+
+### C Prototype
+`u8 get_last_completed_star_num(void);`
+
+[:arrow_up_small:](#)
+
+<br />
+
 ## [get_last_star_or_key](#get_last_star_or_key)
 
 ### Lua Example
@@ -696,6 +829,26 @@
 
 ### C Prototype
 `s32 get_last_star_or_key(void);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [get_lighting_color](#get_lighting_color)
+
+### Lua Example
+`local integerValue = get_lighting_color(index)`
+
+### Parameters
+| Field | Type |
+| ----- | ---- |
+| index | `integer` |
+
+### Returns
+- `integer`
+
+### C Prototype
+`u8 get_lighting_color(u8 index);`
 
 [:arrow_up_small:](#)
 
@@ -752,6 +905,24 @@
 
 ### C Prototype
 `char* get_os_name(void);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [get_save_file_modified](#get_save_file_modified)
+
+### Lua Example
+`local booleanValue = get_save_file_modified()`
+
+### Parameters
+- None
+
+### Returns
+- `boolean`
+
+### C Prototype
+`bool get_save_file_modified(void);`
 
 [:arrow_up_small:](#)
 
@@ -1061,6 +1232,24 @@
 
 <br />
 
+## [save_file_get_using_backup_slot](#save_file_get_using_backup_slot)
+
+### Lua Example
+`local booleanValue = save_file_get_using_backup_slot()`
+
+### Parameters
+- None
+
+### Returns
+- `boolean`
+
+### C Prototype
+`bool save_file_get_using_backup_slot(void);`
+
+[:arrow_up_small:](#)
+
+<br />
+
 ## [save_file_set_using_backup_slot](#save_file_set_using_backup_slot)
 
 ### Lua Example
@@ -1102,6 +1291,66 @@
 
 <br />
 
+## [set_got_file_coin_hi_score](#set_got_file_coin_hi_score)
+
+### Lua Example
+`set_got_file_coin_hi_score(value)`
+
+### Parameters
+| Field | Type |
+| ----- | ---- |
+| value | `boolean` |
+
+### Returns
+- None
+
+### C Prototype
+`void set_got_file_coin_hi_score(bool value);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [set_last_completed_course_num](#set_last_completed_course_num)
+
+### Lua Example
+`set_last_completed_course_num(courseNum)`
+
+### Parameters
+| Field | Type |
+| ----- | ---- |
+| courseNum | `integer` |
+
+### Returns
+- None
+
+### C Prototype
+`void set_last_completed_course_num(u8 courseNum);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [set_last_completed_star_num](#set_last_completed_star_num)
+
+### Lua Example
+`set_last_completed_star_num(starNum)`
+
+### Parameters
+| Field | Type |
+| ----- | ---- |
+| starNum | `integer` |
+
+### Returns
+- None
+
+### C Prototype
+`void set_last_completed_star_num(u8 starNum);`
+
+[:arrow_up_small:](#)
+
+<br />
+
 ## [set_last_star_or_key](#set_last_star_or_key)
 
 ### Lua Example
@@ -1117,6 +1366,27 @@
 
 ### C Prototype
 `void set_last_star_or_key(u8 value);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [set_lighting_color](#set_lighting_color)
+
+### Lua Example
+`set_lighting_color(index, value)`
+
+### Parameters
+| Field | Type |
+| ----- | ---- |
+| index | `integer` |
+| value | `integer` |
+
+### Returns
+- None
+
+### C Prototype
+`void set_lighting_color(u8 index, u8 value);`
 
 [:arrow_up_small:](#)
 
@@ -1238,6 +1508,26 @@
 
 ### C Prototype
 `void set_override_skybox(s8 background);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [set_save_file_modified](#set_save_file_modified)
+
+### Lua Example
+`set_save_file_modified(value)`
+
+### Parameters
+| Field | Type |
+| ----- | ---- |
+| value | `boolean` |
+
+### Returns
+- None
+
+### C Prototype
+`void set_save_file_modified(bool value);`
 
 [:arrow_up_small:](#)
 
@@ -2569,18 +2859,19 @@
 ## [exec_anim_sound_state](#exec_anim_sound_state)
 
 ### Lua Example
-`exec_anim_sound_state(soundStates)`
+`exec_anim_sound_state(soundStates, maxSoundStates)`
 
 ### Parameters
 | Field | Type |
 | ----- | ---- |
 | soundStates | [SoundState](structs.md#SoundState) |
+| maxSoundStates | `integer` |
 
 ### Returns
 - None
 
 ### C Prototype
-`void exec_anim_sound_state(struct SoundState *soundStates);`
+`void exec_anim_sound_state(struct SoundState *soundStates, u16 maxSoundStates);`
 
 [:arrow_up_small:](#)
 

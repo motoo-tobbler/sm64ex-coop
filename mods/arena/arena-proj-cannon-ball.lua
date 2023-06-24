@@ -57,6 +57,9 @@ function bhv_arena_cannon_ball_loop(obj)
         e.lastDamagedByGlobal = obj.oArenaCannonBallGlobalOwner
     end
 
+    -- I'd like there to be a smoke trail... but sm64 doesn't use a zbuffer for transparent objects :(
+    --spawn_mist_advanced(obj, 1 + obj.oArenaCannonBallSize * 5, 2, 1, 0)
+
     info = collision_find_surface_on_ray(
             a.x, a.y, a.z,
             dir.x, dir.y, dir.z)

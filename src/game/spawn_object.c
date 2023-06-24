@@ -109,11 +109,14 @@ struct Object *try_allocate_object(struct ObjectNode *destList, struct ObjectNod
     geo_remove_child(&nextObj->gfx.node);
     geo_add_child(&gObjParentGraphNode, &nextObj->gfx.node);
 
-    ((struct Object *)nextObj)->ctx = 0
+    struct Object* ret = (struct Object *) nextObj;
+    ret->ctx = 0
         | ((u8)CTX_WITHIN(CTX_LEVEL_SCRIPT) << 0)
         | ((u8)CTX_WITHIN(CTX_HOOK)         << 1);
 
-    return (struct Object *) nextObj;
+    ret->header.gfx.sharedChild = NULL;
+
+    return ret;
 }
 
 /**
@@ -138,8 +141,8 @@ void unused_deallocate(struct LinkedList *freeList, struct LinkedList *node) {
 static void deallocate_object(struct ObjectNode *freeList, struct ObjectNode *obj) {
     if (!obj || !freeList) { return; }
     // Remove from object list
-    obj->next->prev = obj->prev;
-    obj->prev->next = obj->next;
+    if (obj->next) { obj->next->prev = obj->prev; }
+    if (obj->prev) { obj->prev->next = obj->next; }
 
     // Insert at beginning of free list
     obj->next = freeList->next;
@@ -318,6 +321,9 @@ struct Object *allocate_object(struct ObjectNode *objList) {
     obj->header.gfx.pos[1] = -10000.0f;
     obj->header.gfx.pos[2] = -10000.0f;
     obj->header.gfx.throwMatrix = NULL;
+    obj->header.gfx.angle[0] = 0;
+    obj->header.gfx.angle[1] = 0;
+    obj->header.gfx.angle[2] = 0;
 
     obj->coopFlags = 0;
     obj->hookRender = 0;

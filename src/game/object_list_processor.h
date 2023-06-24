@@ -96,12 +96,11 @@ extern s32 gSurfacesAllocated;
 extern s32 gNumStaticSurfaceNodes;
 extern s32 gNumStaticSurfaces;
 
-extern struct MemoryPool *gObjectMemoryPool;
-
 extern struct Object* gCheckingSurfaceCollisionsForObject;
 extern s16 gCheckingSurfaceCollisionsForCamera;
 extern s16 gFindFloorIncludeSurfaceIntangible;
 extern s16 *gEnvironmentRegions;
+extern s32 gEnvironmentRegionsLength;
 extern s32 gEnvironmentLevels[20];
 extern s8 gDoorAdjacentRooms[60][2];
 extern s16 gMarioCurrentRoom;

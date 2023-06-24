@@ -4650,6 +4650,26 @@
 
 <br />
 
+## [get_trajectory_length](#get_trajectory_length)
+
+### Lua Example
+`local integerValue = get_trajectory_length(trajectory)`
+
+### Parameters
+| Field | Type |
+| ----- | ---- |
+| trajectory | `Pointer` <`Trajectory`> |
+
+### Returns
+- `integer`
+
+### C Prototype
+`s32 get_trajectory_length(Trajectory* trajectory);`
+
+[:arrow_up_small:](#)
+
+<br />
+
 ## [increment_velocity_toward_range](#increment_velocity_toward_range)
 
 ### Lua Example
@@ -5316,6 +5336,28 @@
 
 ### C Prototype
 `void obj_init_animation_with_accel_and_sound(struct Object *obj, s32 animIndex, f32 accel);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [obj_init_animation_with_sound](#obj_init_animation_with_sound)
+
+### Lua Example
+`obj_init_animation_with_sound(obj, animations, animIndex)`
+
+### Parameters
+| Field | Type |
+| ----- | ---- |
+| obj | [Object](structs.md#Object) |
+| animations | [AnimationTable](structs.md#AnimationTable) |
+| animIndex | `integer` |
+
+### Returns
+- None
+
+### C Prototype
+`void obj_init_animation_with_sound(struct Object *obj, const struct AnimationTable* animations, s32 animIndex);`
 
 [:arrow_up_small:](#)
 
@@ -6484,6 +6526,27 @@
 
 <br />
 
+## [save_file_do_save](#save_file_do_save)
+
+### Lua Example
+`save_file_do_save(fileIndex, forceSave)`
+
+### Parameters
+| Field | Type |
+| ----- | ---- |
+| fileIndex | `integer` |
+| forceSave | `integer` |
+
+### Returns
+- None
+
+### C Prototype
+`void save_file_do_save(s32 fileIndex, s8 forceSave);`
+
+[:arrow_up_small:](#)
+
+<br />
+
 ## [save_file_erase_current_backup_save](#save_file_erase_current_backup_save)
 
 ### Lua Example
@@ -6663,6 +6726,27 @@
 
 <br />
 
+## [save_file_is_cannon_unlocked](#save_file_is_cannon_unlocked)
+
+### Lua Example
+`local integerValue = save_file_is_cannon_unlocked(fileIndex, courseIndex)`
+
+### Parameters
+| Field | Type |
+| ----- | ---- |
+| fileIndex | `integer` |
+| courseIndex | `integer` |
+
+### Returns
+- `integer`
+
+### C Prototype
+`s32 save_file_is_cannon_unlocked(s32 fileIndex, s32 courseIndex);`
+
+[:arrow_up_small:](#)
+
+<br />
+
 ## [save_file_reload](#save_file_reload)
 
 ### Lua Example
@@ -6678,6 +6762,28 @@
 
 ### C Prototype
 `void save_file_reload(u8 load_all);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [save_file_set_course_coin_score](#save_file_set_course_coin_score)
+
+### Lua Example
+`save_file_set_course_coin_score(fileIndex, courseIndex, coinScore)`
+
+### Parameters
+| Field | Type |
+| ----- | ---- |
+| fileIndex | `integer` |
+| courseIndex | `integer` |
+| coinScore | `integer` |
+
+### Returns
+- None
+
+### C Prototype
+`void save_file_set_course_coin_score(s32 fileIndex, s32 courseIndex, u8 coinScore);`
 
 [:arrow_up_small:](#)
 
@@ -6720,6 +6826,27 @@
 
 ### C Prototype
 `void save_file_set_star_flags(s32 fileIndex, s32 courseIndex, u32 starFlags);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [touch_coin_score_age](#touch_coin_score_age)
+
+### Lua Example
+`touch_coin_score_age(fileIndex, courseIndex)`
+
+### Parameters
+| Field | Type |
+| ----- | ---- |
+| fileIndex | `integer` |
+| courseIndex | `integer` |
+
+### Returns
+- None
+
+### C Prototype
+`void touch_coin_score_age(s32 fileIndex, s32 courseIndex);`
 
 [:arrow_up_small:](#)
 
@@ -7277,6 +7404,24 @@
 
 ### C Prototype
 `struct RayIntersectionInfo* collision_find_surface_on_ray(f32 startX, f32 startY, f32 startZ, f32 dirX, f32 dirY, f32 dirZ);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [collision_get_temp_wall_collision_data](#collision_get_temp_wall_collision_data)
+
+### Lua Example
+`local WallCollisionDataValue = collision_get_temp_wall_collision_data()`
+
+### Parameters
+- None
+
+### Returns
+[WallCollisionData](structs.md#WallCollisionData)
+
+### C Prototype
+`struct WallCollisionData* collision_get_temp_wall_collision_data(void);`
 
 [:arrow_up_small:](#)
 

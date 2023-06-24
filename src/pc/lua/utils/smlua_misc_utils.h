@@ -2,6 +2,7 @@
 #define SMLUA_MISC_UTILS_H
 
 #include "dialog_ids.h"
+#include "game/camera.h"
 
 u32 get_network_area_timer(void);
 
@@ -32,6 +33,7 @@ enum HudDisplayFlags {
     HUD_DISPLAY_FLAGS_EMPHASIZE_POWER = 0x8000,
 };
 
+void djui_popup_create_global(const char* message, int lines);
 void hud_hide(void);
 void hud_show(void);
 bool hud_is_hidden(void);
@@ -40,9 +42,12 @@ void hud_set_value(enum HudDisplayValue type, s32 value);
 void hud_render_power_meter(s32 health, f32 x, f32 y, f32 width, f32 height);
 void hud_render_power_meter_interpolated(s32 health, f32 prevX, f32 prevY, f32 prevWidth, f32 prevHeight, f32 x, f32 y, f32 width, f32 height);
 
+void camera_reset_overrides(void);
 void camera_freeze(void);
 void camera_unfreeze(void);
 bool camera_is_frozen(void);
+void camera_set_romhack_override(enum RomhackCameraOverride rco);
+void camera_romhack_allow_centering(u8 allow);
 
 bool camera_config_is_free_cam_enabled(void);
 bool camera_config_is_analog_cam_enabled(void);
@@ -73,6 +78,14 @@ s8 get_dialog_box_state();
 s16 get_dialog_id(void);
 s32 get_last_star_or_key(void);
 void set_last_star_or_key(u8 value);
+u8 get_last_completed_course_num(void);
+void set_last_completed_course_num(u8 courseNum);
+u8 get_last_completed_star_num(void);
+void set_last_completed_star_num(u8 starNum);
+bool get_got_file_coin_hi_score(void);
+void set_got_file_coin_hi_score(bool value);
+bool get_save_file_modified(void);
+void set_save_file_modified(bool value);
 
 u32 allocate_mario_action(u32 actFlags);
 
@@ -81,6 +94,7 @@ f32 get_hand_foot_pos_y(struct MarioState* m, u8 index);
 f32 get_hand_foot_pos_z(struct MarioState* m, u8 index);
 
 s16 get_current_save_file_num(void);
+bool save_file_get_using_backup_slot(void);
 void save_file_set_using_backup_slot(bool usingBackupSlot);
 
 void movtexqc_register(const char* name, s16 level, s16 area, s16 type);
@@ -95,6 +109,9 @@ void add_scroll_target(u32 index, const char* name, u32 offset, u32 size);
 
 f32 get_lighting_dir(u8 index);
 void set_lighting_dir(u8 index, f32 value);
+
+u8 get_lighting_color(u8 index);
+void set_lighting_color(u8 index, u8 value);
 
 s8 get_skybox();
 void set_override_skybox(s8 background);

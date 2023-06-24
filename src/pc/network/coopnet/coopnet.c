@@ -15,12 +15,6 @@
 
 #ifdef COOPNET
 
-#ifdef DEVELOPMENT
-#define CN_GAME_STR "sm64ex-dev"
-#else
-#define CN_GAME_STR "sm64ex-coop"
-#endif
-
 uint64_t gCoopNetDesiredLobby = 0;
 char gCoopNetPassword[64] = "";
 char sCoopNetDescription[256] = "";
@@ -36,7 +30,7 @@ bool ns_coopnet_query(QueryCallbackPtr callback, QueryFinishCallbackPtr finishCa
     gCoopNetCallbacks.OnLobbyListGot = callback;
     gCoopNetCallbacks.OnLobbyListFinish = finishCallback;
     if (coopnet_initialize() != COOPNET_OK) { return false; }
-    if (coopnet_lobby_list_get(CN_GAME_STR, password) != COOPNET_OK) { return false; }
+    if (coopnet_lobby_list_get(get_game_name(), password) != COOPNET_OK) { return false; }
     return true;
 }
 
@@ -61,6 +55,14 @@ static void coopnet_on_peer_disconnected(uint64_t peerId) {
     }
 }
 
+static void coopnet_on_load_balance(const char* host, uint32_t port) {
+    if (host && strlen(host) > 0) {
+        snprintf(configCoopNetIp, MAX_CONFIG_STRING, "%s", host);
+    }
+    configCoopNetPort = port;
+    configfile_save(configfile_name());
+}
+
 static void coopnet_on_receive(uint64_t userId, const uint8_t* data, uint64_t dataLength) {
     coopnet_set_user_id(0, userId);
     u8 localIndex = coopnet_user_id_to_local_index(userId);
@@ -75,6 +77,7 @@ static void coopnet_on_lobby_joined(uint64_t lobbyId, uint64_t userId, uint64_t 
 
     if (userId == coopnet_get_local_user_id()) {
         coopnet_clear_dest_ids();
+        snprintf(configDestId, MAX_CONFIG_STRING, "%" PRIu64 "", destId);
     }
 
     coopnet_save_dest_id(userId, destId);
@@ -136,6 +139,7 @@ static void coopnet_on_error(enum MPacketErrorNumber error, uint64_t tag) {
             break;
     }
 }
+
 static bool ns_coopnet_initialize(enum NetworkType networkType, bool reconnecting) {
     sNetworkType = networkType;
     sReconnecting = reconnecting;
@@ -203,12 +207,12 @@ void ns_coopnet_update(void) {
             if (sReconnecting) {
                 LOG_INFO("Update lobby");
                 coopnet_populate_description();
-                coopnet_lobby_update(sLocalLobbyId, CN_GAME_STR, get_version(), configPlayerName, mode, sCoopNetDescription);
+                coopnet_lobby_update(sLocalLobbyId, get_game_name(), get_version(), configPlayerName, mode, sCoopNetDescription);
             } else {
                 LOG_INFO("Create lobby");
                 snprintf(gCoopNetPassword, 64, "%s", configPassword);
                 coopnet_populate_description();
-                coopnet_lobby_create(CN_GAME_STR, get_version(), configPlayerName, mode, (uint16_t)configAmountofPlayers, gCoopNetPassword, sCoopNetDescription);
+                coopnet_lobby_create(get_game_name(), get_version(), configPlayerName, mode, (uint16_t)configAmountofPlayers, gCoopNetPassword, sCoopNetDescription);
             }
         } else if (sNetworkType == NT_CLIENT) {
             LOG_INFO("Join lobby");
@@ -268,19 +272,14 @@ static CoopNetRc coopnet_initialize(void) {
     gCoopNetCallbacks.OnLobbyLeft = coopnet_on_lobby_left;
     gCoopNetCallbacks.OnError = coopnet_on_error;
     gCoopNetCallbacks.OnPeerDisconnected = coopnet_on_peer_disconnected;
+    gCoopNetCallbacks.OnLoadBalance = coopnet_on_load_balance;
 
     if (coopnet_is_connected()) { return COOPNET_OK; }
 
-#ifdef __ANDROID__
-    // quick fix, for some reason on Android configCoopNetIp initialized the
-    // way it is causes it to turn into this, maybe a form of memory corruption:
-    // "\0\0\0.coop64.us\0\0\0\0"...
-    if (strlen(configCoopNetIp) == 0) {
-        snprintf(configCoopNetIp, MAX_CONFIG_STRING, "%s", DEFAULT_COOPNET_IP);
-    }
-#endif
+    char* endptr = NULL;
+    uint64_t destId = strtoull(configDestId, &endptr, 10);
 
-    CoopNetRc rc = coopnet_begin(configCoopNetIp, configCoopNetPort);
+    CoopNetRc rc = coopnet_begin(configCoopNetIp, configCoopNetPort, configPlayerName, destId);
     if (rc == COOPNET_FAILED) {
         djui_popup_create(DLANG(NOTIF, COOPNET_CONNECTION_FAILED), 2);
     }

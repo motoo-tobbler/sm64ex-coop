@@ -677,7 +677,7 @@ bool smlua_call_event_hooks_mario_character_sound_param_ret_int(enum LuaHookedEv
         lua_pushinteger(L, m->playerIndex);
         lua_gettable(L, -2);
         lua_remove(L, -2);
-        
+
         // push character sound
         lua_pushinteger(L, characterSound);
 
@@ -763,6 +763,81 @@ void smlua_call_event_hooks_mario_param_and_int_ret_bool(enum LuaHookedEventType
         }
         lua_settop(L, prevTop);
     }
+}
+
+bool smlua_call_event_hooks_mario_param_and_int_ret_int(enum LuaHookedEventType hookType, struct MarioState* m, s32 param, s32* returnValue) {
+    lua_State* L = gLuaState;
+    if (L == NULL) { return false; }
+    struct LuaHookedEvent* hook = &sHookedEvents[hookType];
+    for (int i = 0; i < hook->count; i++) {
+        s32 prevTop = lua_gettop(L);
+
+        // push the callback onto the stack
+        lua_rawgeti(L, LUA_REGISTRYINDEX, hook->reference[i]);
+
+        // push mario state
+        lua_getglobal(L, "gMarioStates");
+        lua_pushinteger(L, m->playerIndex);
+        lua_gettable(L, -2);
+        lua_remove(L, -2);
+
+        // push param
+        lua_pushinteger(L, param);
+
+        // call the callback
+        if (0 != smlua_call_hook(L, 2, 1, 0, hook->mod[i])) {
+            LOG_LUA("Failed to call the callback: %u", hookType);
+            continue;
+        }
+
+        // output the return value
+        if (lua_type(L, -1) == LUA_TNUMBER) {
+            *returnValue = smlua_to_integer(L, -1);
+            lua_settop(L, prevTop);
+            return true;
+        }
+        lua_settop(L, prevTop);
+    }
+    return false;
+}
+
+bool smlua_call_event_hooks_mario_param_and_int_and_int_ret_int(enum LuaHookedEventType hookType, struct MarioState* m, s32 param, u32 args, s32* returnValue) {
+    lua_State* L = gLuaState;
+    if (L == NULL) { return false; }
+    struct LuaHookedEvent* hook = &sHookedEvents[hookType];
+    for (int i = 0; i < hook->count; i++) {
+        s32 prevTop = lua_gettop(L);
+
+        // push the callback onto the stack
+        lua_rawgeti(L, LUA_REGISTRYINDEX, hook->reference[i]);
+
+        // push mario state
+        lua_getglobal(L, "gMarioStates");
+        lua_pushinteger(L, m->playerIndex);
+        lua_gettable(L, -2);
+        lua_remove(L, -2);
+
+        // push param
+        lua_pushinteger(L, param);
+
+        // push args
+        lua_pushinteger(L, args);
+
+        // call the callback
+        if (0 != smlua_call_hook(L, 3, 1, 0, hook->mod[i])) {
+            LOG_LUA("Failed to call the callback: %u", hookType);
+            continue;
+        }
+
+        // output the return value
+        if (lua_type(L, -1) == LUA_TNUMBER) {
+            *returnValue = smlua_to_integer(L, -1);
+            lua_settop(L, prevTop);
+            return true;
+        }
+        lua_settop(L, prevTop);
+    }
+    return false;
 }
 
   ////////////////////
@@ -1135,10 +1210,11 @@ int smlua_hook_behavior(lua_State* L) {
 
     struct LuaHookedBehavior* hooked = &sHookedBehaviors[sHookedBehaviorsCount];
     u16 customBehaviorId = (sHookedBehaviorsCount & 0xFFFF) | LUA_BEHAVIOR_FLAG;
-    hooked->behavior = calloc(3, sizeof(BehaviorScript));
+    hooked->behavior = calloc(4, sizeof(BehaviorScript));
     hooked->behavior[0] = (BehaviorScript)BC_BB(0x00, objectList); // This is BEGIN(objectList)
     hooked->behavior[1] = (BehaviorScript)BC_B0H(0x39, customBehaviorId); // This is ID(customBehaviorId)
-    hooked->behavior[2] = 0;
+    hooked->behavior[2] = (BehaviorScript)BC_B(0x0A); // This is BREAK()
+    hooked->behavior[3] = (BehaviorScript)BC_B(0x0A); // This is BREAK()
     hooked->behaviorId = customBehaviorId;
     hooked->overrideId = noOverrideId ? customBehaviorId : overrideBehaviorId;
     hooked->originalId = customBehaviorId; // For LUA behaviors. The only behavior id they have IS their custom one.
@@ -1274,6 +1350,37 @@ int smlua_hook_chat_command(lua_State* L) {
 
     sHookedChatCommandsCount++;
     return 1;
+}
+
+int smlua_update_chat_command_description(lua_State* L) {
+    if (L == NULL) { return 0; }
+    if (!smlua_functions_valid_param_count(L, 2)) { return 0; }
+
+    const char* command = smlua_to_string(L, 1);
+    if (command == NULL || strlen(command) == 0 || !gSmLuaConvertSuccess) {
+        LOG_LUA_LINE("Update chat command: tried to update invalid command");
+        return 0;
+    }
+
+    const char* description = smlua_to_string(L, 2);
+    if (description == NULL || strlen(description) == 0 || !gSmLuaConvertSuccess) {
+        LOG_LUA_LINE("Update chat command: tried to update invalid description");
+        return 0;
+    }
+
+    for (int i = 0; i < sHookedChatCommandsCount; i++) {
+        struct LuaHookedChatCommand* hook = &sHookedChatCommands[i];
+        if (!strcmp(hook->command, command)) {
+            if (hook->description) {
+                free(hook->description);
+            }
+            hook->description = strdup(description);
+            return 1;
+        }
+    }
+
+    LOG_LUA_LINE("Update chat command: could not find command to update");
+    return 0;
 }
 
 bool smlua_call_chat_command_hook(char* command) {
@@ -1469,4 +1576,5 @@ void smlua_bind_hooks(void) {
     smlua_bind_function(L, "hook_chat_command", smlua_hook_chat_command);
     smlua_bind_function(L, "hook_on_sync_table_change", smlua_hook_on_sync_table_change);
     smlua_bind_function(L, "hook_behavior", smlua_hook_behavior);
+    smlua_bind_function(L, "update_chat_command_description", smlua_update_chat_command_description);
 }

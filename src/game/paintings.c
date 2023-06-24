@@ -1133,7 +1133,7 @@ s16 ripple_if_movable(struct Painting *painting, s16 movable, s16 posX, s16 posY
 void painting_generate_mesh(struct Painting *painting, s16 *mesh, s16 numTris) {
     s16 i;
 
-    gPaintingMesh = mem_pool_alloc(gEffectsMemoryPool, numTris * sizeof(struct PaintingMeshVertex));
+    gPaintingMesh = dynamic_pool_alloc(gLevelPool, numTris * sizeof(struct PaintingMeshVertex));
     painting->ripples.paintingMesh = gPaintingMesh;
     if (painting->ripples.paintingMesh == NULL) {
         return;
@@ -1168,7 +1168,7 @@ void painting_generate_mesh(struct Painting *painting, s16 *mesh, s16 numTris) {
 void painting_calculate_triangle_normals(struct Painting *painting, s16 *mesh, s16 numVtx, s16 numTris) {
     s16 i;
 
-    gPaintingTriNorms = mem_pool_alloc(gEffectsMemoryPool, numTris * sizeof(Vec3f));
+    gPaintingTriNorms = dynamic_pool_alloc(gLevelPool, numTris * sizeof(Vec3f));
     painting->ripples.paintingTriNorms = gPaintingTriNorms;
     if (painting->ripples.paintingTriNorms == NULL) {
         return;
@@ -1526,8 +1526,14 @@ Gfx *display_painting_rippling(struct Painting *painting) {
     }
 
     // The mesh data is freed every frame.
-    mem_pool_free(gEffectsMemoryPool, painting->ripples.paintingMesh);
-    mem_pool_free(gEffectsMemoryPool, painting->ripples.paintingTriNorms);
+    if (painting->ripples.paintingMesh) {
+        dynamic_pool_free(gLevelPool, painting->ripples.paintingMesh);
+        painting->ripples.paintingMesh = NULL;
+    }
+    if (painting->ripples.paintingTriNorms) {
+        dynamic_pool_free(gLevelPool, painting->ripples.paintingTriNorms);
+        painting->ripples.paintingTriNorms = NULL;
+    }
     return dlist;
 }
 
@@ -1776,7 +1782,7 @@ Gfx *geo_painting_draw(s32 callContext, struct GraphNode *node, UNUSED void *con
  * Update the painting system's local copy of Mario's current floor and position.
  */
 Gfx *geo_painting_update(s32 callContext, UNUSED struct GraphNode *node, UNUSED Mat4 c) {
-    struct Surface *surface;
+    struct Surface *surface = NULL;
 
     // Reset the update counter
     if (callContext != GEO_CONTEXT_RENDER) {
@@ -1787,13 +1793,15 @@ Gfx *geo_painting_update(s32 callContext, UNUSED struct GraphNode *node, UNUSED 
         gPaintingUpdateCounter = gAreaUpdateCounter;
         
         // Store Mario's floor and position
-         find_floor(gMarioObject->oPosX, gMarioObject->oPosY, gMarioObject->oPosZ, &surface);
-        if (surface != NULL) {
-            gPaintingMarioFloorType = surface->type;
+        if (gMarioObject) {
+            find_floor(gMarioObject->oPosX, gMarioObject->oPosY, gMarioObject->oPosZ, &surface);
+            if (surface != NULL) {
+                gPaintingMarioFloorType = surface->type;
+            }
+            gPaintingMarioXPos = gMarioObject->oPosX;
+            gPaintingMarioYPos = gMarioObject->oPosY;
+            gPaintingMarioZPos = gMarioObject->oPosZ;
         }
-        gPaintingMarioXPos = gMarioObject->oPosX;
-        gPaintingMarioYPos = gMarioObject->oPosY;
-        gPaintingMarioZPos = gMarioObject->oPosZ;
     }
     return NULL;
 }

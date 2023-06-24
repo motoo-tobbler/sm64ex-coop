@@ -17,6 +17,10 @@ static struct ObjectHitbox sTreasureChestBottomHitbox = {
 
 
 void bhv_treasure_chest_top_loop(void) {
+    if (!o->parentObj || !o->parentObj->parentObj) {
+        obj_mark_for_deletion(o);
+        return;
+    }
     struct Object *rootParent = o->parentObj->parentObj;
 
     switch (o->oAction) {
@@ -67,6 +71,7 @@ void bhv_treasure_chest_bottom_init(void) {
 }
 
 void bhv_treasure_chest_bottom_loop(void) {
+    if (!o->parentObj) { return; }
     if (o->parentObj != NULL && o->parentObj->oTreasureChestSound != 0) {
         switch (o->parentObj->oTreasureChestSound) {
             case 1: play_sound(SOUND_GENERAL2_RIGHT_ANSWER, gGlobalSoundSource); break;
@@ -181,7 +186,7 @@ void bhv_treasure_chest_ship_loop(void) {
             break;
 
         case 1:
-            if (gEnvironmentRegions != NULL) {
+            if (gEnvironmentRegions != NULL && gEnvironmentRegionsLength > 6) {
                 gEnvironmentRegions[6] += -5;
                 play_sound(SOUND_ENV_WATER_DRAIN, gGlobalSoundSource);
                 set_environmental_camera_shake(SHAKE_ENV_JRB_SHIP_DRAIN);
