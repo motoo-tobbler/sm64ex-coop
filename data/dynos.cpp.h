@@ -8,6 +8,7 @@ extern "C" {
 #include "engine/behavior_script.h"
 #include "engine/math_util.h"
 #include "src/game/moving_texture.h"
+#include "src/pc/djui/djui_console.h"
 }
 
 #define FUNCTION_CODE   (u32) 0x434E5546
@@ -46,6 +47,7 @@ enum {
     DATA_TYPE_TEXTURE_RAW,
     DATA_TYPE_BEHAVIOR_SCRIPT,
     DATA_TYPE_UNUSED,
+    DATA_TYPE_LIGHT_0,
 };
 
 enum {
@@ -537,6 +539,7 @@ struct GfxData : NoCopy {
 
     // Model data
     DataNodes<Lights1> mLights;
+    DataNodes<Lights0> mLight0s;
     DataNodes<Light_t> mLightTs;
     DataNodes<Ambient_t> mAmbientTs;
     DataNodes<TexData> mTextures;
@@ -725,9 +728,23 @@ void Print(const char *aFmt, Args... aArgs) {
     fflush(stdout);
 }
 
-#define PrintError(...) { \
+template <typename... Args>
+void PrintConsole(const char *aFmt, Args... aArgs) {
+    snprintf(gDjuiConsoleTmpBuffer, CONSOLE_MAX_TMP_BUFFER, aFmt, aArgs...);
+    djui_console_message_create(gDjuiConsoleTmpBuffer);
+}
+
+template <typename... Args>
+void PrintError(const char *aFmt, Args... aArgs) {
+    printf(aFmt, aArgs...);
+    printf("\r\n");
+    fflush(stdout);
+    PrintConsole(aFmt, aArgs...);
+}
+#define PrintDataError(...) { \
     if (aGfxData->mErrorCount == 0) Print("  ERROR!"); \
     Print(__VA_ARGS__); \
+    PrintConsole(__VA_ARGS__); \
     aGfxData->mErrorCount++; \
 }
 
@@ -804,8 +821,6 @@ s32 DynOS_String_Width(const u8 *aStr64);
 //
 // Geo
 //
-
-void *DynOS_Geo_GetGraphNode(const void *aGeoLayout, bool aKeepInMemory);
 
 //
 // Levels
@@ -962,6 +977,20 @@ DataNode<MovtexQC>* DynOS_MovtexQC_GetFromIndex(s32 index);
 void DynOS_MovtexQC_ModShutdown();
 
 //
+// Model Manager
+//
+
+struct GraphNode* DynOS_Model_LoadGeo(u32* aId, enum ModelPool aModelPool, void* aAsset, bool aDeDuplicate);
+struct GraphNode* DynOS_Model_LoadDl(u32* aId, enum ModelPool aModelPool, u8 aLayer, void* aAsset);
+struct GraphNode* DynOS_Model_StoreGeo(u32* aId, enum ModelPool aModelPool, void* aAsset, struct GraphNode* aGraphNode);
+struct GraphNode* DynOS_Model_GetGeo(u32 aId);
+u32 DynOS_Model_GetIdFromAsset(void* asset);
+u32 DynOS_Model_GetIdFromGraphNode(struct GraphNode* aNode);
+void DynOS_Model_OverwriteSlot(u32 srcSlot, u32 dstSlot);
+void DynOS_Model_ClearPool(enum ModelPool aModelPool);
+void DynOS_Model_Update();
+
+//
 // Bin
 //
 
@@ -1000,6 +1029,10 @@ s64 DynOS_Gfx_ParseGfxConstants(const String& _Arg, bool* found);
 DataNode<Lights1>* DynOS_Lights_Parse(GfxData* aGfxData, DataNode<Lights1>* aNode);
 void DynOS_Lights_Write(BinFile* aFile, GfxData* aGfxData, DataNode<Lights1> *aNode);
 void DynOS_Lights_Load(BinFile *aFile, GfxData *aGfxData);
+
+DataNode<Lights0>* DynOS_Light0_Parse(GfxData* aGfxData, DataNode<Lights0>* aNode);
+void DynOS_Light0_Write(BinFile* aFile, GfxData* aGfxData, DataNode<Lights0> *aNode);
+void DynOS_Light0_Load(BinFile *aFile, GfxData *aGfxData);
 
 DataNode<Light_t>* DynOS_LightT_Parse(GfxData* aGfxData, DataNode<Light_t>* aNode);
 void DynOS_LightT_Write(BinFile* aFile, GfxData* aGfxData, DataNode<Light_t> *aNode);
@@ -1057,6 +1090,9 @@ DataNode<LevelScript>* DynOS_Lvl_Parse(GfxData* aGfxData, DataNode<LevelScript>*
 GfxData *DynOS_Lvl_LoadFromBinary(const SysPath &aFilename, const char *aLevelName);
 void DynOS_Lvl_GeneratePack(const SysPath &aPackFolder);
 s64 DynOS_Lvl_ParseLevelScriptConstants(const String& _Arg, bool* found);
+
+void DynOS_Lvl_Validate_Begin();
+bool DynOS_Lvl_Validate_RequirePointer(u32 value);
 
 DataNode<BehaviorScript> *DynOS_Bhv_Parse(GfxData *aGfxData, DataNode<BehaviorScript> *aNode, bool aDisplayPercent);
 GfxData *DynOS_Bhv_LoadFromBinary(const SysPath &aFilename, const char *aBehaviorName);

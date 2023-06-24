@@ -28,7 +28,7 @@ void bhv_hidden_blue_coin_loop(void) {
             // Wait until the blue coin switch starts ticking to activate.
             blueCoinSwitch = o->oHiddenBlueCoinSwitch;
 
-            if (blueCoinSwitch->oAction == BLUE_COIN_SWITCH_ACT_TICKING) {
+            if (blueCoinSwitch && blueCoinSwitch->oAction == BLUE_COIN_SWITCH_ACT_TICKING) {
                 o->oAction++; // Set to HIDDEN_BLUE_COIN_ACT_ACTIVE
             }
 
@@ -107,8 +107,10 @@ void bhv_blue_coin_number_loop(void) {
  */
 void bhv_blue_coin_switch_init(void) {
     struct Object *blueCoinNumber = spawn_object(o, MODEL_NUMBER, bhvBlueCoinNumber);
-    blueCoinNumber->activeFlags |= ACTIVE_FLAG_INITIATED_TIME_STOP; // to make sure it's updated even during time stop
-    blueCoinNumber->oHiddenBlueCoinSwitch = o;
+    if (blueCoinNumber) {
+        blueCoinNumber->activeFlags |= ACTIVE_FLAG_INITIATED_TIME_STOP; // to make sure it's updated even during time stop
+        blueCoinNumber->oHiddenBlueCoinSwitch = o;
+    }
     o->oHomeY = o->oPosY;
 }
 
@@ -133,8 +135,8 @@ void bhv_blue_coin_switch_loop(void) {
         case BLUE_COIN_SWITCH_ACT_IDLE:
             // If Mario is on the switch and has ground-pounded,
             // recede and get ready to start ticking.
-            if (gMarioObject->platform == o) {
-                if (gMarioStates[0].action == ACT_GROUND_POUND_LAND) {
+            if (gMarioObject && gMarioObject->platform == o) {
+                if ((determine_interaction(&gMarioStates[0], o) & INT_GROUND_POUND) || (gMarioStates[0].action == ACT_GROUND_POUND_LAND)) {
                     // Set to BLUE_COIN_SWITCH_ACT_RECEDING
                     o->oAction++;
 
@@ -162,7 +164,9 @@ void bhv_blue_coin_switch_loop(void) {
                 // Set to BLUE_COIN_SWITCH_ACT_TICKING
                 o->oAction++;
                 // ???
-                o->oPosY = gMarioObject->oPosY - 40.0f;
+                if (gMarioObject) {
+                    o->oPosY = gMarioObject->oPosY - 40.0f;
+                }
 
                 // Spawn particles. There's a function that calls this same function
                 // with the same arguments, spawn_mist_particles, why didn't they just call that?

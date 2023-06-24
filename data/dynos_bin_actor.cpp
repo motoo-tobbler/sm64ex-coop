@@ -16,7 +16,7 @@ void ClearGfxDataNodes(DataNodes<T> &aDataNodes) {
 static bool DynOS_Actor_WriteBinary(const SysPath &aOutputFilename, GfxData *aGfxData) {
     BinFile *_File = BinFile::OpenW(aOutputFilename.c_str());
     if (!_File) {
-        PrintError("  ERROR: Unable to create file \"%s\"", aOutputFilename.c_str());
+        PrintDataError("  ERROR: Unable to create file \"%s\"", aOutputFilename.c_str());
         return false;
     }
 
@@ -24,6 +24,11 @@ static bool DynOS_Actor_WriteBinary(const SysPath &aOutputFilename, GfxData *aGf
         for (auto &_Node : aGfxData->mLights) {
             if (_Node->mLoadIndex == i) {
                 DynOS_Lights_Write(_File, aGfxData, _Node);
+            }
+        }
+        for (auto &_Node : aGfxData->mLight0s) {
+            if (_Node->mLoadIndex == i) {
+                DynOS_Light0_Write(_File, aGfxData, _Node);
             }
         }
         for (auto &_Node : aGfxData->mLightTs) {
@@ -92,6 +97,7 @@ GfxData *DynOS_Actor_LoadFromBinary(const SysPath &aPackFolder, const char *aAct
         for (bool _Done = false; !_Done;) {
             switch (_File->Read<u8>()) {
                 case DATA_TYPE_LIGHT:           DynOS_Lights_Load    (_File, _GfxData); break;
+                case DATA_TYPE_LIGHT_0:         DynOS_Light0_Load    (_File, _GfxData); break;
                 case DATA_TYPE_LIGHT_T:         DynOS_LightT_Load    (_File, _GfxData); break;
                 case DATA_TYPE_AMBIENT_T:       DynOS_AmbientT_Load  (_File, _GfxData); break;
                 case DATA_TYPE_TEXTURE:         DynOS_Tex_Load       (_File, _GfxData); break;
@@ -182,6 +188,7 @@ static void DynOS_Actor_Generate(const SysPath &aPackFolder, Array<Pair<u64, Str
 
         // Parse data
         PrintNoNewLine("%s.bin: Model identifier: %X - Processing... ", _GeoRootName.begin(), _GfxData->mModelIdentifier);
+        PrintConsole("%s.bin: Model identifier: %X - Processing... ", _GeoRootName.begin(), _GfxData->mModelIdentifier);
         DynOS_Geo_Parse(_GfxData, _GeoNode, true);
 
         // Init animation data
@@ -215,10 +222,11 @@ static void DynOS_Actor_Generate(const SysPath &aPackFolder, Array<Pair<u64, Str
         if (_GfxData->mErrorCount == 0) {
             DynOS_Actor_WriteBinary(_BinFilename, _GfxData);
         } else {
-            Print("  %u error(s): Unable to parse data", _GfxData->mErrorCount);
+            PrintError("  %u error(s): Unable to parse data", _GfxData->mErrorCount);
         }
         // Clear data pointers
         ClearGfxDataNodes(_GfxData->mLights);
+        ClearGfxDataNodes(_GfxData->mLight0s);
         ClearGfxDataNodes(_GfxData->mLightTs);
         ClearGfxDataNodes(_GfxData->mAmbientTs);
         ClearGfxDataNodes(_GfxData->mTextures);

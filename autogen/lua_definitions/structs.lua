@@ -17,12 +17,17 @@
 --- @field public animYTransDivisor integer
 --- @field public flags integer
 --- @field public index Pointer_integer
+--- @field public indexLength integer
 --- @field public length integer
 --- @field public loopEnd integer
 --- @field public loopStart integer
 --- @field public startFrame integer
 --- @field public unusedBoneCount integer
 --- @field public values Pointer_integer
+--- @field public valuesLength integer
+
+--- @class AnimationTable
+--- @field public count integer
 
 --- @class Area
 --- @field public camera Camera
@@ -176,6 +181,7 @@
 --- @field public BowlingBallThiSmallSpeed number
 --- @field public BowlingBallTtmSpeed number
 --- @field public GrateStarRequirement integer
+--- @field public InfiniteRenderDistance integer
 --- @field public KingBobombFVel number
 --- @field public KingBobombHealth integer
 --- @field public KingBobombYawVel integer
@@ -185,6 +191,7 @@
 --- @field public KoopaThiAgility number
 --- @field public MipsStar1Requirement integer
 --- @field public MipsStar2Requirement integer
+--- @field public MultipleCapCollection integer
 --- @field public RacingPenguinBigHeight number
 --- @field public RacingPenguinBigRadius number
 --- @field public RacingPenguinHeight number
@@ -644,6 +651,9 @@
 --- @field public exitCastleWarpNode integer
 --- @field public extendedPauseDisplay integer
 --- @field public fixCollisionBugs integer
+--- @field public fixCollisionBugsFalseLedgeGrab integer
+--- @field public fixCollisionBugsGroundPoundBonks integer
+--- @field public fixCollisionBugsPickBestWall integer
 --- @field public fixCollisionBugsRoundedCorners integer
 --- @field public fixVanishFloors integer
 --- @field public floatingStarDance integer
@@ -852,6 +862,7 @@
 --- @field public collidedObjInteractTypes integer
 --- @field public collisionData Pointer_Collision
 --- @field public coopFlags integer
+--- @field public ctx integer
 --- @field public curBhvCommand Pointer_BehaviorScript
 --- @field public globalPlayerIndex integer
 --- @field public header ObjectNode
@@ -1841,6 +1852,9 @@
 --- @field public offsetY number
 --- @field public radius number
 --- @field public unused integer
+--- @field public x number
+--- @field public y number
+--- @field public z number
 
 --- @class WarpNode
 --- @field public destArea integer

@@ -21,6 +21,9 @@
 extern s32 gAudioErrorFlags;
 extern f32 gGlobalSoundSource[3];
 
+extern const u8 sBackgroundMusicDefaultVolumeDefault[35];
+extern u8 sBackgroundMusicDefaultVolume[64];
+
 // defined in data.c, used by the game
 extern u32 gAudioRandom;
 
@@ -58,8 +61,8 @@ u8 get_current_background_music_target_volume(void);
 u8 get_current_background_music_max_target_volume(void);
 u8 is_current_background_music_volume_lowered(void);
 void play_secondary_music(u8 seqId, u8 bgMusicVolume, u8 volume, u16 fadeTimer);
-void func_80321080(u16 fadeTimer);
-void func_803210D4(u16 fadeOutTime);
+void stop_secondary_music(u16 fadeTimer);
+void set_audio_fadeout(u16 fadeOutTime);
 void play_course_clear(void);
 void play_peachs_jingle(void);
 void play_puzzle_jingle(void);

@@ -4,6 +4,11 @@ extern "C" {
 #include "game/save_file.h"
 #include "levels/scripts.h"
 #include "pc/lua/utils/smlua_level_utils.h"
+
+#ifdef VERSION_EU
+#include "eu_translation.h"
+#endif
+
 }
 
 //
@@ -233,7 +238,9 @@ const s32 *DynOS_Level_GetList() {
 }
 
 s32 DynOS_Level_GetCourse(s32 aLevel) {
-    return (s32) gLevelToCourseNumTable[aLevel - 1];
+    u32 index = aLevel - 1;
+    if (index >= LEVEL_COUNT) { return COURSE_NONE; }
+    return (s32) gLevelToCourseNumTable[index];
 }
 
 void DynOS_Level_Override(void* originalScript, void* newScript, s32 modIndex) {
@@ -310,7 +317,11 @@ const u8 *DynOS_Level_GetName(s32 aLevel, bool aDecaps, bool aAddCourseNumber) {
     } else if (_Course >= COURSE_CAKE_END) {
         SetConvertedTextToBuffer(sBuffer, DYNOS_LEVEL_TEXT_CASTLE);
     } else {
+#ifdef VERSION_EU
+        const u8 *_CourseName = ((const u8 **) course_name_table_eu_en)[_Course - COURSE_BOB] + 3;
+#else
         const u8 *_CourseName = ((const u8 **) seg2_course_name_table)[_Course - COURSE_BOB] + 3;
+#endif
         memcpy(sBuffer, _CourseName, DynOS_String_Length(_CourseName));
     }
 
@@ -356,7 +367,11 @@ const u8 *DynOS_Level_GetActName(s32 aLevel, s32 aAct, bool aDecaps, bool aAddSt
     } else if (aAct >= 7) {
         SetConvertedTextToBuffer(sBuffer, DYNOS_LEVEL_TEXT_100_COINS_STAR);
     } else {
+#ifdef VERSION_EU
+        const u8 *_ActName = ((const u8 **) act_name_table_eu_en)[(_Course - COURSE_BOB) * 6 + (aAct - 1)];
+#else
         const u8 *_ActName = ((const u8 **) seg2_act_name_table)[(_Course - COURSE_BOB) * 6 + (aAct - 1)];
+#endif
         memcpy(sBuffer, _ActName, DynOS_String_Length(_ActName));
     }
 
@@ -895,10 +910,12 @@ s16 *DynOS_Level_GetWarp(s32 aLevel, s32 aArea, u8 aWarpId) {
     }
 
     DynOS_Level_Init();
-    for (const auto &_Warp : sDynosLevelWarps[aLevel]) {
-        if (_Warp.mArea == aArea) {
-            if (_Warp.mId == aWarpId) {
-                return (s16 *) &_Warp;
+    if (aLevel >= 0 && aLevel < LEVEL_COUNT) {
+        for (const auto &_Warp : sDynosLevelWarps[aLevel]) {
+            if (_Warp.mArea == aArea) {
+                if (_Warp.mId == aWarpId) {
+                    return (s16 *) &_Warp;
+                }
             }
         }
     }
@@ -910,7 +927,7 @@ s16 *DynOS_Level_GetWarpEntry(s32 aLevel, s32 aArea) {
     if (aLevel == LEVEL_TTM && aArea > 2) return NULL;
 
     // override vanilla castle warps
-    if (DynOS_Level_GetCourse(aLevel) == COURSE_NONE) {
+    if (DynOS_Level_GetCourse(aLevel) == COURSE_NONE && aLevel >= 0 && aLevel < LEVEL_COUNT) {
         extern const LevelScript level_castle_grounds_entry[];
         extern const LevelScript level_castle_inside_entry[];
         extern const LevelScript level_castle_courtyard_entry[];

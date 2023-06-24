@@ -3,6 +3,7 @@
 # Supported Structs
 - [AnimInfo](#AnimInfo)
 - [Animation](#Animation)
+- [AnimationTable](#AnimationTable)
 - [Area](#Area)
 - [BassAudio](#BassAudio)
 - [BehaviorDialogs](#BehaviorDialogs)
@@ -107,12 +108,24 @@
 | animYTransDivisor | `integer` |  |
 | flags | `integer` |  |
 | index | `Pointer` <`integer`> |  |
-| length | `integer` |  |
+| indexLength | `integer` |  |
+| length | `integer` | read-only |
 | loopEnd | `integer` |  |
 | loopStart | `integer` |  |
 | startFrame | `integer` |  |
 | unusedBoneCount | `integer` |  |
 | values | `Pointer` <`integer`> |  |
+| valuesLength | `integer` |  |
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [AnimationTable](#AnimationTable)
+
+| Field | Type | Access |
+| ----- | ---- | ------ |
+| count | `integer` | read-only |
 
 [:arrow_up_small:](#)
 
@@ -134,12 +147,12 @@
 | nextSyncID | `integer` | read-only |
 | numRedCoins | `integer` |  |
 | numSecrets | `integer` |  |
-| objectSpawnInfos | [SpawnInfo](structs.md#SpawnInfo) |  |
-| paintingWarpNodes | [WarpNode](structs.md#WarpNode) |  |
+| objectSpawnInfos | [SpawnInfo](structs.md#SpawnInfo) | read-only |
+| paintingWarpNodes | [WarpNode](structs.md#WarpNode) | read-only |
 | surfaceRooms | `Pointer` <`integer`> | read-only |
 | terrainData | `Pointer` <`integer`> | read-only |
 | terrainType | `integer` |  |
-| warpNodes | [ObjectWarpNode](structs.md#ObjectWarpNode) |  |
+| warpNodes | [ObjectWarpNode](structs.md#ObjectWarpNode) | read-only |
 
 [:arrow_up_small:](#)
 
@@ -301,6 +314,7 @@
 | BowlingBallThiSmallSpeed | `number` |  |
 | BowlingBallTtmSpeed | `number` |  |
 | GrateStarRequirement | `integer` |  |
+| InfiniteRenderDistance | `integer` |  |
 | KingBobombFVel | `number` |  |
 | KingBobombHealth | `integer` |  |
 | KingBobombYawVel | `integer` |  |
@@ -310,6 +324,7 @@
 | KoopaThiAgility | `number` |  |
 | MipsStar1Requirement | `integer` |  |
 | MipsStar2Requirement | `integer` |  |
+| MultipleCapCollection | `integer` |  |
 | RacingPenguinBigHeight | `number` |  |
 | RacingPenguinBigRadius | `number` |  |
 | RacingPenguinHeight | `number` |  |
@@ -539,7 +554,7 @@
 | fullName | `string` | read-only |
 | levelNum | `integer` |  |
 | modIndex | `integer` |  |
-| next | [CustomLevelInfo](structs.md#CustomLevelInfo) |  |
+| next | [CustomLevelInfo](structs.md#CustomLevelInfo) | read-only |
 | script | `Pointer` <`LevelScript`> | read-only |
 | scriptEntryName | `string` | read-only |
 | shortName | `string` | read-only |
@@ -799,13 +814,13 @@
 
 | Field | Type | Access |
 | ----- | ---- | ------ |
-| children | [GraphNode](structs.md#GraphNode) |  |
+| children | [GraphNode](structs.md#GraphNode) | read-only |
 | extraFlags | `integer` |  |
 | flags | `integer` |  |
-| next | [GraphNode](structs.md#GraphNode) |  |
-| parent | [GraphNode](structs.md#GraphNode) |  |
-| prev | [GraphNode](structs.md#GraphNode) |  |
-| type | `integer` |  |
+| next | [GraphNode](structs.md#GraphNode) | read-only |
+| parent | [GraphNode](structs.md#GraphNode) | read-only |
+| prev | [GraphNode](structs.md#GraphNode) | read-only |
+| type | `integer` | read-only |
 
 [:arrow_up_small:](#)
 
@@ -826,21 +841,21 @@
 | prevAngle | [Vec3s](structs.md#Vec3s) | read-only |
 | prevPos | [Vec3f](structs.md#Vec3f) | read-only |
 | prevScale | [Vec3f](structs.md#Vec3f) | read-only |
-| prevScaleTimestamp | `integer` |  |
+| prevScaleTimestamp | `integer` | read-only |
 | prevShadowPos | [Vec3f](structs.md#Vec3f) | read-only |
-| prevShadowPosTimestamp | `integer` |  |
+| prevShadowPosTimestamp | `integer` | read-only |
 | prevThrowMatrix | `Mat4` | read-only |
-| prevThrowMatrixTimestamp | `integer` |  |
-| prevTimestamp | `integer` |  |
+| prevThrowMatrixTimestamp | `integer` | read-only |
+| prevTimestamp | `integer` | read-only |
 | scale | [Vec3f](structs.md#Vec3f) | read-only |
 | shadowInvisible | `boolean` |  |
 | shadowPos | [Vec3f](structs.md#Vec3f) | read-only |
-| sharedChild | [GraphNode](structs.md#GraphNode) |  |
+| sharedChild | [GraphNode](structs.md#GraphNode) | read-only |
 | skipInViewCheck | `boolean` |  |
-| skipInterpolationTimestamp | `integer` |  |
-| throwMatrix | `Pointer` <`Mat4`> |  |
-| throwMatrixPrev | `Pointer` <`Mat4`> |  |
-| unk4C | [SpawnInfo](structs.md#SpawnInfo) |  |
+| skipInterpolationTimestamp | `integer` | read-only |
+| throwMatrix | `Pointer` <`Mat4`> | read-only |
+| throwMatrixPrev | `Pointer` <`Mat4`> | read-only |
+| unk4C | [SpawnInfo](structs.md#SpawnInfo) | read-only |
 
 [:arrow_up_small:](#)
 
@@ -942,6 +957,9 @@
 | exitCastleWarpNode | `integer` |  |
 | extendedPauseDisplay | `integer` |  |
 | fixCollisionBugs | `integer` |  |
+| fixCollisionBugsFalseLedgeGrab | `integer` |  |
+| fixCollisionBugsGroundPoundBonks | `integer` |  |
+| fixCollisionBugsPickBestWall | `integer` |  |
 | fixCollisionBugsRoundedCorners | `integer` |  |
 | fixVanishFloors | `integer` |  |
 | floatingStarDance | `integer` |  |
@@ -1035,7 +1053,7 @@
 | actionTimer | `integer` |  |
 | angleVel | [Vec3s](structs.md#Vec3s) | read-only |
 | animation | [MarioAnimation](structs.md#MarioAnimation) |  |
-| area | [Area](structs.md#Area) |  |
+| area | [Area](structs.md#Area) | read-only |
 | bounceSquishTimer | `integer` |  |
 | bubbleObj | [Object](structs.md#Object) |  |
 | cap | `integer` |  |
@@ -1070,8 +1088,8 @@
 | invincTimer | `integer` |  |
 | isSnoring | `integer` |  |
 | knockbackTimer | `integer` |  |
-| marioBodyState | [MarioBodyState](structs.md#MarioBodyState) |  |
-| marioObj | [Object](structs.md#Object) |  |
+| marioBodyState | [MarioBodyState](structs.md#MarioBodyState) | read-only |
+| marioObj | [Object](structs.md#Object) | read-only |
 | minimumBoneY | `number` |  |
 | nonInstantWarpPos | [Vec3f](structs.md#Vec3f) | read-only |
 | numCoins | `integer` |  |
@@ -1095,7 +1113,7 @@
 | splineKeyframeFraction | `number` |  |
 | splineState | `integer` |  |
 | squishTimer | `integer` |  |
-| statusForCamera | [PlayerCameraState](structs.md#PlayerCameraState) |  |
+| statusForCamera | [PlayerCameraState](structs.md#PlayerCameraState) | read-only |
 | terrainSoundAddend | `integer` |  |
 | twirlYaw | `integer` |  |
 | unkB0 | `integer` |  |
@@ -1209,10 +1227,11 @@
 | areaTimerType | [enum AreaTimerType](constants.md#enum-AreaTimerType) |  |
 | behavior | `Pointer` <`BehaviorScript`> | read-only |
 | bhvDelayTimer | `integer` |  |
-| bhvStackIndex | `integer` |  |
+| bhvStackIndex | `integer` | read-only |
 | collidedObjInteractTypes | `integer` |  |
 | collisionData | `Pointer` <`Collision`> |  |
 | coopFlags | `integer` | read-only |
+| ctx | `integer` |  |
 | curBhvCommand | `Pointer` <`BehaviorScript`> | read-only |
 | globalPlayerIndex | `integer` |  |
 | header | [ObjectNode](structs.md#ObjectNode) | read-only |
@@ -1227,7 +1246,7 @@
 | parentObj | [Object](structs.md#Object) |  |
 | platform | [Object](structs.md#Object) |  |
 | prevObj | [Object](structs.md#Object) |  |
-| respawnInfoType | `integer` |  |
+| respawnInfoType | `integer` | read-only |
 | setHome | `integer` |  |
 | transform | `Mat4` | read-only |
 | unused1 | `integer` |  |
@@ -1455,7 +1474,7 @@
 | oCannonPlayerIndex | `integer` |  |
 | oCapUnkF4 | `integer` |  |
 | oCapUnkF8 | `integer` |  |
-| oChainChompSegments | [ChainSegment](structs.md#ChainSegment) |  |
+| oChainChompSegments | [ChainSegment](structs.md#ChainSegment) | read-only |
 | oChainChompMaxDistFromPivotPerChainPart | `number` |  |
 | oChainChompMaxDistBetweenChainParts | `number` |  |
 | oChainChompDistToPivot | `number` |  |
@@ -1949,7 +1968,7 @@
 | oStrongWindParticlePenguinObj | [Object](structs.md#Object) |  |
 | oWhompShakeVal | `integer` |  |
 | oWigglerFallThroughFloorsHeight | `number` |  |
-| oWigglerSegments | [ChainSegment](structs.md#ChainSegment) |  |
+| oWigglerSegments | [ChainSegment](structs.md#ChainSegment) | read-only |
 | oWigglerWalkAnimSpeed | `number` |  |
 | oWigglerSquishSpeed | `number` |  |
 | oWigglerTimeUntilRandomTurn | `integer` |  |
@@ -1995,8 +2014,8 @@
 | Field | Type | Access |
 | ----- | ---- | ------ |
 | gfx | [GraphNodeObject](structs.md#GraphNodeObject) | read-only |
-| next | [ObjectNode](structs.md#ObjectNode) |  |
-| prev | [ObjectNode](structs.md#ObjectNode) |  |
+| next | [ObjectNode](structs.md#ObjectNode) | read-only |
+| prev | [ObjectNode](structs.md#ObjectNode) | read-only |
 
 [:arrow_up_small:](#)
 
@@ -2213,11 +2232,11 @@
 | activeAreaIndex | `integer` |  |
 | areaIndex | `integer` |  |
 | behaviorArg | `integer` |  |
-| next | [SpawnInfo](structs.md#SpawnInfo) |  |
+| next | [SpawnInfo](structs.md#SpawnInfo) | read-only |
 | startAngle | [Vec3s](structs.md#Vec3s) | read-only |
 | startPos | [Vec3s](structs.md#Vec3s) | read-only |
 | syncID | `integer` | read-only |
-| unk18 | [GraphNode](structs.md#GraphNode) |  |
+| unk18 | [GraphNode](structs.md#GraphNode) | read-only |
 
 [:arrow_up_small:](#)
 
@@ -2395,6 +2414,9 @@
 | offsetY | `number` |  |
 | radius | `number` |  |
 | unused | `integer` |  |
+| x | `number` |  |
+| y | `number` |  |
+| z | `number` |  |
 
 [:arrow_up_small:](#)
 

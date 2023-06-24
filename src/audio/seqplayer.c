@@ -1,6 +1,6 @@
 #include <PR/ultratypes.h>
 
-#if defined(AUDIO_DEVELOPMENT) || defined(DEVELOPMENT)
+#if defined(DEVELOPMENT)
 #include <stdio.h>
 #include <assert.h>
 #endif
@@ -11,6 +11,7 @@
 #include "heap.h"
 #include "load.h"
 #include "seqplayer.h"
+#include "pc/debuglog.h"
 
 #define PORTAMENTO_IS_SPECIAL(x) ((x).mode & 0x80)
 #define PORTAMENTO_MODE(x) ((x).mode & ~0x80)
@@ -33,6 +34,7 @@ u8 get_instrument(struct SequenceChannel *seqChannel, u8 instId, struct Instrume
                   struct AdsrSettings *adsr);
 
 void sequence_channel_init(struct SequenceChannel *seqChannel) {
+    if (!seqChannel) { return; }
     s32 i;
 
     seqChannel->enabled = FALSE;
@@ -100,6 +102,7 @@ void sequence_channel_init(struct SequenceChannel *seqChannel) {
 }
 
 s32 seq_channel_set_layer(struct SequenceChannel *seqChannel, s32 layerIndex) {
+    if (layerIndex >= LAYERS_MAX) { return 0; }
     struct SequenceChannelLayer *layer;
 
     if (seqChannel->layers[layerIndex] == NULL) {
@@ -166,6 +169,7 @@ void seq_channel_layer_disable(struct SequenceChannelLayer *layer) {
 }
 
 void seq_channel_layer_free(struct SequenceChannel *seqChannel, s32 layerIndex) {
+    if (layerIndex >= LAYERS_MAX) { return; }
     struct SequenceChannelLayer *layer = seqChannel->layers[layerIndex];
 
     if (layer != NULL) {
@@ -188,8 +192,8 @@ void seq_channel_layer_free(struct SequenceChannel *seqChannel, s32 layerIndex) 
 }
 
 void sequence_channel_disable(struct SequenceChannel *seqChannel) {
-    s32 i;
-    for (i = 0; i < LAYERS_MAX; i++) {
+    if (!seqChannel) { return; }
+    for (s32 i = 0; i < LAYERS_MAX; i++) {
         seq_channel_layer_free(seqChannel, i);
     }
 
@@ -199,8 +203,7 @@ void sequence_channel_disable(struct SequenceChannel *seqChannel) {
 }
 
 struct SequenceChannel *allocate_sequence_channel(void) {
-    s32 i;
-    for (i = 0; i < ARRAY_COUNT(gSequenceChannels); i++) {
+    for (u32 i = 0; i < ARRAY_COUNT(gSequenceChannels); i++) {
         if (gSequenceChannels[i].seqPlayer == NULL) {
 #if defined(VERSION_EU) || defined(VERSION_SH)
             return &gSequenceChannels[i];
@@ -209,16 +212,16 @@ struct SequenceChannel *allocate_sequence_channel(void) {
 #endif
         }
     }
+    
+    LOG_ERROR("RAN OUT OF SEQUENCE CHANNELS FOR ALLOCATION!");
     return &gSequenceChannelNone;
 }
 
 void sequence_player_init_channels(struct SequencePlayer *seqPlayer, u16 channelBits) {
-    struct SequenceChannel *seqChannel;
-    s32 i;
-
-    for (i = 0; i < CHANNELS_MAX; i++) {
+    if (!seqPlayer) { return; }
+    for (u32 i = 0; i < CHANNELS_MAX; i++) {
         if (channelBits & 1) {
-            seqChannel = seqPlayer->channels[i];
+            struct SequenceChannel *seqChannel = seqPlayer->channels[i];
             if (IS_SEQUENCE_CHANNEL_VALID(seqChannel) == TRUE && seqChannel->seqPlayer == seqPlayer) {
                 sequence_channel_disable(seqChannel);
                 seqChannel->seqPlayer = NULL;
@@ -246,13 +249,11 @@ void sequence_player_init_channels(struct SequencePlayer *seqPlayer, u16 channel
 }
 
 void sequence_player_disable_channels(struct SequencePlayer *seqPlayer, u16 channelBits) {
-    struct SequenceChannel *seqChannel;
-    s32 i;
-
+    if (!seqPlayer) { return; }
     eu_stubbed_printf_0("SUBTRACK DIM\n");
-    for (i = 0; i < CHANNELS_MAX; i++) {
+    for (u32 i = 0; i < CHANNELS_MAX; i++) {
         if (channelBits & 1) {
-            seqChannel = seqPlayer->channels[i];
+            struct SequenceChannel *seqChannel = seqPlayer->channels[i];
             if (IS_SEQUENCE_CHANNEL_VALID(seqChannel) == TRUE) {
                 if (seqChannel->seqPlayer == seqPlayer) {
                     sequence_channel_disable(seqChannel);
@@ -276,27 +277,23 @@ void sequence_player_disable_channels(struct SequencePlayer *seqPlayer, u16 chan
     }
 }
 
-void sequence_player_init_channels_extended(struct SequencePlayer* seqPlayer, u32 channelBits) {
-    struct SequenceChannel* seqChannel;
-    s32 i;
-
-#ifdef AUDIO_DEVELOPMENT
-    printf("debug: Enabling channels (extended) with corresponding bits %X\n", channelBits);
-#endif
-
-    for (i = 0; i < CHANNELS_MAX; i++) {
+void sequence_player_init_channels_extended(struct SequencePlayer* seqPlayer, u64 channelBits) {
+    if (!seqPlayer) { return; }
+    LOG_DEBUG("Enabling channels (extended) with corresponding bits %llX", channelBits);
+    
+    for (u32 i = 0; i < CHANNELS_MAX; i++) {
         if (channelBits & 1) {
-            seqChannel = seqPlayer->channels[i];
+            struct SequenceChannel* seqChannel = seqPlayer->channels[i];
             if (IS_SEQUENCE_CHANNEL_VALID(seqChannel) == TRUE && seqChannel->seqPlayer == seqPlayer) {
                 sequence_channel_disable(seqChannel);
                 seqChannel->seqPlayer = NULL;
-}
+            }
             seqChannel = allocate_sequence_channel();
             if (IS_SEQUENCE_CHANNEL_VALID(seqChannel) == FALSE) {
+                eu_stubbed_printf_0("Audio:Track:Warning: No Free Notetrack\n");
                 gAudioErrorFlags = i + 0x10000;
                 seqPlayer->channels[i] = seqChannel;
-            }
-            else {
+            } else {
                 sequence_channel_init(seqChannel);
                 seqPlayer->channels[i] = seqChannel;
                 seqChannel->seqPlayer = seqPlayer;
@@ -305,14 +302,10 @@ void sequence_player_init_channels_extended(struct SequencePlayer* seqPlayer, u3
                 seqChannel->noteAllocPolicy = seqPlayer->noteAllocPolicy;
             }
 
-#ifdef AUDIO_DEVELOPMENT
-            printf("debug: Tried to enable channel (extended) %i with result of validity %u.\n", i, IS_SEQUENCE_CHANNEL_VALID(seqChannel));
-#endif
+            LOG_DEBUG("Tried to enable channel (extended) %i with result of validity %u.", i, IS_SEQUENCE_CHANNEL_VALID(seqChannel));
         }
 
-#ifdef AUDIO_DEVELOPMENT
-        printf("debug: Checked channel (extended) %i for enable with bit %u.\n", i, channelBits & 1);
-#endif
+        LOG_DEBUG("Checked channel (extended) %i for enable with bit %llu.", i, channelBits & 1);
 
 #ifdef VERSION_EU
         channelBits = channelBits >> 1;
@@ -322,17 +315,13 @@ void sequence_player_init_channels_extended(struct SequencePlayer* seqPlayer, u3
     }
 }
 
-void sequence_player_disable_channels_extended(struct SequencePlayer* seqPlayer, u32 channelBits) {
-    struct SequenceChannel* seqChannel;
-    s32 i;
+void sequence_player_disable_channels_extended(struct SequencePlayer* seqPlayer, u64 channelBits) {
+    if (!seqPlayer) { return; }
+    LOG_DEBUG("Disabling channels (extended) with corresponding bits %llX", channelBits);
 
-#ifdef AUDIO_DEVELOPMENT
-    printf("debug: Disabling channels (extended) with corresponding bits %X\n", channelBits);
-#endif
-
-    for (i = 0; i < CHANNELS_MAX; i++) {
+    for (u32 i = 0; i < CHANNELS_MAX; i++) {
         if (channelBits & 1) {
-            seqChannel = seqPlayer->channels[i];
+            struct SequenceChannel* seqChannel = seqPlayer->channels[i];
             if (IS_SEQUENCE_CHANNEL_VALID(seqChannel) == TRUE) {
                 if (seqChannel->seqPlayer == seqPlayer) {
                     sequence_channel_disable(seqChannel);
@@ -349,7 +338,31 @@ void sequence_player_disable_channels_extended(struct SequencePlayer* seqPlayer,
     }
 }
 
+void sequence_player_disable_all_channels(struct SequencePlayer *seqPlayer) {
+    if (!seqPlayer) { return; }
+    eu_stubbed_printf_0("SUBTRACK DIM\n");
+    for (u32 i = 0; i < CHANNELS_MAX; i++) {
+        struct SequenceChannel *seqChannel = seqPlayer->channels[i];
+        if (IS_SEQUENCE_CHANNEL_VALID(seqChannel) == TRUE) {
+            if (seqChannel->seqPlayer == seqPlayer) {
+                sequence_channel_disable(seqChannel);
+                seqChannel->seqPlayer = NULL;
+            }
+#if defined(VERSION_EU) || defined(VERSION_SH)
+            else {
+#ifdef VERSION_EU
+                stubbed_printf("Audio:Track: Warning SUBTRACK PARENT CHANGED\n");
+#endif
+            }
+#endif
+            seqPlayer->channels[i] = &gSequenceChannelNone;
+        }
+    }
+}
+
 void sequence_channel_enable(struct SequencePlayer *seqPlayer, u8 channelIndex, void *script) {
+    if (!seqPlayer) { return; }
+    if (channelIndex >= CHANNELS_MAX) { return; }
     struct SequenceChannel *seqChannel = seqPlayer->channels[channelIndex];
     s32 i;
     if (IS_SEQUENCE_CHANNEL_VALID(seqChannel) == FALSE) {
@@ -378,11 +391,16 @@ void sequence_channel_enable(struct SequencePlayer *seqPlayer, u8 channelIndex, 
                 seq_channel_layer_free(seqChannel, i);
             }
         }
+        
+        LOG_DEBUG("Enabled sequence channel %d with script entry of %p", channelIndex, script);
     }
 }
 
 void sequence_player_disable(struct SequencePlayer *seqPlayer) {
-    sequence_player_disable_channels(seqPlayer, 0xffff);
+    if (!seqPlayer) { return; }
+    LOG_DEBUG("Disabling sequence player %p", seqPlayer);
+    
+    sequence_player_disable_all_channels(seqPlayer);
     note_pool_clear(&seqPlayer->notePool);
     seqPlayer->finished = TRUE;
     seqPlayer->enabled = FALSE;
@@ -429,6 +447,7 @@ void sequence_player_disable(struct SequencePlayer *seqPlayer) {
  * Add an item to the end of a list, if it's not already in any list.
  */
 void audio_list_push_back(struct AudioListItem *list, struct AudioListItem *item) {
+    if (!list || !item) { return; }
     if (item->prev != NULL) {
         eu_stubbed_printf_0("Error:Same List Add\n");
     } else {
@@ -445,6 +464,7 @@ void audio_list_push_back(struct AudioListItem *list, struct AudioListItem *item
  * Remove the last item from a list, and return it (or NULL if empty).
  */
 void *audio_list_pop_back(struct AudioListItem *list) {
+    if (!list) { return NULL; }
     struct AudioListItem *item = list->prev;
     if (item == list) {
         return NULL;
@@ -516,6 +536,23 @@ s32 m64_read_s32(struct M64ScriptState* state) {
     ret = (*(state->pc++) << 16) | ret;
     ret = (*(state->pc++) << 8) | ret;
     ret = *(state->pc++) | ret;
+    return ret;
+}
+
+s64 m64_read_s64(struct M64ScriptState* state) {
+#ifdef DEVELOPMENT
+    assert(state != NULL);
+    assert(state->pc != NULL);
+#endif
+    s64 ret = 0;
+    ret = (((u64)*(state->pc++)) << 56) | ret;
+    ret = (((u64)*(state->pc++)) << 48) | ret;
+    ret = (((u64)*(state->pc++)) << 40) | ret;
+    ret = (((u64)*(state->pc++)) << 32) | ret;
+    ret = (((u64)*(state->pc++)) << 24) | ret;
+    ret = (((u64)*(state->pc++)) << 16) | ret;
+    ret = (((u64)*(state->pc++)) <<  8) | ret;
+    ret = (((u64)*(state->pc++)) <<  0) | ret;
     return ret;
 }
 
@@ -2266,7 +2303,9 @@ void sequence_channel_process_script(struct SequenceChannel *seqChannel) {
 #ifdef VERSION_EU
                             if (1) {}
 #endif
-                            seqChannel->layers[loBits]->scriptState.pc = seqPlayer->seqData + sp5A;
+                            if (loBits < LAYERS_MAX) {
+                                seqChannel->layers[loBits]->scriptState.pc = seqPlayer->seqData + sp5A;
+                            }
                         }
                         break;
 
@@ -2278,7 +2317,9 @@ void sequence_channel_process_script(struct SequenceChannel *seqChannel) {
                         if (value != -1 && seq_channel_set_layer(seqChannel, loBits) != -1) {
                             seqData = (*seqChannel->dynTable)[value];
                             sp5A = ((seqData[0] << 8) + seqData[1]);
-                            seqChannel->layers[loBits]->scriptState.pc = seqPlayer->seqData + sp5A;
+                            if (loBits < LAYERS_MAX) {
+                                seqChannel->layers[loBits]->scriptState.pc = seqPlayer->seqData + sp5A;
+                            }
                         }
                         break;
 
@@ -2341,8 +2382,9 @@ void sequence_player_process_sequence(struct SequencePlayer *seqPlayer) {
     u8 temp;
     s32 value = 0;
     s32 i;
+    u8 u8v;
     u16 u16v;
-    u32 u32v;
+    u64 u64v;
     u8 *tempPtr;
     struct M64ScriptState *state;
 #if defined(VERSION_EU) || defined(VERSION_SH)
@@ -2707,13 +2749,13 @@ void sequence_player_process_sequence(struct SequencePlayer *seqPlayer) {
                         break;
 
                     case 0xc1: // seq_initchannels_extended
-                        u32v = m64_read_s32(state);
-                        sequence_player_init_channels_extended(seqPlayer, u32v);
+                        u64v = m64_read_s64(state);
+                        sequence_player_init_channels_extended(seqPlayer, u64v);
                         break;
 
                     case 0xc0: // seq_disablechannels_extended
-                        u32v = m64_read_s32(state);
-                        sequence_player_disable_channels_extended(seqPlayer, u32v);
+                        u64v = m64_read_s64(state);
+                        sequence_player_disable_channels_extended(seqPlayer, u64v);
                         break;
 
                     case 0xd5: // seq_setmutescale
@@ -2823,6 +2865,11 @@ void sequence_player_process_sequence(struct SequencePlayer *seqPlayer) {
                         break;
                     case 0xa0:
                         break;
+                    case 0xb0: // seq_startchannel_extended
+                        u8v = m64_read_u8(state);
+                        u16v = m64_read_s16(state);
+                        sequence_channel_enable(seqPlayer, u8v, seqPlayer->seqData + u16v);
+                        break;
 #if !defined(VERSION_EU) && !defined(VERSION_SH)
                     case 0xd8: // (this makes no sense)
                         break;
@@ -2873,6 +2920,7 @@ void process_sequences(UNUSED s32 iterationsRemaining) {
 }
 
 void init_sequence_player(u32 player) {
+    if (player >= SEQUENCE_PLAYERS) { return; }
     struct SequencePlayer *seqPlayer = &gSequencePlayers[player];
 #if defined(VERSION_EU) || defined(VERSION_SH)
     sequence_player_disable(seqPlayer);

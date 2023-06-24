@@ -27,17 +27,19 @@ void spawn_star_number(void) {
 
     // Check if the star already has a number
     struct Object *starNumber = obj_get_first_with_behavior_id(id_bhvStarNumber);
+    u32 sanityDepth = 0;
     for (; starNumber; starNumber = obj_get_next_with_same_behavior_id(starNumber)) {
+        if (++sanityDepth >= 10000) { break; }
         if (!starNumber || starNumber->parentObj == o) {
             break;
         }
     }
 
     // If not, spawn a number
-    if (!starNumber) {
+    if (!starNumber && o) {
         starNumber = spawn_object(o, MODEL_NUMBER, bhvStarNumber);
     }
-    if (starNumber) {
+    if (starNumber && o) {
         starNumber->parentObj = o;
         starNumber->activeFlags |= ACTIVE_FLAG_INITIATED_TIME_STOP; // to make sure it's updated even during time stop
         starNumber->oStarBehavior = (const void *) smlua_override_behavior(o->behavior);
@@ -208,6 +210,7 @@ struct Object *spawn_default_star(f32 x, f32 y, f32 z) {
 }
 
 struct Object *spawn_red_coin_cutscene_star(f32 x, f32 y, f32 z) {
+    if (!o) { return NULL; }
     u32 behParams = o->oBehParams;
 
     // de-duplication checking
@@ -225,6 +228,7 @@ struct Object *spawn_red_coin_cutscene_star(f32 x, f32 y, f32 z) {
 }
 
 struct Object *spawn_no_exit_star(f32 x, f32 y, f32 z) {
+    if (!o) { return NULL; }
     u32 behParams = o->oBehParams;
 
     // de-duplication checking
@@ -284,7 +288,9 @@ void bhv_hidden_red_coin_star_init(void) {
         o->activeFlags = ACTIVE_FLAG_DEACTIVATED;
     }
 
-    o->oHiddenStarTriggerCounter = gCurrentArea->numRedCoins - redCoins;
+    if (gCurrentArea) {
+        o->oHiddenStarTriggerCounter = gCurrentArea->numRedCoins - redCoins;
+    }
     
     // We haven't interacted with a player yet.
     // We also don't sync this as not only is it not required
@@ -309,7 +315,7 @@ void bhv_hidden_red_coin_star_init(void) {
 void bhv_hidden_red_coin_star_loop(void) {
     switch (o->oAction) {
         case 0:
-            if (o->oHiddenStarTriggerCounter >= gCurrentArea->numRedCoins) {
+            if (gCurrentArea && o->oHiddenStarTriggerCounter >= gCurrentArea->numRedCoins) {
                 o->oAction = 1;
             }
             break;

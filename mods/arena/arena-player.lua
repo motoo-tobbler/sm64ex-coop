@@ -15,6 +15,7 @@ for i = 0, (MAX_PLAYERS - 1) do
     e.prevHurtCounter     = 0
     e.levelTimer          = 0
     e.levelTimerLevel     = 0
+    e.springing           = 0
 
     local s = gPlayerSyncTable[i]
     s.item     = ITEM_NONE
@@ -126,7 +127,7 @@ function mario_local_hammer_check(m)
         if sattacker.item == ITEM_HAMMER and mario_hammer_is_attack(mattacker.action) and passes_pvp_interaction_checks(mattacker, cmvictim) ~= 0 and passes_pvp_interaction_checks(mattacker, m) ~= 0 and global_index_hurts_mario_state(npattacker.globalIndex, m) then
             local pos = mario_hammer_position(mattacker)
             local dist = vec3f_dist(pos, cmvictim.pos)
-            if dist <= 165 then
+            if dist <= 200 then
                 local yOffset = 0.6
                 if mattacker.action == ACT_JUMP_KICK then
                     yOffset = 1.0
@@ -154,9 +155,9 @@ function mario_local_hammer_check(m)
                 e.lastDamagedByGlobal = npattacker.globalIndex
 
                 if mattacker.action == ACT_JUMP_KICK or mattacker.action == ACT_DIVE then
-                    m.hurtCounter = 9
+                    m.hurtCounter = 10
                 else
-                    m.hurtCounter = 14
+                    m.hurtCounter = 15
                 end
             end
         end
@@ -186,6 +187,8 @@ function mario_fire_flower_use(m)
 
     if (m.action & ACT_FLAG_INVULNERABLE) ~= 0 or (m.action & ACT_FLAG_INTANGIBLE) ~= 0 then
         -- nothing
+    elseif (m.action == ACT_SHOT_FROM_CANNON) then
+        -- nothing
     elseif (m.action & ACT_FLAG_SWIMMING) ~= 0 then
         set_mario_action(m, ACT_WATER_PUNCH, 0)
     elseif (m.action & ACT_FLAG_MOVING) ~= 0 then
@@ -196,7 +199,7 @@ function mario_fire_flower_use(m)
         set_mario_action(m, ACT_PUNCHING, 0)
     end
 
-    e.attackCooldown = 15
+    e.attackCooldown = 20
     s.ammo = s.ammo - 1
 end
 
@@ -218,6 +221,8 @@ function mario_bobomb_use(m)
 
     if (m.action & ACT_FLAG_INVULNERABLE) ~= 0 or (m.action & ACT_FLAG_INTANGIBLE) ~= 0 then
         -- nothing
+    elseif (m.action == ACT_SHOT_FROM_CANNON) then
+        -- nothing
     elseif (m.action & ACT_FLAG_SWIMMING) ~= 0 then
         set_mario_action(m, ACT_WATER_PUNCH, 0)
     elseif (m.action & ACT_FLAG_MOVING) ~= 0 then
@@ -228,7 +233,7 @@ function mario_bobomb_use(m)
         set_mario_action(m, ACT_PUNCHING, 0)
     end
 
-    e.attackCooldown = 15
+    e.attackCooldown = 20
     s.ammo = s.ammo - 1
 end
 
@@ -314,6 +319,14 @@ function on_set_mario_action(m)
         e.rotFrames = 0
     end
 
+    if m.playerIndex == 0 and is_player_active(m) ~= 0 then
+        if (m.action & ACT_FLAG_AIR) == 0 then
+            if e.springing == 1 then
+                e.springing = 0
+            end
+        end
+    end
+
     if s.item == ITEM_HAMMER then
         mario_hammer_on_set_action(m)
     end
@@ -324,8 +337,6 @@ function mario_local_update(m)
     local np = gNetworkPlayers[m.playerIndex]
     local s = gPlayerSyncTable[m.playerIndex]
     local e = gMarioStateExtras[m.playerIndex]
-
-    override_camera()
 
     -- decrease cooldown
     if e.attackCooldown > 0 then
@@ -343,6 +354,15 @@ function mario_local_update(m)
     -- use the bobomb
     if e.attackCooldown <= 0 and s.item == ITEM_BOBOMB and (m.controller.buttonPressed & Y_BUTTON) ~= 0 then
         mario_bobomb_use(m)
+    end
+
+    -- break out of shot from cannon
+    if (m.action == ACT_SHOT_FROM_CANNON) then
+        if (m.input & INPUT_B_PRESSED) ~= 0 then
+            return set_mario_action(m, ACT_DIVE, 0)
+        elseif (m.input & INPUT_Z_PRESSED) ~= 0 then
+            return set_mario_action(m, ACT_GROUND_POUND, 0)
+        end
     end
 
     -- set metal
@@ -370,6 +390,20 @@ function mario_local_update(m)
         end
         play_sound(SOUND_GENERAL_BREAK_BOX, m.marioObj.header.gfx.cameraToObject)
     end
+
+    -- prevent water heal
+    if m.health >= 0x100 then
+        if m.healCounter == 0 and m.hurtCounter == 0 then
+            if ((m.action & ACT_FLAG_SWIMMING ~= 0) and (m.action & ACT_FLAG_INTANGIBLE == 0)) then
+                if ((m.pos.y >= (m.waterLevel - 140)) and not (m.area.terrainType & TERRAIN_SNOW ~= 0)) then
+                    m.health = m.health - 0x1A
+                end
+            end
+        end
+    end
+
+    -- check for ladder
+    mario_check_for_ladder(m)
 
     e.prevHurtCounter = m.hurtCounter
 end
@@ -423,6 +457,11 @@ function mario_update(m)
     -- set metal
     if s.metal then
         m.marioBodyState.modelState = MODEL_STATE_METAL
+    end
+
+    -- allow yaw change on springing
+    if e.springing == 1 then
+        m.faceAngle.y = m.intendedYaw - approach_s32(convert_s16(m.intendedYaw - m.faceAngle.y), 0, 0x400, 0x400)
     end
 
     -- update player items
@@ -521,7 +560,7 @@ end
 function before_phys_step(m)
     local hScale = 1.0
 
-    if is_holding_flag(m) then
+    if is_holding_flag(m) and m.action ~= ACT_SHOT_FROM_CANNON then
         hScale = 0.9
     end
 

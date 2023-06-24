@@ -17,7 +17,9 @@
 
 struct WallCollisionData
 {
-    /*0x00*/ f32 x, y, z;
+    /*0x00*/ f32 x;
+    /*????*/ f32 y;
+    /*????*/ f32 z;
     /*0x0C*/ f32 offsetY;
     /*0x10*/ f32 radius;
     /*0x14*/ s16 unused;
@@ -38,6 +40,7 @@ struct FloorGeometry
 
 extern Vec3f gFindWallDirection;
 extern u8 gFindWallDirectionActive;
+extern u8 gFindWallDirectionAirborne;
 
 s32 f32_find_wall_collision(f32 *xPtr, f32 *yPtr, f32 *zPtr, f32 offsetY, f32 radius);
 s32 find_wall_collisions(struct WallCollisionData *colData);

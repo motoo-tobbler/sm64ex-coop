@@ -25,7 +25,7 @@ static void ScanPackBins(struct PackData* aPack) {
         if (length > 4 && !strncmp(&_PackEnt->d_name[length - 4], ".bin", 4)) {
             String _ActorName = _PackEnt->d_name;
             _ActorName[length - 4] = '\0';
-            DynOS_Actor_LoadFromBinary(aPack->mPath, strdup(_ActorName.begin()), _FileName, true);
+            DynOS_Actor_LoadFromBinary(aPack->mPath, _ActorName.begin(), _FileName, true);
         }
 
         // check for textures
@@ -42,7 +42,8 @@ static void DynOS_Pack_ActivateActor(s32 aPackIndex, Pair<const char *, GfxData 
     GfxData* aGfxData = pair.second;
 
     auto& geoNode = *(aGfxData->mGeoLayouts.end() - 1);
-    GraphNode* graphNode = (GraphNode *) DynOS_Geo_GetGraphNode(geoNode->mData, false);
+    u32 id = 0;
+    GraphNode* graphNode = DynOS_Model_LoadGeo(&id, MODEL_POOL_PERMANENT, geoNode->mData, true);
     if (graphNode == NULL) { return; }
 
     const void* georef = DynOS_Builtin_Actor_GetFromName(aActorName);
@@ -209,7 +210,7 @@ void DynOS_Pack_AddActor(PackData* aPackData, const char* aActorName, GfxData* a
     }
 
     s32 index = aPackData->mGfxData.Count();
-    aPackData->mGfxData.Add({ aActorName, aGfxData });
+    aPackData->mGfxData.Add({ strdup(aActorName), aGfxData });
 
     if (aPackData->mEnabled) {
         DynOS_Pack_ActivateActor(aPackData->mIndex, aPackData->mGfxData[index]);

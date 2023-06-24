@@ -45,6 +45,8 @@
 
 #include "game/screen_transition.h"
 
+#include "engine/level_script.h"
+
 #define WARP_NODE_F0 0xF0
 #define WARP_NODE_DEATH 0xF1
 #define WARP_NODE_F2 0xF2
@@ -65,10 +67,10 @@ s16 gChangeLevelTransition = -1;
 s16 gChangeActNum = -1;
 
 static bool sFirstCastleGroundsMenu = true;
-bool isDemoActive = false;
+static bool sIsDemoActive = false;
 bool gInPlayerMenu = false;
 static u16 gDemoCountdown = 0;
-int demoNumber = -1;
+static int sDemoNumber = -1;
 
 // TODO: Make these ifdefs better
 const char *credits01[] = { "1GAME DIRECTOR", "SHIGERU MIYAMOTO" };
@@ -401,9 +403,12 @@ void set_mario_initial_action(struct MarioState *m, u32 spawnType, u32 actionArg
 
 void init_mario_after_warp(void) {
     struct ObjectWarpNode *spawnNode = area_get_warp_node(sWarpDest.nodeId);
-    if (spawnNode == NULL || spawnNode->object == NULL) { if (gCurrentArea) { spawnNode = &gCurrentArea->warpNodes[0xFA]; } }
-    if (spawnNode == NULL || spawnNode->object == NULL) { if (gCurrentArea) { spawnNode = &gCurrentArea->warpNodes[0x00]; } }
+    if (spawnNode == NULL) { LOG_ERROR("Failed to find spawn node: %u", sWarpDest.nodeId); }
+    if (spawnNode == NULL || spawnNode->object == NULL) { spawnNode = area_get_warp_node(0xFA); }
+    if (spawnNode == NULL || spawnNode->object == NULL) { spawnNode = area_get_warp_node(0x00); }
+    if (spawnNode == NULL || spawnNode->object == NULL) { spawnNode = area_get_any_warp_node(); }
     if (spawnNode == NULL || spawnNode->object == NULL) { return; }
+
     u32 marioSpawnType = get_mario_spawn_type(spawnNode->object);
 
     if (gMarioState && gMarioState->action != ACT_UNINITIALIZED) {
@@ -612,6 +617,7 @@ void warp_credits(void) {
 }
 
 void check_instant_warp(void) {
+    if (!gCurrentArea) { return; }
     s16 cameraAngle;
     struct Surface *floor;
 
@@ -626,8 +632,7 @@ void check_instant_warp(void) {
 
     if ((floor = gMarioStates[0].floor) != NULL) {
         s32 index = floor->type - SURFACE_INSTANT_WARP_1B;
-        if (index >= INSTANT_WARP_INDEX_START && index < INSTANT_WARP_INDEX_STOP
-            && gCurrentArea->instantWarps != NULL) {
+        if (index >= INSTANT_WARP_INDEX_START && index < INSTANT_WARP_INDEX_STOP && gCurrentArea->instantWarps != NULL) {
             struct InstantWarp *warp = &gCurrentArea->instantWarps[index];
             if (warp->id != 0) {
                 if (gRejectInstantWarp > 0) {
@@ -635,6 +640,7 @@ void check_instant_warp(void) {
                     //vec3f_mul(gMarioStates[0].vel, -0.8f);
                     return;
                 }
+
                 mario_drop_held_object(&gMarioStates[0]);
                 u8 changeOfArea = (gCurrAreaIndex != warp->area);
                 gMarioStates[0].pos[0] += warp->displacement[0];
@@ -675,6 +681,7 @@ s16 music_changed_through_warp(s16 arg) {
     }
 
     struct ObjectWarpNode *warpNode = area_get_warp_node(arg);
+    if (!warpNode) { return FALSE; }
     s16 levelNum = warpNode->node.destLevel & 0x7F;
 
 #if BUGFIX_KOOPA_RACE_MUSIC
@@ -748,6 +755,8 @@ void initiate_warp(s16 destLevel, s16 destArea, s16 destWarpNode, s32 arg3) {
  * corresponding warp node.
  */
 struct WarpNode *get_painting_warp_node(void) {
+    if (!gMarioState || !gMarioState->floor || !gCurrentArea || !gCurrentArea->paintingWarpNodes) { return NULL; }
+
     struct WarpNode *warpNode = NULL;
     s32 paintingIndex = gMarioState->floor->type - SURFACE_PAINTING_WARP_D3;
 
@@ -783,9 +792,9 @@ static void initiate_painting_warp_node(struct WarpNode *pWarpNode) {
 /**
  * Check is Mario has entered a painting, and if so, initiate a warp.
  */
-void initiate_painting_warp(void) {
-    if (gCurrentArea != NULL && gCurrentArea->paintingWarpNodes != NULL && gMarioState->floor != NULL) {
-        struct WarpNode *pWarpNode = get_painting_warp_node();
+void initiate_painting_warp(s16 paintingIndex) {
+    if (gCurrentArea && gCurrentArea->paintingWarpNodes && gMarioState && gMarioState->floor && paintingIndex >= -1 && paintingIndex < MAX_PAINTING_WARP_NODES) {
+        struct WarpNode *pWarpNode = paintingIndex == -1 ? get_painting_warp_node() : &gCurrentArea->paintingWarpNodes[paintingIndex];
 
         if (pWarpNode != NULL) {
             if (gMarioState->action & ACT_FLAG_INTANGIBLE) {
@@ -1120,56 +1129,56 @@ void basic_update(UNUSED s16 *arg) {
 bool find_demo_number(void) {
     switch (gCurrLevelNum) {
         case LEVEL_BOWSER_1:
-            demoNumber = 0;
+            sDemoNumber = 0;
             return true;
         case LEVEL_WF:
-            demoNumber = 1;
+            sDemoNumber = 1;
             return true;
         case LEVEL_CCM:
-            demoNumber = 2;
+            sDemoNumber = 2;
             return true;
         case LEVEL_BBH:
-            demoNumber = 3;
+            sDemoNumber = 3;
             return true;
         case LEVEL_JRB:
-            demoNumber = 4;
+            sDemoNumber = 4;
             return true;
         case LEVEL_HMC:
-            demoNumber = 5;
+            sDemoNumber = 5;
             return true;
         case LEVEL_PSS:
-            demoNumber = 6;
+            sDemoNumber = 6;
             return true;
         default:
-            demoNumber = -1;
+            sDemoNumber = -1;
     }
     return false;
 }
 
 static void start_demo(void) {
-    if (isDemoActive) {
-        isDemoActive = false;
+    if (sIsDemoActive) {
+        sIsDemoActive = false;
     } else {
-        isDemoActive = true;
+        sIsDemoActive = true;
 
         if (find_demo_number()) {
             gChangeLevel = gCurrLevelNum;
         }
 
-        if (demoNumber <= 6 || demoNumber > -1) {
+        if (sDemoNumber <= 6 && sDemoNumber > -1) {
             gCurrDemoInput = NULL;
-            func_80278A78(&gDemo, gDemoInputs, D_80339CF4);
-            load_patchable_table(&gDemo, demoNumber);
+            alloc_anim_dma_table(&gDemo, gDemoInputs, gDemoTargetAnim);
+            load_patchable_table(&gDemo, sDemoNumber);
             gCurrDemoInput = ((struct DemoInput *) gDemo.targetAnim);
         } else {
-            isDemoActive = false;
+            sIsDemoActive = false;
         }
     }
 }
 
 void stop_demo(UNUSED struct DjuiBase* caller) {
-    if (isDemoActive) {
-        isDemoActive = false;
+    if (sIsDemoActive) {
+        sIsDemoActive = false;
         gCurrDemoInput = NULL;
         gChangeLevel = gCurrLevelNum;
         gDemoCountdown = 0;
@@ -1196,12 +1205,12 @@ s32 play_mode_normal(void) {
         }
     } else {
         if (gDjuiInMainMenu && gCurrDemoInput == NULL && configMenuDemos && !gInPlayerMenu) {
-            if ((++gDemoCountdown) == PRESS_START_DEMO_TIMER && (find_demo_number() && (demoNumber <= 6 || demoNumber > -1))) {
+            if ((++gDemoCountdown) == PRESS_START_DEMO_TIMER && (find_demo_number() && (sDemoNumber <= 6 && sDemoNumber > -1))) {
                 start_demo();
             }
         }
 
-        if (((gCurrDemoInput != NULL) && (gPlayer1Controller->buttonPressed & END_DEMO || !isDemoActive || !gDjuiInMainMenu || gNetworkType != NT_NONE || gInPlayerMenu)) || (gCurrDemoInput == NULL && isDemoActive)) {
+        if (((gCurrDemoInput != NULL) && (gPlayer1Controller->buttonPressed & END_DEMO || !sIsDemoActive || !gDjuiInMainMenu || gNetworkType != NT_NONE || gInPlayerMenu)) || (gCurrDemoInput == NULL && sIsDemoActive)) {
             gPlayer1Controller->buttonPressed &= ~END_DEMO;
             stop_demo(NULL);
         }
@@ -1229,7 +1238,7 @@ s32 play_mode_normal(void) {
         update_camera(gCurrentArea->camera);
     }
 
-    initiate_painting_warp();
+    initiate_painting_warp(-1);
     initiate_delayed_warp();
 
     // If either initiate_painting_warp or initiate_delayed_warp initiated a
@@ -1431,7 +1440,7 @@ void update_menu_level(void) {
 
     // warp to level, this feels buggy
     if (gCurrLevelNum != curLevel) {
-        if (isDemoActive) {
+        if (sIsDemoActive) {
             stop_demo(NULL);
         }
         if (curLevel == LEVEL_JRB) {
@@ -1445,7 +1454,7 @@ void update_menu_level(void) {
         }
         gDemoCountdown = 0;
     }
-    if (isDemoActive) {
+    if (sIsDemoActive) {
         return;
     }
 
@@ -1672,6 +1681,7 @@ s32 update_level(void) {
 }
 
 s32 init_level(void) {
+    sync_objects_clear();
     reset_dialog_render_state();
 
     s32 val4 = 0;
@@ -1867,6 +1877,10 @@ s32 lvl_set_current_level(UNUSED s16 arg0, s32 levelNum) {
 
     if (foundHook) {
         return hookUseActSelect;
+    }
+
+    if (gLevelValues.disableActs) {
+        return 0;
     }
 
     if (gCurrCourseNum > COURSE_STAGES_MAX || warpCheckpointActive) {

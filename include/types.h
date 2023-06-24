@@ -19,6 +19,8 @@
     #define BAD_RETURN(cmd) cmd
 #endif
 
+#define OBJECT_MAX_BHV_STACK 16
+
 struct Controller
 {
   /*0x00*/ s16 rawStickX;       //
@@ -103,20 +105,32 @@ struct Animation {
     /*0x0C*/ const s16 *values;
     /*0x10*/ const u16 *index;
     /*0x14*/ u32 length; // only used with Mario animations to determine how much to load. 0 otherwise.
+    /*????*/ u32 valuesLength;
+    /*????*/ u32 indexLength;
+};
+
+struct AnimationTable {
+    u32 count;
+    const struct Animation* const anims[];
 };
 
 #define ANIMINDEX_NUMPARTS(animindex) (sizeof(animindex) / sizeof(u16) / 6 - 1)
+#define ANIM_FIELD_LENGTH(animindex) (sizeof(animindex) / sizeof(u16))
+
+#define GRAPH_NODE_GUARD 0xAA
 
 struct GraphNode
 {
-    /*0x00*/ s16 type; // structure type
-    /*0x02*/ s16 flags; // hi = drawing layer, lo = rendering modes
-    /*0x04*/ struct GraphNode *prev;
-    /*0x08*/ struct GraphNode *next;
-    /*0x0C*/ struct GraphNode *parent;
-    /*0x10*/ struct GraphNode *children;
-    /*0x14*/ const void *georef;
-    /*????*/ u8 extraFlags;
+    s16 type; // structure type
+    s16 flags; // hi = drawing layer, lo = rendering modes
+    struct GraphNode *prev;
+    u8 _guard1;
+    struct GraphNode *next;
+    u8 _guard2;
+    struct GraphNode *parent;
+    struct GraphNode *children;
+    const void *georef;
+    u8 extraFlags;
 };
 
 struct AnimInfo
@@ -195,7 +209,7 @@ struct Object
     union {
         s16 *asS16P[0x50];
         s32 *asS32P[0x50];
-        struct Animation **asAnims[0x50];
+        struct AnimationTable *asAnims[0x50];
         struct Waypoint *asWaypoint[0x50];
         struct ChainSegment *asChainSegment[0x50];
         struct Object *asObject[0x50];
@@ -206,7 +220,7 @@ struct Object
     /*0x1C8*/ u32 unused1;
     /*0x1CC*/ const BehaviorScript *curBhvCommand;
     /*0x1D0*/ u32 bhvStackIndex;
-    /*0x1D4*/ uintptr_t bhvStack[8];
+    /*0x1D4*/ uintptr_t bhvStack[OBJECT_MAX_BHV_STACK];
     /*0x1F4*/ s16 bhvDelayTimer;
     /*0x1F6*/ s16 respawnInfoType;
     /*0x1F8*/ f32 hitboxRadius;

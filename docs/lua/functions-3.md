@@ -2444,6 +2444,24 @@
 
 <br />
 
+## [djui_open_pause_menu](#djui_open_pause_menu)
+
+### Lua Example
+`djui_open_pause_menu()`
+
+### Parameters
+- None
+
+### Returns
+- None
+
+### C Prototype
+`void djui_open_pause_menu(void);`
+
+[:arrow_up_small:](#)
+
+<br />
+
 ---
 # functions from djui_popup.h
 
@@ -2476,6 +2494,24 @@
 
 <br />
 
+
+## [drop_queued_background_music](#drop_queued_background_music)
+
+### Lua Example
+`drop_queued_background_music()`
+
+### Parameters
+- None
+
+### Returns
+- None
+
+### C Prototype
+`void drop_queued_background_music(void);`
+
+[:arrow_up_small:](#)
+
+<br />
 
 ## [fade_volume_scale](#fade_volume_scale)
 
@@ -2910,6 +2946,26 @@
 
 <br />
 
+## [set_audio_fadeout](#set_audio_fadeout)
+
+### Lua Example
+`set_audio_fadeout(fadeOutTime)`
+
+### Parameters
+| Field | Type |
+| ----- | ---- |
+| fadeOutTime | `integer` |
+
+### Returns
+- None
+
+### C Prototype
+`void set_audio_fadeout(u16 fadeOutTime);`
+
+[:arrow_up_small:](#)
+
+<br />
+
 ## [sound_banks_disable](#sound_banks_disable)
 
 ### Lua Example
@@ -2967,6 +3023,26 @@
 
 ### C Prototype
 `void stop_background_music(u16 seqId);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [stop_secondary_music](#stop_secondary_music)
+
+### Lua Example
+`stop_secondary_music(fadeTimer)`
+
+### Parameters
+| Field | Type |
+| ----- | ---- |
+| fadeTimer | `integer` |
+
+### Returns
+- None
+
+### C Prototype
+`void stop_secondary_music(u16 fadeTimer);`
 
 [:arrow_up_small:](#)
 
@@ -3032,10 +3108,141 @@
 <br />
 
 ---
+# functions from ingame_menu.h
+
+<br />
+
+
+## [reset_dialog_override_color](#reset_dialog_override_color)
+
+### Lua Example
+`reset_dialog_override_color()`
+
+### Parameters
+- None
+
+### Returns
+- None
+
+### C Prototype
+`void reset_dialog_override_color();`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [reset_dialog_override_pos](#reset_dialog_override_pos)
+
+### Lua Example
+`reset_dialog_override_pos()`
+
+### Parameters
+- None
+
+### Returns
+- None
+
+### C Prototype
+`void reset_dialog_override_pos();`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [set_dialog_override_color](#set_dialog_override_color)
+
+### Lua Example
+`set_dialog_override_color(bgR, bgG, bgB, bgA, textR, textG, textB, textA)`
+
+### Parameters
+| Field | Type |
+| ----- | ---- |
+| bgR | `integer` |
+| bgG | `integer` |
+| bgB | `integer` |
+| bgA | `integer` |
+| textR | `integer` |
+| textG | `integer` |
+| textB | `integer` |
+| textA | `integer` |
+
+### Returns
+- None
+
+### C Prototype
+`void set_dialog_override_color(u8 bgR, u8 bgG, u8 bgB, u8 bgA, u8 textR, u8 textG, u8 textB, u8 textA);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [set_dialog_override_pos](#set_dialog_override_pos)
+
+### Lua Example
+`set_dialog_override_pos(x, y)`
+
+### Parameters
+| Field | Type |
+| ----- | ---- |
+| x | `integer` |
+| y | `integer` |
+
+### Returns
+- None
+
+### C Prototype
+`void set_dialog_override_pos(s16 x, s16 y);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [set_min_dialog_width](#set_min_dialog_width)
+
+### Lua Example
+`set_min_dialog_width(width)`
+
+### Parameters
+| Field | Type |
+| ----- | ---- |
+| width | `integer` |
+
+### Returns
+- None
+
+### C Prototype
+`void set_min_dialog_width(s16 width);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+---
 # functions from interaction.h
 
 <br />
 
+
+## [determine_interaction](#determine_interaction)
+
+### Lua Example
+`local integerValue = determine_interaction(m, o)`
+
+### Parameters
+| Field | Type |
+| ----- | ---- |
+| m | [MarioState](structs.md#MarioState) |
+| o | [Object](structs.md#Object) |
+
+### Returns
+- `integer`
+
+### C Prototype
+`u32 determine_interaction(struct MarioState *m, struct Object *o);`
+
+[:arrow_up_small:](#)
+
+<br />
 
 ## [does_mario_have_normal_cap_on_head](#does_mario_have_normal_cap_on_head)
 
@@ -3566,6 +3773,44 @@
 
 <br />
 
+
+## [get_painting_warp_node](#get_painting_warp_node)
+
+### Lua Example
+`local WarpNodeValue = get_painting_warp_node()`
+
+### Parameters
+- None
+
+### Returns
+[WarpNode](structs.md#WarpNode)
+
+### C Prototype
+`struct WarpNode *get_painting_warp_node(void);`
+
+[:arrow_up_small:](#)
+
+<br />
+
+## [initiate_painting_warp](#initiate_painting_warp)
+
+### Lua Example
+`initiate_painting_warp(paintingIndex)`
+
+### Parameters
+| Field | Type |
+| ----- | ---- |
+| paintingIndex | `integer` |
+
+### Returns
+- None
+
+### C Prototype
+`void initiate_painting_warp(s16 paintingIndex);`
+
+[:arrow_up_small:](#)
+
+<br />
 
 ## [level_trigger_warp](#level_trigger_warp)
 

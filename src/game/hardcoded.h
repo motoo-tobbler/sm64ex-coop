@@ -42,6 +42,9 @@ struct StarPositions {
 struct LevelValues {
     u8 fixCollisionBugs;
     u8 fixCollisionBugsRoundedCorners;
+    u8 fixCollisionBugsFalseLedgeGrab;
+    u8 fixCollisionBugsGroundPoundBonks;
+    u8 fixCollisionBugsPickBestWall;
     u8 wingCapLookUpReq;
     u8 fixVanishFloors;
     u8 hudCapTimer;
@@ -242,12 +245,18 @@ struct BehaviorValues {
     u16 GrateStarRequirement;
     u8  ShowStarMilestones;
     u8  RespawnShellBoxes;
+    u8  MultipleCapCollection;
+    u8  InfiniteRenderDistance;
     struct StarsNeededForDialog starsNeededForDialog;
     struct BehaviorDialogs dialogs;
     struct BehaviorTrajectories trajectories;
 };
 
 extern struct BehaviorValues gBehaviorValues;
+
+  //////////////
+ // Painting //
+//////////////
 
 struct PaintingValues {
     struct Painting* cotmc_painting;
@@ -271,6 +280,10 @@ struct PaintingValues {
 };
 
 extern struct PaintingValues gPaintingValues;
+
+  ///////////////
+ // Functions //
+///////////////
 
 void hardcoded_reset_default_values(void);
 

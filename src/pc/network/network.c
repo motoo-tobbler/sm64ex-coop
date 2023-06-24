@@ -17,6 +17,7 @@
 #include "pc/utils/misc.h"
 #include "pc/lua/smlua.h"
 #include "pc/lua/utils/smlua_model_utils.h"
+#include "pc/lua/utils/smlua_misc_utils.h"
 #include "pc/mods/mods.h"
 #include "pc/crash_handler.h"
 #include "pc/debuglog.h"
@@ -27,6 +28,7 @@
 #include "game/object_helpers.h"
 #include "game/level_geo.h"
 #include "menu/intro_geo.h"
+#include "game/ingame_menu.h"
 
 #ifdef DISCORD_SDK
 #include "pc/discord/discord.h"
@@ -613,6 +615,8 @@ void network_shutdown(bool sendLeaving, bool exiting, bool popup, bool reconnect
         gNetworkType = NT_NONE;
     }
 
+    dynos_model_clear_pool(MODEL_POOL_SESSION);
+
     if (exiting) { return; }
 
     // reset other stuff
@@ -630,9 +634,14 @@ void network_shutdown(bool sendLeaving, bool exiting, bool popup, bool reconnect
     gLightingDir[0] = 0;
     gLightingDir[1] = 0;
     gLightingDir[2] = 0;
+    gLightingColor[0] = 255;
+    gLightingColor[1] = 255;
+    gLightingColor[2] = 255;
     gOverrideBackground = -1;
     gOverrideEnvFx = -1;
     gDjuiRenderBehindHud = false;
+    gRomhackCameraAllowCentering = TRUE;
+    camera_reset_overrides();
     dynos_mod_shutdown();
     mods_clear(&gActiveMods);
     mods_clear(&gRemoteMods);
@@ -648,6 +657,9 @@ void network_shutdown(bool sendLeaving, bool exiting, bool popup, bool reconnect
     gMarioStates[0].cap = 0;
     extern s16 gTTCSpeedSetting;
     gTTCSpeedSetting = 0;
+    gOverrideDialogPos = 0;
+    gOverrideDialogColor = 0;
+    gDialogMinWidth = 0;
 
     struct Controller* cnt = gMarioStates[0].controller;
     cnt->rawStickX = 0;

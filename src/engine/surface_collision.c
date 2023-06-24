@@ -15,6 +15,7 @@
 
 Vec3f gFindWallDirection = { 0 };
 u8 gFindWallDirectionActive = false;
+u8 gFindWallDirectionAirborne = false;
 
 #define CLAMP(_val, _min, _max) MAX(MIN((_val), _max), _min)
 
@@ -106,7 +107,7 @@ static void closest_point_to_triangle(struct Surface* surf, Vec3f src, Vec3f out
 static s32 find_wall_collisions_from_list(struct SurfaceNode *surfaceNode,
                                           struct WallCollisionData *data) {
     register struct Surface *surf;
-    register f32 offset;
+    register f32 offset = 0;
     register f32 radius = data->radius;
     register f32 x = data->x;
     register f32 y = data->y + data->offsetY;
@@ -134,7 +135,7 @@ static s32 find_wall_collisions_from_list(struct SurfaceNode *surfaceNode,
             continue;
         }
 
-        if (gLevelValues.fixCollisionBugs && gLevelValues.fixCollisionBugsRoundedCorners) {
+        if (gLevelValues.fixCollisionBugs && gLevelValues.fixCollisionBugsRoundedCorners && !gFindWallDirectionAirborne) {
             // Check AABB to exclude walls before doing expensive triangle check
             f32 minX = MIN(MIN(surf->vertex1[0], surf->vertex2[0]), surf->vertex3[0]) - radius;
             f32 minZ = MIN(MIN(surf->vertex1[2], surf->vertex2[2]), surf->vertex3[2]) - radius;
@@ -277,7 +278,7 @@ static s32 find_wall_collisions_from_list(struct SurfaceNode *surfaceNode,
         //! (Wall Overlaps) Because this doesn't update the x and z local variables,
         //  multiple walls can push mario more than is required.
         //  <Fixed when gLevelValues.fixCollisionBugs != 0>
-        if (gLevelValues.fixCollisionBugs && gLevelValues.fixCollisionBugsRoundedCorners) {
+        if (gLevelValues.fixCollisionBugs && gLevelValues.fixCollisionBugsRoundedCorners && !gFindWallDirectionAirborne) {
             data->x = cPos[0] + cNorm[0] * radius;
             data->z = cPos[2] + cNorm[2] * radius;
             x = data->x;
@@ -889,6 +890,7 @@ f32 find_water_level(f32 x, f32 z) {
     s16 val;
     f32 loX, hiX, loZ, hiZ;
     f32 waterLevel = gLevelValues.floorLowerLimit;
+    if (!gEnvironmentRegions) { return waterLevel; }
     s16 *p = gEnvironmentRegions;
 
     if (p != NULL) {
@@ -925,6 +927,7 @@ f32 find_poison_gas_level(f32 x, f32 z) {
     s16 val;
     f32 loX, hiX, loZ, hiZ;
     f32 gasLevel = gLevelValues.floorLowerLimit;
+    if (!gEnvironmentRegions) { return gasLevel; }
     s16 *p = gEnvironmentRegions;
 
     if (p != NULL) {

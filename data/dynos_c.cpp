@@ -14,6 +14,7 @@ void *dynos_update_cmd(void *cmd) {
 }
 
 void dynos_update_gfx() {
+    DynOS_Model_Update();
     return DynOS_UpdateGfx();
 }
 
@@ -121,10 +122,6 @@ const void* dynos_geolayout_get(const char *name) {
     return DynOS_Actor_GetLayoutFromName(name);
 }
 
-void *dynos_geolayout_to_graphnode(const void *geoLayout, bool keepInMemory) {
-    return DynOS_Geo_GetGraphNode(geoLayout, keepInMemory);
-}
-
 // -- collisions -- //
 
 void dynos_add_collision(const char *filePath, const char* collisionName) {
@@ -226,7 +223,42 @@ void dynos_behavior_hook_all_custom_behaviors(void) {
     DynOS_Bhv_HookAllCustomBehaviors();
 }
 
+// -- models -- //
+
+struct GraphNode* dynos_model_load_geo(u32* aId, enum ModelPool aModelPool, void* aAsset, bool aDeDuplicate) {
+    return DynOS_Model_LoadGeo(aId, aModelPool, aAsset, aDeDuplicate);
+}
+
+struct GraphNode* dynos_model_load_dl(u32* aId, enum ModelPool aModelPool, u8 aLayer, void* aAsset) {
+    return DynOS_Model_LoadDl(aId, aModelPool, aLayer, aAsset);
+}
+
+struct GraphNode* dynos_model_store_geo(u32* aId, enum ModelPool aModelPool, void* aAsset, struct GraphNode* aGraphNode) {
+    return DynOS_Model_StoreGeo(aId, aModelPool, aAsset, aGraphNode);
+}
+
+u32 dynos_model_get_id_from_asset(void* aAsset) {
+    return DynOS_Model_GetIdFromAsset(aAsset);
+}
+
+u32 dynos_model_get_id_from_graph_node(struct GraphNode* aGraphNode) {
+    return DynOS_Model_GetIdFromGraphNode(aGraphNode);
+}
+
+void dynos_model_clear_pool(enum ModelPool aModelPool) {
+    DynOS_Model_ClearPool(aModelPool);
+}
+
+struct GraphNode* dynos_model_get_geo(u32 aId) {
+    return DynOS_Model_GetGeo(aId);
+}
+
+void dynos_model_overwrite_slot(u32 srcSlot, u32 dstSlot) {
+    DynOS_Model_OverwriteSlot(srcSlot, dstSlot);
+}
+
 // -- other -- //
+
 void dynos_mod_shutdown(void) {
     DynOS_Mod_Shutdown();
 }

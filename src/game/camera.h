@@ -10,7 +10,15 @@
 
 #include "level_table.h"
 
+enum RomhackCameraOverride {
+    RCO_ALL,
+    RCO_ALL_EXCEPT_BOWSER,
+    RCO_NONE,
+};
+
 extern u8 gOverrideFreezeCamera;
+extern enum RomhackCameraOverride gOverrideRomhackCamera;
+extern u8 gRomhackCameraAllowCentering;
 
 /**
  * @file camera.h

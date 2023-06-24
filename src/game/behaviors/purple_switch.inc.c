@@ -16,7 +16,7 @@ void bhv_purple_switch_loop(void) {
     u8 anyPlayerOnPlatform = FALSE;
     for (s32 i = 0; i < MAX_PLAYERS; i++) {
         if (!is_player_active(&gMarioStates[i])) { continue; }
-        if (gMarioStates[i].marioObj->platform == o) {
+        if (gMarioStates[i].marioObj && gMarioStates[i].marioObj->platform == o) {
             anyPlayerOnPlatform = TRUE;
             break;
         }
@@ -31,7 +31,7 @@ void bhv_purple_switch_loop(void) {
         case PURPLE_SWITCH_IDLE:
             cur_obj_set_model(smlua_model_util_load(E_MODEL_PURPLE_SWITCH));
             cur_obj_scale(1.5f);
-            if (gMarioObject->platform == o && !(gMarioStates[0].action & MARIO_UNKNOWN_13)) {
+            if (gMarioObject && gMarioObject->platform == o && !(gMarioStates[0].action & MARIO_UNKNOWN_13)) {
                 if (lateral_dist_between_objects(o, gMarioObject) < 127.5) {
                     o->oAction = PURPLE_SWITCH_PRESSED;
                     network_send_object(o);

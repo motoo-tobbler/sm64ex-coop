@@ -29,7 +29,7 @@ function bhv_arena_bobomb_intersects_player(obj, m, pos, radius)
     return ret
 end
 
-function bhv_arena_bobomb_expode(obj)
+function bhv_arena_bobomb_expode(obj, directHitLocal)
     obj.oAction = 1
     obj.oFlags = OBJ_FLAG_UPDATE_GFX_POS_AND_ANGLE
     obj_set_billboard(obj)
@@ -48,9 +48,14 @@ function bhv_arena_bobomb_expode(obj)
     local radius = 500
     if np.globalIndex == obj.oArenaBobombGlobalOwner then radius = 300 end
     if validAttack and bhv_arena_bobomb_intersects_player(obj, m, a, radius) and mario_health_float(m) > 0 then
-        obj.oDamageOrCoinValue = 3
+        obj.oDamageOrCoinValue = 2
+        if directHitLocal then
+            obj.oDamageOrCoinValue = 3
+        end
         interact_damage(m, INTERACT_DAMAGE, obj)
-        e.lastDamagedByGlobal = obj.oArenaBobombGlobalOwner
+        if np.globalIndex ~= obj.oArenaBobombGlobalOwner then
+            e.lastDamagedByGlobal = obj.oArenaBobombGlobalOwner
+        end
 
         -- knockback
         local ownerNp = network_player_from_global_index(obj.oArenaBobombGlobalOwner)
@@ -89,21 +94,23 @@ function bhv_arena_bobomb_thrown_loop(obj)
     for i = 0, MAX_PLAYERS - 1 do
         local m = gMarioStates[i]
         if active_player(m) and global_index_hurts_mario_state(obj.oArenaBobombGlobalOwner, m) and not is_invuln_or_intang(m) then
-            if bhv_arena_bobomb_intersects_player(obj, m, a, 200) then
-                bhv_arena_bobomb_expode(obj)
+            if bhv_arena_bobomb_intersects_player(obj, m, a, 130) then
+                bhv_arena_bobomb_expode(obj, (i == 0))
                 return
             end
         end
     end
+
+    spawn_mist_advanced(obj, 2, 3, 1, 70)
 
     local info = collision_find_surface_on_ray(
             a.x, a.y, a.z,
             dir.x, dir.y, dir.z)
 
     local floorHeight = find_floor_height(obj.oPosX, obj.oPosY + 100, obj.oPosZ)
-            
+
     if obj.oTimer > 30 * 1 or info.surface ~= nil or obj.oPosY < floorHeight then
-        bhv_arena_bobomb_expode(obj)
+        bhv_arena_bobomb_expode(obj, false)
         return
     else
         obj.oPosX = obj.oPosX + dir.x

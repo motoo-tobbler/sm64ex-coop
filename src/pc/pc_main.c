@@ -110,8 +110,8 @@ void send_display_list(struct SPTask *spTask) {
 }
 
 #ifdef VERSION_EU
-#define SAMPLES_HIGH 656
-#define SAMPLES_LOW 640
+#define SAMPLES_HIGH 560 // gAudioBufferParameters.maxAiBufferLength
+#define SAMPLES_LOW 528 // gAudioBufferParameters.minAiBufferLength
 #else
 #define SAMPLES_HIGH 544
 #define SAMPLES_LOW 528
@@ -290,6 +290,8 @@ void main_func(void) {
 
     sync_objects_init_system();
     djui_unicode_init();
+    djui_init();
+    dynos_packs_init();
     mods_init();
 
     // load config
@@ -317,12 +319,6 @@ void main_func(void) {
         configWindow.fullscreen = true;
     else if (gCLIOpts.FullScreen == 2)
         configWindow.fullscreen = false;
-
-    const size_t poolsize = gCLIOpts.PoolSize ? gCLIOpts.PoolSize : DEFAULT_POOL_SIZE;
-    u64 *pool = calloc(poolsize, 1);
-    if (!pool) sys_fatal("Could not alloc %u bytes for main pool.\n", poolsize);
-    main_pool_init(pool, pool + poolsize / sizeof(pool[0]));
-    gEffectsMemoryPool = mem_pool_init(0x4000, MEMORY_POOL_LEFT);
 
     #if defined(WAPI_SDL1) || defined(WAPI_SDL2)
     wm_api = &gfx_sdl;
@@ -373,7 +369,7 @@ void main_func(void) {
         audio_api = &audio_null;
     }
 
-    djui_init();
+    djui_init_late();
 
     if (gCLIOpts.Network == NT_CLIENT) {
         network_set_system(NS_SOCKET);

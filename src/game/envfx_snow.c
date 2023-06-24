@@ -104,10 +104,8 @@ s32 envfx_init_snow(s32 mode) {
             break;
     }
 
-    gEnvFxBuffer = mem_pool_alloc(gEffectsMemoryPool, gSnowParticleMaxCount * sizeof(struct EnvFxParticle));
-    if (!gEnvFxBuffer) {
-        return 0;
-    }
+    gEnvFxBuffer = dynamic_pool_alloc(gLevelPool, gSnowParticleMaxCount * sizeof(struct EnvFxParticle));
+    if (!gEnvFxBuffer) { return 0; }
 
     bzero(gEnvFxBuffer, gSnowParticleMaxCount * sizeof(struct EnvFxParticle));
 
@@ -158,11 +156,8 @@ void envfx_update_snowflake_count(s32 mode, Vec3s marioPos) {
  * Deallocate the buffer storing snow particles and set the environment effect
  * to none.
  */
-void envfx_cleanup_snow(void *snowParticleArray) {
+void envfx_cleanup_snow(UNUSED void *snowParticleArray) {
     if (gEnvFxMode) {
-        if (snowParticleArray) {
-            mem_pool_free(gEffectsMemoryPool, snowParticleArray);
-        }
         gEnvFxMode = ENVFX_MODE_NONE;
     }
 }

@@ -3,7 +3,11 @@
 
 #include <PR/ultratypes.h>
 
+#define MAX_PAINTING_WARP_NODES 45
+
 struct LevelCommand;
+
+extern struct DynamicPool *gLevelPool;
 
 extern s32 gLevelScriptModIndex;
 extern LevelScript* gLevelScriptActive;

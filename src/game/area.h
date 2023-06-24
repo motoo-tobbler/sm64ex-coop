@@ -7,10 +7,6 @@
 #include "camera.h"
 #include "engine/graph_node.h"
 
-#define LOADED_GRAPH_NODES_VANILLA 256
-#define LOADED_GRAPH_NODES_EXTENDED 512
-#define MAX_LOADED_GRAPH_NODES (LOADED_GRAPH_NODES_VANILLA + LOADED_GRAPH_NODES_EXTENDED)
-
 struct WarpNode
 {
     /*00*/ u8 id;
@@ -29,6 +25,8 @@ struct ObjectWarpNode
 // From Surface 0x1B to 0x1E
 #define INSTANT_WARP_INDEX_START  0x00 // Equal and greater than Surface 0x1B
 #define INSTANT_WARP_INDEX_STOP   0x04 // Less than Surface 0x1F
+
+#define MAX_AREAS 8
 
 struct InstantWarp
 {
@@ -128,7 +126,6 @@ struct WarpTransition
     /*0x04*/ struct WarpTransitionData data;
 };
 
-extern struct GraphNode **gLoadedGraphNodes;
 extern struct SpawnInfo gPlayerSpawnInfos[];
 extern struct GraphNode *D_8033A160[];
 extern struct Area gAreaData[];
@@ -162,6 +159,7 @@ void override_viewport_and_clip(Vp *a, Vp *b, u8 c, u8 d, u8 e);
 void print_intro_text(void);
 u32 get_mario_spawn_type(struct Object *o);
 struct ObjectWarpNode *area_get_warp_node(u8 id);
+struct ObjectWarpNode *area_get_any_warp_node(void);
 struct ObjectWarpNode *area_get_warp_node_from_params(struct Object *o);
 void clear_areas(void);
 void clear_area_graph_nodes(void);

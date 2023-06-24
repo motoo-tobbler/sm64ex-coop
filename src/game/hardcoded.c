@@ -44,6 +44,9 @@ extern Trajectory sThiTinyMetalBallTraj[];
 struct LevelValues gDefaultLevelValues = {
     .fixCollisionBugs               = 0,
     .fixCollisionBugsRoundedCorners = 1,
+    .fixCollisionBugsFalseLedgeGrab = 1,
+    .fixCollisionBugsGroundPoundBonks = 1,
+    .fixCollisionBugsPickBestWall   = 1,
     .fixVanishFloors                = 0,
     .hudCapTimer                    = 0,
     .hudRedCoinsRadar               = 0,
@@ -145,6 +148,8 @@ struct BehaviorValues gDefaultBehaviorValues = {
     .GrateStarRequirement     = 120,
     .ShowStarMilestones       = TRUE,
     .RespawnShellBoxes        = TRUE,
+    .MultipleCapCollection    = FALSE,
+    .InfiniteRenderDistance   = TRUE,
     .starsNeededForDialog     = { 1, 3, 8, 30, 50, 70 },
     .dialogs = {
         .BobombBuddyBob1Dialog         = DIALOG_004,
@@ -268,9 +273,12 @@ struct BehaviorValues gDefaultBehaviorValues = {
 
 struct BehaviorValues gBehaviorValues = { 0 };
 
+  //////////////
+ // Painting //
+//////////////
+
 struct PaintingValues gDefaultPaintingValues = {
     .cotmc_painting =     &cotmc_painting,
-
     .bob_painting =       &bob_painting,
     .ccm_painting =       &ccm_painting,
     .wf_painting =        &wf_painting,
@@ -285,7 +293,6 @@ struct PaintingValues gDefaultPaintingValues = {
     .ttc_painting =       &ttc_painting,
     .sl_painting =        &sl_painting,
     .thi_huge_painting =  &thi_huge_painting,
-
     .ttm_slide_painting = &ttm_slide_painting,
 };
 
@@ -299,5 +306,23 @@ __attribute__((constructor))
 void hardcoded_reset_default_values(void) {
     gLevelValues = gDefaultLevelValues;
     gBehaviorValues = gDefaultBehaviorValues;
+
+    memcpy(&cotmc_painting, &default_cotmc_painting, sizeof(struct Painting));
+    memcpy(&bob_painting, &default_bob_painting, sizeof(struct Painting));
+    memcpy(&ccm_painting, &default_ccm_painting, sizeof(struct Painting));
+    memcpy(&wf_painting, &default_wf_painting, sizeof(struct Painting));
+    memcpy(&jrb_painting, &default_jrb_painting, sizeof(struct Painting));
+    memcpy(&lll_painting, &default_lll_painting, sizeof(struct Painting));
+    memcpy(&ssl_painting, &default_ssl_painting, sizeof(struct Painting));
+    memcpy(&hmc_painting, &default_hmc_painting, sizeof(struct Painting));
+    memcpy(&ddd_painting, &default_ddd_painting, sizeof(struct Painting));
+    memcpy(&wdw_painting, &default_wdw_painting, sizeof(struct Painting));
+    memcpy(&thi_tiny_painting, &default_thi_tiny_painting, sizeof(struct Painting));
+    memcpy(&ttm_painting, &default_ttm_painting, sizeof(struct Painting));
+    memcpy(&ttc_painting, &default_ttc_painting, sizeof(struct Painting));
+    memcpy(&sl_painting, &default_sl_painting, sizeof(struct Painting));
+    memcpy(&thi_huge_painting, &default_thi_huge_painting, sizeof(struct Painting));
+    memcpy(&ttm_slide_painting, &default_ttm_slide_painting, sizeof(struct Painting));
+
     gPaintingValues = gDefaultPaintingValues;
 }

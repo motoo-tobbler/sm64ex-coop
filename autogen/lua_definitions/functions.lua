@@ -3750,10 +3750,20 @@ function djui_hud_world_pos_to_screen_pos(pos, out)
     -- ...
 end
 
+--- @return nil
+function djui_open_pause_menu()
+    -- ...
+end
+
 --- @param message string
 --- @param lines integer
 --- @return nil
 function djui_popup_create(message, lines)
+    -- ...
+end
+
+--- @return nil
+function drop_queued_background_music()
     -- ...
 end
 
@@ -3893,6 +3903,12 @@ function seq_player_unlower_volume(player, fadeDuration)
     -- ...
 end
 
+--- @param fadeOutTime integer
+--- @return nil
+function set_audio_fadeout(fadeOutTime)
+    -- ...
+end
+
 --- @param player integer
 --- @param bankMask integer
 --- @return nil
@@ -3913,6 +3929,12 @@ function stop_background_music(seqId)
     -- ...
 end
 
+--- @param fadeTimer integer
+--- @return nil
+function stop_secondary_music(fadeTimer)
+    -- ...
+end
+
 --- @param soundBits integer
 --- @param pos Vec3f
 --- @return nil
@@ -3928,6 +3950,49 @@ end
 
 --- @return nil
 function stop_sounds_in_continuous_banks()
+    -- ...
+end
+
+--- @return nil
+function reset_dialog_override_color()
+    -- ...
+end
+
+--- @return nil
+function reset_dialog_override_pos()
+    -- ...
+end
+
+--- @param bgR integer
+--- @param bgG integer
+--- @param bgB integer
+--- @param bgA integer
+--- @param textR integer
+--- @param textG integer
+--- @param textB integer
+--- @param textA integer
+--- @return nil
+function set_dialog_override_color(bgR, bgG, bgB, bgA, textR, textG, textB, textA)
+    -- ...
+end
+
+--- @param x integer
+--- @param y integer
+--- @return nil
+function set_dialog_override_pos(x, y)
+    -- ...
+end
+
+--- @param width integer
+--- @return nil
+function set_min_dialog_width(width)
+    -- ...
+end
+
+--- @param m MarioState
+--- @param o Object
+--- @return integer
+function determine_interaction(m, o)
     -- ...
 end
 
@@ -4098,6 +4163,17 @@ end
 --- @param o Object
 --- @return ObjectWarpNode
 function area_create_warp_node(id, destLevel, destArea, destNode, checkpoint, o)
+    -- ...
+end
+
+--- @return WarpNode
+function get_painting_warp_node()
+    -- ...
+end
+
+--- @param paintingIndex integer
+--- @return nil
+function initiate_painting_warp(paintingIndex)
     -- ...
 end
 
@@ -7176,6 +7252,12 @@ function get_object_list_from_behavior(behavior)
     -- ...
 end
 
+--- @param trajectory Pointer_Trajectory
+--- @return integer
+function get_trajectory_length(trajectory)
+    -- ...
+end
+
 --- @param value number
 --- @param center number
 --- @param zeroThreshold number
@@ -7396,6 +7478,14 @@ end
 --- @param accel number
 --- @return nil
 function obj_init_animation_with_accel_and_sound(obj, animIndex, accel)
+    -- ...
+end
+
+--- @param obj Object
+--- @param animations AnimationTable
+--- @param animIndex integer
+--- @return nil
+function obj_init_animation_with_sound(obj, animations, animIndex)
     -- ...
 end
 
@@ -7792,6 +7882,13 @@ function save_file_clear_flags(flags)
     -- ...
 end
 
+--- @param fileIndex integer
+--- @param forceSave integer
+--- @return nil
+function save_file_do_save(fileIndex, forceSave)
+    -- ...
+end
+
 --- @return nil
 function save_file_erase_current_backup_save()
     -- ...
@@ -7848,9 +7945,24 @@ function save_file_get_total_star_count(fileIndex, minCourse, maxCourse)
     -- ...
 end
 
+--- @param fileIndex integer
+--- @param courseIndex integer
+--- @return integer
+function save_file_is_cannon_unlocked(fileIndex, courseIndex)
+    -- ...
+end
+
 --- @param load_all integer
 --- @return nil
 function save_file_reload(load_all)
+    -- ...
+end
+
+--- @param fileIndex integer
+--- @param courseIndex integer
+--- @param coinScore integer
+--- @return nil
+function save_file_set_course_coin_score(fileIndex, courseIndex, coinScore)
     -- ...
 end
 
@@ -7865,6 +7977,13 @@ end
 --- @param starFlags integer
 --- @return nil
 function save_file_set_star_flags(fileIndex, courseIndex, starFlags)
+    -- ...
+end
+
+--- @param fileIndex integer
+--- @param courseIndex integer
+--- @return nil
+function touch_coin_score_age(fileIndex, courseIndex)
     -- ...
 end
 
@@ -8041,6 +8160,11 @@ end
 --- @param dirZ number
 --- @return RayIntersectionInfo
 function collision_find_surface_on_ray(startX, startY, startZ, dirX, dirY, dirZ)
+    -- ...
+end
+
+--- @return WallCollisionData
+function collision_get_temp_wall_collision_data()
     -- ...
 end
 
@@ -8323,6 +8447,23 @@ function camera_is_frozen()
 end
 
 --- @return nil
+function camera_reset_overrides()
+    -- ...
+end
+
+--- @param allow integer
+--- @return nil
+function camera_romhack_allow_centering(allow)
+    -- ...
+end
+
+--- @param rco RomhackCameraOverride
+--- @return nil
+function camera_set_romhack_override(rco)
+    -- ...
+end
+
+--- @return nil
 function camera_unfreeze()
     -- ...
 end
@@ -8336,6 +8477,13 @@ end
 --- @param pointer Pointer_integer
 --- @return integer
 function deref_s32_pointer(pointer)
+    -- ...
+end
+
+--- @param message string
+--- @param lines integer
+--- @return nil
+function djui_popup_create_global(message, lines)
     -- ...
 end
 
@@ -8365,6 +8513,11 @@ function get_environment_region(index)
     -- ...
 end
 
+--- @return boolean
+function get_got_file_coin_hi_score()
+    -- ...
+end
+
 --- @param m MarioState
 --- @param index integer
 --- @return number
@@ -8387,7 +8540,23 @@ function get_hand_foot_pos_z(m, index)
 end
 
 --- @return integer
+function get_last_completed_course_num()
+    -- ...
+end
+
+--- @return integer
+function get_last_completed_star_num()
+    -- ...
+end
+
+--- @return integer
 function get_last_star_or_key()
+    -- ...
+end
+
+--- @param index integer
+--- @return integer
+function get_lighting_color(index)
     -- ...
 end
 
@@ -8404,6 +8573,11 @@ end
 
 --- @return string
 function get_os_name()
+    -- ...
+end
+
+--- @return boolean
+function get_save_file_modified()
     -- ...
 end
 
@@ -8509,6 +8683,11 @@ function play_transition(transType, time, red, green, blue)
     -- ...
 end
 
+--- @return boolean
+function save_file_get_using_backup_slot()
+    -- ...
+end
+
 --- @param usingBackupSlot boolean
 --- @return nil
 function save_file_set_using_backup_slot(usingBackupSlot)
@@ -8522,9 +8701,34 @@ function set_environment_region(index, value)
     -- ...
 end
 
+--- @param value boolean
+--- @return nil
+function set_got_file_coin_hi_score(value)
+    -- ...
+end
+
+--- @param courseNum integer
+--- @return nil
+function set_last_completed_course_num(courseNum)
+    -- ...
+end
+
+--- @param starNum integer
+--- @return nil
+function set_last_completed_star_num(starNum)
+    -- ...
+end
+
 --- @param value integer
 --- @return nil
 function set_last_star_or_key(value)
+    -- ...
+end
+
+--- @param index integer
+--- @param value integer
+--- @return nil
+function set_lighting_color(index, value)
     -- ...
 end
 
@@ -8562,6 +8766,12 @@ end
 --- @param background integer
 --- @return nil
 function set_override_skybox(background)
+    -- ...
+end
+
+--- @param value boolean
+--- @return nil
+function set_save_file_modified(value)
     -- ...
 end
 
@@ -8989,8 +9199,9 @@ function cur_obj_play_sound_2(soundMagic)
 end
 
 --- @param soundStates SoundState
+--- @param maxSoundStates integer
 --- @return nil
-function exec_anim_sound_state(soundStates)
+function exec_anim_sound_state(soundStates, maxSoundStates)
     -- ...
 end
 
@@ -9065,5 +9276,5 @@ end
 --- @class Pointer_number
 --- @class Pointer_Vec4s
 --- @class Pointer_Mtx
---- @class Pointer_Collision
 --- @class Pointer_Trajectory
+--- @class Pointer_Collision

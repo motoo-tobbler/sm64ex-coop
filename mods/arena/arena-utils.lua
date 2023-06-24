@@ -24,6 +24,18 @@ function clamp(val, min, max)
     return val
 end
 
+function convert_s16(num)
+    local min = -32768
+    local max = 32767
+    while (num < min) do
+        num = max + (num - min)
+    end
+    while (num > max) do
+        num = min + (num - max)
+    end
+    return num
+end
+
 function mario_health_float(m)
     return clamp((m.health - 255) / (2176 - 255), 0, 1)
 end
@@ -116,6 +128,27 @@ function spawn_mist(obj, scale)
     spi.dragStrength = 5
     spi.sizeBase = 10 * scale
     spi.sizeRange = 16 * scale
+
+    cur_obj_spawn_particles(spi)
+end
+
+function spawn_mist_advanced(obj, scale, type, count, offsetY)
+    local spi = obj_get_temp_spawn_particles_info(E_MODEL_MIST)
+    if spi == nil then
+        return nil
+    end
+
+    spi.behParam = type
+    spi.count = count
+    spi.offsetY = offsetY
+    spi.forwardVelBase = 3 * scale
+    spi.forwardVelRange = -6 * scale
+    spi.velYBase = 3 * scale
+    spi.velYRange = -6 * scale
+    spi.gravity = 0
+    spi.dragStrength = 5
+    spi.sizeBase = 5 * scale
+    spi.sizeRange = 7 * scale
 
     cur_obj_spawn_particles(spi)
 end

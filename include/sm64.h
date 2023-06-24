@@ -88,6 +88,11 @@
 #define WATER_STEP_CANCELLED   3
 #define WATER_STEP_HIT_WALL    4
 
+#define STEP_TYPE_GROUND 1
+#define STEP_TYPE_AIR    2
+#define STEP_TYPE_WATER  3
+#define STEP_TYPE_HANG   4
+
 #define PARTICLE_DUST                 /* 0x00000001 */ (1 <<  0)
 #define PARTICLE_VERTICAL_STAR        /* 0x00000002 */ (1 <<  1)
 #define PARTICLE_2                    /* 0x00000004 */ (1 <<  2)
@@ -169,6 +174,7 @@
 #define ACT_FLAG_WATER_OR_TEXT               /* 0x20000000 */ (1 << 29)
 #define ACT_FLAG_CUSTOM_ACTION               /* 0x40000000 */ (1 << 30)
 #define ACT_FLAG_THROWING                    /* 0x80000000 */ (1 << 31)
+#define ACT_FLAG_FLYING                      (ACT_FLAG_AIR | ACT_FLAG_DIVING | ACT_FLAG_ATTACKING | ACT_FLAG_SWIMMING_OR_FLYING)
 
 #define ACT_UNINITIALIZED              0x00000000 // (0x000)
 

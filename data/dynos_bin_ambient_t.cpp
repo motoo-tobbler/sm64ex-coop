@@ -9,7 +9,7 @@ DataNode<Ambient_t>* DynOS_AmbientT_Parse(GfxData* aGfxData, DataNode<Ambient_t>
 
     // Check tokens count
     if (aNode->mTokens.Count() < 8) {
-        PrintError("  ERROR: %s: not enough data", aNode->mName.begin());
+        PrintDataError("  ERROR: %s: not enough data", aNode->mName.begin());
         return aNode;
     }
 
@@ -55,7 +55,8 @@ void DynOS_AmbientT_Load(BinFile *aFile, GfxData *aGfxData) {
     _Node->mName.Read(aFile);
 
     // Data
-    _Node->mData = New<Ambient_t>();
+    // HACK: allocate for Light_t size due to PC port rendering all ambients as lights
+    _Node->mData = (Ambient_t*)New<Light_t>();
     *_Node->mData = aFile->Read<Ambient_t>();
 
     // Append

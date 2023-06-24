@@ -735,6 +735,7 @@
    - [djui_hud_set_resolution](functions-3.md#djui_hud_set_resolution)
    - [djui_hud_set_rotation](functions-3.md#djui_hud_set_rotation)
    - [djui_hud_world_pos_to_screen_pos](functions-3.md#djui_hud_world_pos_to_screen_pos)
+   - [djui_open_pause_menu](functions-3.md#djui_open_pause_menu)
 
 <br />
 
@@ -744,6 +745,7 @@
 <br />
 
 - external.h
+   - [drop_queued_background_music](functions-3.md#drop_queued_background_music)
    - [fade_volume_scale](functions-3.md#fade_volume_scale)
    - [fadeout_background_music](functions-3.md#fadeout_background_music)
    - [get_current_background_music](functions-3.md#get_current_background_music)
@@ -766,16 +768,28 @@
    - [seq_player_fade_out](functions-3.md#seq_player_fade_out)
    - [seq_player_lower_volume](functions-3.md#seq_player_lower_volume)
    - [seq_player_unlower_volume](functions-3.md#seq_player_unlower_volume)
+   - [set_audio_fadeout](functions-3.md#set_audio_fadeout)
    - [sound_banks_disable](functions-3.md#sound_banks_disable)
    - [sound_banks_enable](functions-3.md#sound_banks_enable)
    - [stop_background_music](functions-3.md#stop_background_music)
+   - [stop_secondary_music](functions-3.md#stop_secondary_music)
    - [stop_sound](functions-3.md#stop_sound)
    - [stop_sounds_from_source](functions-3.md#stop_sounds_from_source)
    - [stop_sounds_in_continuous_banks](functions-3.md#stop_sounds_in_continuous_banks)
 
 <br />
 
+- ingame_menu.h
+   - [reset_dialog_override_color](functions-3.md#reset_dialog_override_color)
+   - [reset_dialog_override_pos](functions-3.md#reset_dialog_override_pos)
+   - [set_dialog_override_color](functions-3.md#set_dialog_override_color)
+   - [set_dialog_override_pos](functions-3.md#set_dialog_override_pos)
+   - [set_min_dialog_width](functions-3.md#set_min_dialog_width)
+
+<br />
+
 - interaction.h
+   - [determine_interaction](functions-3.md#determine_interaction)
    - [does_mario_have_normal_cap_on_head](functions-3.md#does_mario_have_normal_cap_on_head)
    - [get_door_save_file_flag](functions-3.md#get_door_save_file_flag)
    - [interact_damage](functions-3.md#interact_damage)
@@ -816,6 +830,8 @@
 <br />
 
 - level_update.h
+   - [get_painting_warp_node](functions-3.md#get_painting_warp_node)
+   - [initiate_painting_warp](functions-3.md#initiate_painting_warp)
    - [level_trigger_warp](functions-3.md#level_trigger_warp)
 
 <br />
@@ -1346,6 +1362,7 @@
    - [find_unimportant_object](functions-4.md#find_unimportant_object)
    - [geo_offset_klepto_debug](functions-4.md#geo_offset_klepto_debug)
    - [get_object_list_from_behavior](functions-4.md#get_object_list_from_behavior)
+   - [get_trajectory_length](functions-4.md#get_trajectory_length)
    - [increment_velocity_toward_range](functions-4.md#increment_velocity_toward_range)
    - [is_item_in_array](functions-4.md#is_item_in_array)
    - [is_mario_moving_fast_or_in_air](functions-4.md#is_mario_moving_fast_or_in_air)
@@ -1378,6 +1395,7 @@
    - [obj_has_behavior](functions-4.md#obj_has_behavior)
    - [obj_init_animation](functions-4.md#obj_init_animation)
    - [obj_init_animation_with_accel_and_sound](functions-4.md#obj_init_animation_with_accel_and_sound)
+   - [obj_init_animation_with_sound](functions-4.md#obj_init_animation_with_sound)
    - [obj_is_hidden](functions-4.md#obj_is_hidden)
    - [obj_mark_for_deletion](functions-4.md#obj_mark_for_deletion)
    - [obj_pitch_to_object](functions-4.md#obj_pitch_to_object)
@@ -1444,6 +1462,7 @@
 
 - save_file.h
    - [save_file_clear_flags](functions-4.md#save_file_clear_flags)
+   - [save_file_do_save](functions-4.md#save_file_do_save)
    - [save_file_erase_current_backup_save](functions-4.md#save_file_erase_current_backup_save)
    - [save_file_get_cap_pos](functions-4.md#save_file_get_cap_pos)
    - [save_file_get_course_coin_score](functions-4.md#save_file_get_course_coin_score)
@@ -1453,9 +1472,12 @@
    - [save_file_get_sound_mode](functions-4.md#save_file_get_sound_mode)
    - [save_file_get_star_flags](functions-4.md#save_file_get_star_flags)
    - [save_file_get_total_star_count](functions-4.md#save_file_get_total_star_count)
+   - [save_file_is_cannon_unlocked](functions-4.md#save_file_is_cannon_unlocked)
    - [save_file_reload](functions-4.md#save_file_reload)
+   - [save_file_set_course_coin_score](functions-4.md#save_file_set_course_coin_score)
    - [save_file_set_flags](functions-4.md#save_file_set_flags)
    - [save_file_set_star_flags](functions-4.md#save_file_set_star_flags)
+   - [touch_coin_score_age](functions-4.md#touch_coin_score_age)
 
 <br />
 
@@ -1494,6 +1516,7 @@
 
 - smlua_collision_utils.h
    - [collision_find_surface_on_ray](functions-4.md#collision_find_surface_on_ray)
+   - [collision_get_temp_wall_collision_data](functions-4.md#collision_get_temp_wall_collision_data)
    - [get_water_surface_pseudo_floor](functions-4.md#get_water_surface_pseudo_floor)
    - [smlua_collision_util_get](functions-4.md#smlua_collision_util_get)
 
@@ -1554,21 +1577,30 @@
    - [camera_config_set_y_sensitivity](functions-5.md#camera_config_set_y_sensitivity)
    - [camera_freeze](functions-5.md#camera_freeze)
    - [camera_is_frozen](functions-5.md#camera_is_frozen)
+   - [camera_reset_overrides](functions-5.md#camera_reset_overrides)
+   - [camera_romhack_allow_centering](functions-5.md#camera_romhack_allow_centering)
+   - [camera_set_romhack_override](functions-5.md#camera_set_romhack_override)
    - [camera_unfreeze](functions-5.md#camera_unfreeze)
    - [course_is_main_course](functions-5.md#course_is_main_course)
    - [deref_s32_pointer](functions-5.md#deref_s32_pointer)
+   - [djui_popup_create_global](functions-5.md#djui_popup_create_global)
    - [get_current_save_file_num](functions-5.md#get_current_save_file_num)
    - [get_dialog_box_state](functions-5.md#get_dialog_box_state)
    - [get_dialog_id](functions-5.md#get_dialog_id)
    - [get_envfx](functions-5.md#get_envfx)
    - [get_environment_region](functions-5.md#get_environment_region)
+   - [get_got_file_coin_hi_score](functions-5.md#get_got_file_coin_hi_score)
    - [get_hand_foot_pos_x](functions-5.md#get_hand_foot_pos_x)
    - [get_hand_foot_pos_y](functions-5.md#get_hand_foot_pos_y)
    - [get_hand_foot_pos_z](functions-5.md#get_hand_foot_pos_z)
+   - [get_last_completed_course_num](functions-5.md#get_last_completed_course_num)
+   - [get_last_completed_star_num](functions-5.md#get_last_completed_star_num)
    - [get_last_star_or_key](functions-5.md#get_last_star_or_key)
+   - [get_lighting_color](functions-5.md#get_lighting_color)
    - [get_lighting_dir](functions-5.md#get_lighting_dir)
    - [get_network_area_timer](functions-5.md#get_network_area_timer)
    - [get_os_name](functions-5.md#get_os_name)
+   - [get_save_file_modified](functions-5.md#get_save_file_modified)
    - [get_skybox](functions-5.md#get_skybox)
    - [get_temp_s32_pointer](functions-5.md#get_temp_s32_pointer)
    - [get_time](functions-5.md#get_time)
@@ -1584,15 +1616,21 @@
    - [is_transition_playing](functions-5.md#is_transition_playing)
    - [movtexqc_register](functions-5.md#movtexqc_register)
    - [play_transition](functions-5.md#play_transition)
+   - [save_file_get_using_backup_slot](functions-5.md#save_file_get_using_backup_slot)
    - [save_file_set_using_backup_slot](functions-5.md#save_file_set_using_backup_slot)
    - [set_environment_region](functions-5.md#set_environment_region)
+   - [set_got_file_coin_hi_score](functions-5.md#set_got_file_coin_hi_score)
+   - [set_last_completed_course_num](functions-5.md#set_last_completed_course_num)
+   - [set_last_completed_star_num](functions-5.md#set_last_completed_star_num)
    - [set_last_star_or_key](functions-5.md#set_last_star_or_key)
+   - [set_lighting_color](functions-5.md#set_lighting_color)
    - [set_lighting_dir](functions-5.md#set_lighting_dir)
    - [set_override_envfx](functions-5.md#set_override_envfx)
    - [set_override_far](functions-5.md#set_override_far)
    - [set_override_fov](functions-5.md#set_override_fov)
    - [set_override_near](functions-5.md#set_override_near)
    - [set_override_skybox](functions-5.md#set_override_skybox)
+   - [set_save_file_modified](functions-5.md#set_save_file_modified)
    - [set_ttc_speed_setting](functions-5.md#set_ttc_speed_setting)
 
 <br />

@@ -176,9 +176,14 @@ u32 djui_hud_get_screen_width(void) {
         windowWidth -= (GFX_DIMENSIONS_FROM_LEFT_EDGE(0) + GFX_DIMENSIONS_FROM_RIGHT_EDGE(0));
     }
 
-    return (sResolution == RESOLUTION_N64)
-        ? (use_forced_4by3() ? (4.0f / 3.0f) : (GFX_DIMENSIONS_ASPECT_RATIO * SCREEN_HEIGHT))
-        : (windowWidth / djui_gfx_get_scale());
+    if (sResolution == RESOLUTION_N64) {
+        f32 aspect = use_forced_4by3()
+            ? (4.0f / 3.0f)
+            : GFX_DIMENSIONS_ASPECT_RATIO;
+        return (aspect) * SCREEN_HEIGHT;
+    } else {
+        return (windowWidth / djui_gfx_get_scale());
+    }
 }
 
 u32 djui_hud_get_screen_height(void) {
@@ -525,6 +530,7 @@ static void hud_rotate_and_translate_vec3f(Vec3f vec, Mat4* mtx, Vec3f out) {
 }
 
 bool djui_hud_world_pos_to_screen_pos(Vec3f pos, Vec3f out) {
+    if (!gCamera) { return false; }
     hud_rotate_and_translate_vec3f(pos, &gCamera->mtx, out);
     if (out[2] >= 0.0f) {
         return false;
@@ -554,4 +560,8 @@ void djui_hud_set_render_behind_hud(bool enable) {
 
 bool djui_hud_is_pause_menu_created(void) {
     return gDjuiPanelPauseCreated;
+}
+
+void djui_open_pause_menu(void) {
+    djui_panel_pause_create(NULL);
 }

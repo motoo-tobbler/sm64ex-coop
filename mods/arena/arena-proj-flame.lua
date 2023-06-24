@@ -2,7 +2,7 @@ define_custom_obj_fields({
     oArenaFlameGlobalOwner = 'u32',
 })
 
-local sArenaChildFlameLife = 30 * 1.5
+local sArenaChildFlameLife = 30 * 1.8
 
 function bhv_arena_child_flame_init(obj)
     obj.oFlags = OBJ_FLAG_UPDATE_GFX_POS_AND_ANGLE
@@ -13,12 +13,12 @@ function bhv_arena_child_flame_init(obj)
     end
     obj.oGraphYOffset = 30
 
-    obj.hitboxRadius = 35
-    obj.hitboxHeight = 10
+    obj.hitboxRadius = 30
+    obj.hitboxHeight = 30
     obj.hitboxDownOffset = 0
 
-    obj.hurtboxRadius = 35
-    obj.hurtboxHeight = 10
+    obj.hurtboxRadius = 30
+    obj.hurtboxHeight = 30
 
     obj.oWallHitboxRadius = 50
     obj.oGravity = -400 / 100
@@ -48,7 +48,7 @@ function bhv_arena_child_flame_loop(obj)
     local lifeRemain = (sArenaChildFlameLife - obj.oTimer) / sArenaChildFlameLife
     local size = 3 * (1 - (1 - lifeRemain) ^ 3)
     obj_scale(obj, size)
-    if size < 1.5 then
+    if size < 0.5 then
         obj.oInteractType = 0
     end
 
@@ -77,8 +77,8 @@ function bhv_arena_flame_init(obj)
     end
     obj.oGraphYOffset = 30
 
-    obj.hitboxRadius = 75
-    obj.hitboxHeight = 25
+    obj.hitboxRadius = 100
+    obj.hitboxHeight = 50
     obj.hitboxDownOffset = 25
 
     obj.hurtboxRadius = 100

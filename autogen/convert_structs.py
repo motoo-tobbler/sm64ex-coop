@@ -79,23 +79,39 @@ override_field_mutable = {
 override_field_invisible = {
     "Mod": [ "files" ],
     "MarioState": [ "visibleToEnemies" ],
+    "NetworkPlayer": [ "gag"],
+    "GraphNode": [ "_guard1", "_guard2" ],
 }
 
 override_field_immutable = {
-    "MarioState": [ "playerIndex", "controller" ],
+    "MarioState": [ "playerIndex", "controller", "marioObj", "marioBodyState", "statusForCamera", "area" ],
+    "MarioAnimation": [ "animDmaTable" ],
+    "ObjectNode": [ "next", "prev" ],
     "Character": [ "*" ],
     "NetworkPlayer": [ "*" ],
     "TextureInfo": [ "*" ],
-    "Object": ["oSyncID", "coopFlags"],
+    "Object": ["oSyncID", "coopFlags", "oChainChompSegments", "oWigglerSegments", "oHauntedChairUnk100", "oTTCTreadmillBigSurface", "oTTCTreadmillSmallSurface", "bhvStackIndex", "respawnInfoType" ],
     "GlobalObjectAnimations": [ "*"],
     "SpawnParticlesInfo": [ "model" ],
     "MarioBodyState": [ "updateTorsoTime" ],
-    "Area": [ "localAreaTimer", "nextSyncID" ],
+    "Area": [ "localAreaTimer", "nextSyncID", "unk04", "objectSpawnInfos", "paintingWarpNodes", "warpNodes" ],
     "Mod": [ "*" ],
     "ModFile": [ "*" ],
     "BassAudio": [ "*" ],
     "Painting": [ "id", "imageCount", "textureType", "textureWidth", "textureHeight" ],
-    "SpawnInfo": [ "syncID" ]
+    "SpawnInfo": [ "syncID", "next", "unk18" ],
+    "CustomLevelInfo": [ "next" ],
+    "GraphNode": [ "children", "next", "parent", "prev", "type" ],
+    "GraphNodeObject": [  "angle", "animInfo", "cameraToObject", "node", "pos", "prevAngle", "prevPos", "prevScale", "prevScaleTimestamp", "prevShadowPos", "prevShadowPosTimestamp", "prevThrowMatrix", "prevThrowMatrixTimestamp", "prevTimestamp", "scale", "shadowPos", "sharedChild", "skipInterpolationTimestamp", "throwMatrix", "throwMatrixPrev", "unk4C", ],
+    "ObjectWarpNode": [ "next "],
+    "Animation": [ "length" ],
+    "AnimationTable": [ "count" ],
+    "Controller": [ "controllerData", "statusData" ],
+}
+
+override_field_version_excludes = {
+    "oCameraLakituUnk104": "VERSION_JP",
+    "oCoinUnk1B0": "VERSION_JP"
 }
 
 override_allowed_structs = {
@@ -157,6 +173,8 @@ def table_to_string(table):
 
     for row in table:
         for i in range(columns):
+            if '#' in row[i]:
+                continue
             if len(row[i]) > column_width[i]:
                 column_width[i] = len(row[i])
 
@@ -227,6 +245,86 @@ def parse_structs(extracted):
 
 ############################################################################
 
+fuzz_from = './autogen/fuzz_template.lua'
+fuzz_to = '/home/djoslin/.local/share/sm64ex-coop/mods/test-fuzz.lua'
+fuzz_structs = ""
+fuzz_structs_calls = ""
+fuzz_template_str = None
+
+def output_fuzz_struct_calls(struct):
+    sid = struct['identifier']
+    global fuzz_template_str
+    if fuzz_template_str == None:
+        with open(fuzz_from) as f:
+            fuzz_template_str = f.read()
+
+    global fuzz_structs_calls
+
+    rnd_call = 'rnd_' + sid + '()'
+    if rnd_call in fuzz_template_str:
+        fuzz_structs_calls += '        function() Fuzz' + sid + '(rnd_' + sid + '()) end,\n'
+    else:
+        fuzz_structs_calls += '        -- function() Fuzz' + sid + '(rnd_' + sid + '()) end,\n'
+
+def output_fuzz_struct(struct):
+    output_fuzz_struct_calls(struct)
+    sid = struct['identifier']
+
+    s_out = 'function Fuzz' + sid + "(struct)\n"
+
+    s_out += '    local funcs = {\n'
+    for field in struct['fields']:
+        fid, ftype, fimmutable, lvt, lot = get_struct_field_info(struct, field)
+        if fimmutable == 'true':
+            continue
+        if sid in override_field_invisible:
+            if fid in override_field_invisible[sid]:
+                continue
+
+        if '(' in fid or '[' in fid or ']' in fid:
+            continue
+
+        ptype, plink = translate_type_to_lua(ftype)
+        rnd_line = translate_type_to_rnd(ptype)
+
+        s_out += '        function() '
+
+        if lvt == 'LVT_COBJECT':
+            s_out += 'Fuzz' + ftype.replace('struct ', '') + '(struct.' + fid + ')'
+        elif lvt == 'LVT_COBJECT_P':
+            s_out += 'struct.' + fid + ' = ' + rnd_line + ''
+        else:
+            s_out += 'struct.' + fid + ' = ' + rnd_line + ''
+
+        s_out += ' end,\n'
+    s_out += '    }\n'
+
+    s_out += """
+    for i = #funcs, 2, -1 do
+      local j = math.random(i)
+      funcs[i], funcs[j] = funcs[j], funcs[i]
+    end
+
+    for k,v in pairs(funcs) do
+        v()
+    end
+"""
+
+    s_out += 'end\n\n'
+
+    global fuzz_structs
+    fuzz_structs += s_out
+
+def output_fuzz_file():
+    global fuzz_structs
+    global fuzz_structs_calls
+    with open(fuzz_from) as f:
+        file_str = f.read()
+    with open(fuzz_to, 'w') as f:
+        f.write(file_str.replace('-- $[STRUCTS]', fuzz_structs).replace('-- $[FUZZ-STRUCTS]', fuzz_structs_calls))
+
+############################################################################
+
 sLuaObjectTable = []
 sLotAutoGenList = []
 
@@ -258,6 +356,10 @@ def get_struct_field_info(struct, field):
     return fid, ftype, fimmutable, lvt, lot
 
 def build_struct(struct):
+    # debug print out lua fuzz functions
+    if len(sys.argv) >= 2 and sys.argv[1] == 'fuzz':
+        output_fuzz_struct(struct)
+
     sid = struct['identifier']
 
     # build up table and track column width
@@ -268,15 +370,24 @@ def build_struct(struct):
         if sid in override_field_invisible:
             if fid in override_field_invisible[sid]:
                 continue
+                
+        version = None
 
         row = []
-        row.append('    { '                                                 )
+        
+        startStr = ''
+        endStr = ' },'
+        if fid in override_field_version_excludes:
+            startStr += '#ifndef ' + override_field_version_excludes[fid] + '\n'
+            endStr += '\n#endif'
+        startStr += '    { '
+        row.append(startStr                                                 )
         row.append('"%s", '                    % fid                        )
         row.append('%s, '                      % lvt                        )
         row.append('offsetof(struct %s, %s), ' % (sid, field['identifier']) )
         row.append('%s, '                      % fimmutable                 )
         row.append("%s"                        % lot                        )
-        row.append(' },'                                                    )
+        row.append(endStr                                                   )
         field_table.append(row)
 
     field_table_str, field_count = table_to_string(field_table)
@@ -511,6 +622,9 @@ def build_files():
 
     doc_structs(parsed)
     def_structs(parsed)
+
+    if len(sys.argv) >= 2 and sys.argv[1] == 'fuzz':
+        output_fuzz_file()
 
     global total_structs
     global total_fields

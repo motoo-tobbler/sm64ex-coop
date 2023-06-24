@@ -29,8 +29,9 @@ static s32 RetrieveCurrentAnimationIndex(struct Object *aObject) {
     if (!aObject->oAnimations || !aObject->header.gfx.animInfo.curAnim || smlua_anim_util_get_current_animation_name(aObject)) {
         return -1;
     }
-    for (s32 i = 0; aObject->oAnimations[i] != NULL; ++i) {
-        if (aObject->oAnimations[i] == aObject->header.gfx.animInfo.curAnim) {
+    struct AnimationTable* animations = aObject->oAnimations;
+    for (s32 i = 0; i < animations->count; ++i) {
+        if (animations->anims[i] == aObject->header.gfx.animInfo.curAnim) {
             return i;
         }
     }
@@ -83,6 +84,9 @@ void DynOS_Anim_Swap(void *aPtr) {
         if (_AnimIndex == -1) {
             return;
         }
+        if (_AnimIndex >= _GfxData->mAnimationTable.Count()) {
+            return;
+        }
 
         // Animation data
         const AnimData *_AnimData = (const AnimData *) _GfxData->mAnimationTable[_AnimIndex].second;
@@ -95,6 +99,8 @@ void DynOS_Anim_Swap(void *aPtr) {
             sGfxDataAnimation.unusedBoneCount = _AnimData->mUnk0A.second;
             sGfxDataAnimation.values = _AnimData->mValues.second.begin();
             sGfxDataAnimation.index = _AnimData->mIndex.second.begin();
+            sGfxDataAnimation.valuesLength = _AnimData->mValues.second.Count();
+            sGfxDataAnimation.indexLength = _AnimData->mIndex.second.Count();
             sGfxDataAnimation.length = _AnimData->mLength;
             _Object->header.gfx.animInfo.curAnim = &sGfxDataAnimation;
         }

@@ -21,6 +21,7 @@
 #include "pc/lua/smlua_utils.h"
 #include "game/rng_position.h"
 #include "game/interaction.h"
+#include "game/hardcoded.h"
 
 // Macros for retrieving arguments from behavior scripts.
 #define BHV_CMD_GET_1ST_U8(index)  (u8)((gCurBhvCommand[index] >> 24) & 0xFF) // unused
@@ -52,7 +53,7 @@ u16 random_u16(void) {
     if (gOverrideRngPosition != NULL) {
         // override this function for rng positions
         gRandomSeed16 = gOverrideRngPosition->seed;
-    } else if (gCurrentObject->oSyncID != 0) {
+    } else if (gCurrentObject && gCurrentObject->oSyncID != 0) {
         // override this function for synchronized entities
         so = sync_object_get(gCurrentObject->oSyncID);
         if (so != NULL && so->o == gCurrentObject) {
@@ -128,16 +129,20 @@ void obj_update_gfx_pos_and_angle(struct Object *obj) {
 
 // Push the address of a behavior command to the object's behavior stack.
 static void cur_obj_bhv_stack_push(uintptr_t bhvAddr) {
-    gCurrentObject->bhvStack[gCurrentObject->bhvStackIndex] = bhvAddr;
+    if (gCurrentObject->bhvStackIndex < OBJECT_MAX_BHV_STACK) {
+        gCurrentObject->bhvStack[gCurrentObject->bhvStackIndex] = bhvAddr;
+    }
     gCurrentObject->bhvStackIndex++;
 }
 
 // Retrieve the last behavior command address from the object's behavior stack.
 static uintptr_t cur_obj_bhv_stack_pop(void) {
-    uintptr_t bhvAddr;
+    uintptr_t bhvAddr = 0;
 
     gCurrentObject->bhvStackIndex--;
-    bhvAddr = gCurrentObject->bhvStack[gCurrentObject->bhvStackIndex];
+    if (gCurrentObject->bhvStackIndex < OBJECT_MAX_BHV_STACK) {
+        bhvAddr = gCurrentObject->bhvStack[gCurrentObject->bhvStackIndex];
+    }
 
     return bhvAddr;
 }
@@ -583,9 +588,11 @@ static s32 bhv_cmd_load_animations(void) {
 // Usage: ANIMATE(animIndex)
 static s32 bhv_cmd_animate(void) {
     s32 animIndex = BHV_CMD_GET_2ND_U8(0);
-    struct Animation **animations = gCurrentObject->oAnimations;
+    struct AnimationTable *animations = gCurrentObject->oAnimations;
 
-    geo_obj_init_animation(&gCurrentObject->header.gfx, &animations[animIndex]);
+    if (animations && (u32)animIndex < animations->count) {
+        geo_obj_init_animation(&gCurrentObject->header.gfx, (struct Animation*)animations->anims[animIndex]);
+    }
 
     gCurBhvCommand++;
     return BHV_PROC_CONTINUE;
@@ -858,7 +865,9 @@ static s32 bhv_cmd_parent_bit_clear(void) {
     s32 value = BHV_CMD_GET_U32(1);
 
     value = value ^ 0xFFFFFFFF;
-    obj_and_int(gCurrentObject->parentObj, field, value);
+    if (gCurrentObject->parentObj) {
+        obj_and_int(gCurrentObject->parentObj, field, value);
+    }
 
     gCurBhvCommand += 2;
     return BHV_PROC_CONTINUE;
@@ -1189,8 +1198,10 @@ static s32 bhv_cmd_load_collision_data_ext(void) {
 void stub_behavior_script_2(void) {
 }
 
+#define BEHAVIOR_CMD_TABLE_MAX 66
+
 typedef s32 (*BhvCommandProc)(void);
-static BhvCommandProc BehaviorCmdTable[] = {
+static BhvCommandProc BehaviorCmdTable[BEHAVIOR_CMD_TABLE_MAX] = {
     bhv_cmd_begin, //00
     bhv_cmd_delay, //01
     bhv_cmd_call,  //02
@@ -1261,6 +1272,7 @@ static BhvCommandProc BehaviorCmdTable[] = {
 
 // Execute the behavior script of the current object, process the object flags, and other miscellaneous code for updating objects.
 void cur_obj_update(void) {
+    if (!gCurrentObject) { return; }
     // Don't update if dormant
     if (gCurrentObject->activeFlags & ACTIVE_FLAG_DORMANT) {
         gCurrentObject->header.gfx.node.flags &= ~GRAPH_RENDER_ACTIVE;
@@ -1278,7 +1290,7 @@ void cur_obj_update(void) {
         // catch up the timer in total loop increments
         if (gCurrentObject->areaTimerType == AREA_TIMER_TYPE_LOOP) {
             u32 difference = (gNetworkAreaTimer - gCurrentObject->areaTimer);
-            if (difference >= gCurrentObject->areaTimerDuration) {
+            if (difference >= gCurrentObject->areaTimerDuration && gCurrentObject->areaTimerDuration) {
                 u32 catchup = difference / gCurrentObject->areaTimerDuration;
                 catchup *= gCurrentObject->areaTimerDuration;
                 gCurrentObject->areaTimer += catchup;
@@ -1337,7 +1349,12 @@ cur_obj_update_begin:;
 
     if (!skipBehavior) {
         do {
-            bhvCmdProc = BehaviorCmdTable[*gCurBhvCommand >> 24];
+            if (!gCurBhvCommand) { break; }
+
+            u32 index = *gCurBhvCommand >> 24;
+            if (index >= BEHAVIOR_CMD_TABLE_MAX) { break; }
+
+            bhvCmdProc = BehaviorCmdTable[index];
             bhvProcResult = bhvCmdProc();
         } while (bhvProcResult == BHV_PROC_CONTINUE);
     }
@@ -1398,9 +1415,12 @@ cur_obj_update_begin:;
                 // Out of render distance, hide the object.
                 gCurrentObject->header.gfx.node.flags &= ~GRAPH_RENDER_ACTIVE;
 
-                // the following flag would deactivate behavior code
-                //gCurrentObject->activeFlags |= ACTIVE_FLAG_FAR_AWAY;
-                gCurrentObject->activeFlags &= ~ACTIVE_FLAG_FAR_AWAY;
+                if (gBehaviorValues.InfiniteRenderDistance) {
+                    gCurrentObject->activeFlags &= ~ACTIVE_FLAG_FAR_AWAY;
+                } else {
+                    // the following flag would deactivate behavior code // sorry but I need this
+                    gCurrentObject->activeFlags |= ACTIVE_FLAG_FAR_AWAY;
+                }
 
             } else if (gCurrentObject->oHeldState == HELD_FREE) {
                 // In render distance (and not being held), show the object.
@@ -1444,6 +1464,8 @@ u8 cur_obj_is_last_nat_update_per_frame(void) {
 }
 
 f32 draw_distance_scalar(void) {
+    if (!gBehaviorValues.InfiniteRenderDistance) { return 1.0f; }
+    
     switch (configDrawDistance) {
         case 0: return 0.5f;
         case 1: return 1.0f;

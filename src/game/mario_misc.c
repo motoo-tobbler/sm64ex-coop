@@ -107,6 +107,7 @@ Gfx *geo_draw_mario_head_goddard(s32 callContext, struct GraphNode *node, Mat4 *
 }
 
 static void toad_message_faded(void) {
+    if (!gCurrentObject) { return; }
     if (gCurrentObject->oDistanceToMario > 700.0f) {
         gCurrentObject->oToadMessageRecentlyTalked = FALSE;
     }
@@ -116,6 +117,7 @@ static void toad_message_faded(void) {
 }
 
 static void toad_message_opaque(void) {
+    if (!gCurrentObject) { return; }
     if (gCurrentObject->oDistanceToMario > 700.0f) {
         gCurrentObject->oToadMessageState = TOAD_MESSAGE_FADING;
     } else if (!gCurrentObject->oToadMessageRecentlyTalked) {
@@ -129,6 +131,7 @@ static void toad_message_opaque(void) {
 }
 
 static void toad_message_talking(void) {
+    if (!gCurrentObject) { return; }
     if (cur_obj_update_dialog_with_cutscene(&gMarioStates[0], 3, 1, CUTSCENE_DIALOG, gCurrentObject->oToadMessageDialogId, NULL)
         != 0) {
         gCurrentObject->oToadMessageRecentlyTalked = TRUE;
@@ -149,18 +152,21 @@ static void toad_message_talking(void) {
 }
 
 static void toad_message_opacifying(void) {
+    if (!gCurrentObject) { return; }
     if ((gCurrentObject->oOpacity += 6) == 255) {
         gCurrentObject->oToadMessageState = TOAD_MESSAGE_OPAQUE;
     }
 }
 
 static void toad_message_fading(void) {
+    if (!gCurrentObject) { return; }
     if ((gCurrentObject->oOpacity -= 6) == 81) {
         gCurrentObject->oToadMessageState = TOAD_MESSAGE_FADED;
     }
 }
 
 void bhv_toad_message_loop(void) {
+    if (!gCurrentObject) { return; }
     if (gCurrentObject->header.gfx.node.flags & GRAPH_RENDER_ACTIVE) {
         gCurrentObject->oInteractionSubtype = 0;
         switch (gCurrentObject->oToadMessageState) {
@@ -184,6 +190,7 @@ void bhv_toad_message_loop(void) {
 }
 
 void bhv_toad_message_init(void) {
+    if (!gCurrentObject) { return; }
     s32 saveFlags = save_file_get_flags();
     s32 starCount = save_file_get_total_star_count(gCurrSaveFileNum - 1, COURSE_MIN - 1, COURSE_MAX - 1);
     s32 dialogId = (gCurrentObject->oBehParams >> 24) & 0xFF;
@@ -217,6 +224,7 @@ void bhv_toad_message_init(void) {
 }
 
 static void star_door_unlock_spawn_particles(s16 angleOffset) {
+    if (!gCurrentObject) { return; }
     struct Object *sparkleParticle = spawn_object(gCurrentObject, 0, bhvSparkleSpawn);
     if (sparkleParticle == NULL) { return; }
 
@@ -229,6 +237,7 @@ static void star_door_unlock_spawn_particles(s16 angleOffset) {
 }
 
 void bhv_unlock_door_star_init(void) {
+    if (!gCurrentObject) { return; }
     gCurrentObject->oUnlockDoorStarState = UNLOCK_DOOR_STAR_RISING;
     gCurrentObject->oUnlockDoorStarTimer = 0;
     gCurrentObject->oUnlockDoorStarYawVel = 0x1000;
@@ -240,6 +249,7 @@ void bhv_unlock_door_star_init(void) {
 }
 
 void bhv_unlock_door_star_loop(void) {
+    if (!gCurrentObject) { return; }
     UNUSED u8 unused1[4];
     s16 prevYaw = gCurrentObject->oMoveAngleYaw;
     UNUSED u8 unused2[4];
@@ -684,16 +694,17 @@ Gfx* geo_render_mirror_mario(s32 callContext, struct GraphNode* node, UNUSED Mat
                     vec3s_copy(gMirrorMario[i].angle, mario->header.gfx.angle);
                     vec3f_copy(gMirrorMario[i].pos, mario->header.gfx.pos);
                     vec3f_copy(gMirrorMario[i].scale, mario->header.gfx.scale);
-                    // FIXME: why does this set unk38, an inline struct, to a ptr to another one? wrong
-                    // GraphNode types again?
-                    gMirrorMario[i].animInfo = *(struct AnimInfo*) & mario->header.gfx.animInfo.animID;
+
+                    dynos_gfx_swap_animations(mario);
+                    gMirrorMario[i].animInfo = mario->header.gfx.animInfo;
+                    dynos_gfx_swap_animations(mario);
+
                     mirroredX = MIRROR_X - gMirrorMario[i].pos[0];
                     gMirrorMario[i].pos[0] = mirroredX + MIRROR_X;
                     gMirrorMario[i].angle[1] = -gMirrorMario[i].angle[1];
                     gMirrorMario[i].scale[0] *= -1.0f;
-                    // TODO: enabling rendering can cause the game to crash when two players are in the mirror room
-                    //gMirrorMario[i].node.flags |= GRAPH_RENDER_ACTIVE;
-                    gMirrorMario[i].node.flags &= ~GRAPH_RENDER_ACTIVE;
+                    // TODO: does rendering the mirror room still crash?
+                    gMirrorMario[i].node.flags |= GRAPH_RENDER_ACTIVE;
                 } else {
                     gMirrorMario[i].node.flags &= ~GRAPH_RENDER_ACTIVE;
                 }

@@ -2,7 +2,7 @@
 
 void play_penguin_walking_sound(s32 walk) {
     s32 sound;
-    if (o->oSoundStateID == 0) {
+    if (o && o->oSoundStateID == 0) {
         if (walk == PENGUIN_WALK_BABY)
             sound = SOUND_OBJ_BABY_PENGUIN_WALK;
         else // PENGUIN_WALK_BIG
@@ -57,7 +57,7 @@ void tuxies_mother_act_1(void) {
             cur_obj_init_animation_with_sound(3);
             if (!cur_obj_is_mario_on_platform()) {
                 sp2C = (o->oBehParams >> 0x10) & 0xFF;
-                sp28 = (o->prevObj->oBehParams >> 0x10) & 0xFF;
+                sp28 = o->prevObj ? ((o->prevObj->oBehParams >> 0x10) & 0xFF) : 0;
                 if (sp2C == sp28) {
                     dialogID = gBehaviorValues.dialogs.TuxieMotherBabyFoundDialog;
                 } else {
@@ -75,7 +75,7 @@ void tuxies_mother_act_1(void) {
                 cur_obj_init_animation_with_sound(0);
             break;
         case 1:
-            if (o->prevObj->oHeldState == HELD_FREE) {
+            if (o->prevObj && o->prevObj->oHeldState == HELD_FREE) {
                 //! This line is was almost certainly supposed to be something
                 // like o->prevObj->oInteractionSubtype &= ~INT_SUBTYPE_DROP_IMMEDIATELY;
                 // however, this code uses the value of o->oInteractionSubtype
@@ -98,7 +98,7 @@ void tuxies_mother_act_1(void) {
             }
             break;
         case 2:
-            if (o->prevObj->oHeldState == HELD_FREE) {
+            if (o->prevObj && o->prevObj->oHeldState == HELD_FREE) {
                 //! Same bug as above
                 o->prevObj->OBJECT_FIELD_S32(o->oInteractionSubtype) &= ~INT_SUBTYPE_DROP_IMMEDIATELY;
                 obj_set_behavior(o->prevObj, bhvPenguinBaby);
@@ -167,9 +167,11 @@ void bhv_tuxies_mother_loop(void) {
 }
 
 void small_penguin_dive_with_mario(void) {
-    if (mario_is_dive_sliding(&gMarioStates[o->heldByPlayerIndex])) {
-        o->oSmallPenguinUnk100 = o->oAction;
-        o->oAction = 3;
+    if (o->heldByPlayerIndex < MAX_PLAYERS) {
+        if (mario_is_dive_sliding(&gMarioStates[o->heldByPlayerIndex])) {
+            o->oSmallPenguinUnk100 = o->oAction;
+            o->oAction = 3;
+        }
     }
 }
 
@@ -212,9 +214,11 @@ void small_penguin_act_3(void) {
         if (o->oTimer == 6)
             cur_obj_play_sound_2(SOUND_OBJ_BABY_PENGUIN_DIVE);
         cur_obj_init_animation_with_sound(1);
-        if (o->oTimer > 25)
-            if (!mario_is_dive_sliding(&gMarioStates[o->heldByPlayerIndex]))
+        if (o->oTimer > 25) {
+            if (o->heldByPlayerIndex < MAX_PLAYERS && !mario_is_dive_sliding(&gMarioStates[o->heldByPlayerIndex])) {
                 o->oAction = 4;
+            }
+        }
     }
 }
 
@@ -304,15 +308,18 @@ void bhv_small_penguin_loop(void) {
             break;
         case HELD_HELD:
             cur_obj_unrender_and_reset_state(0, 0);
-            if (cur_obj_has_behavior(bhvPenguinBaby))
+            if (cur_obj_has_behavior(bhvPenguinBaby)) {
                 obj_set_behavior(o, bhvSmallPenguin);
-            obj_copy_pos(o, gMarioStates[o->heldByPlayerIndex].marioObj);
-            if (gGlobalTimer % 30 == 0)
+            }
+            if (o->heldByPlayerIndex < MAX_PLAYERS) {
+                obj_copy_pos(o, gMarioStates[o->heldByPlayerIndex].marioObj);
+                if (gGlobalTimer % 30 == 0)
 #ifndef VERSION_JP
-                play_sound(SOUND_OBJ2_BABY_PENGUIN_YELL, gMarioStates[o->heldByPlayerIndex].marioObj->header.gfx.cameraToObject);
+                    play_sound(SOUND_OBJ2_BABY_PENGUIN_YELL, gMarioStates[o->heldByPlayerIndex].marioObj->header.gfx.cameraToObject);
 #else
-                play_sound(SOUND_OBJ2_BABY_PENGUIN_YELL, o->header.gfx.cameraToObject);
+                    play_sound(SOUND_OBJ2_BABY_PENGUIN_YELL, o->header.gfx.cameraToObject);
 #endif
+            }
             break;
         case HELD_THROWN:
             cur_obj_get_thrown_or_placed(0, 0, 0);

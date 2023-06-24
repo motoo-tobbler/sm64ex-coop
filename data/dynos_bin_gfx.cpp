@@ -313,6 +313,9 @@ s64 DynOS_Gfx_ParseGfxConstants(const String& _Arg, bool* found) {
     gfx_constant(CAP);
     gfx_constant(METAL);
 
+    // Extended
+    gfx_constant(G_LIGHT_MAP_EXT);
+
     // Common values
     gfx_constant(CALC_DXT(4,G_IM_SIZ_4b_BYTES));
     gfx_constant(CALC_DXT(8,G_IM_SIZ_4b_BYTES));
@@ -419,6 +422,13 @@ static s64 ParseGfxSymbolArg(GfxData* aGfxData, DataNode<Gfx>* aNode, u64* pToke
         }
     }
 
+    for (auto& _Node : aGfxData->mLight0s) {
+        // Light pointer
+        if (_Arg == _Node->mName) {
+            return (s64) DynOS_Light0_Parse(aGfxData, _Node)->mData;
+        }
+    }
+
     for (auto& _Node : aGfxData->mLightTs) {
         // Light pointer
         if (_Arg == _Node->mName) {
@@ -477,7 +487,7 @@ static s64 ParseGfxSymbolArg(GfxData* aGfxData, DataNode<Gfx>* aNode, u64* pToke
     }
 
     // Unknown
-    PrintError("  ERROR: Unknown gfx arg: %s", _Arg.begin());
+    PrintDataError("  ERROR: Unknown gfx arg: %s", _Arg.begin());
     return 0;
 }
 
@@ -670,7 +680,7 @@ static String ConvertSetCombineModeArgToString(GfxData *aGfxData, const String& 
     gfx_set_combine_mode_arg(G_CC_HILITERGBA2);
     gfx_set_combine_mode_arg(G_CC_HILITERGBDECALA2);
     gfx_set_combine_mode_arg(G_CC_HILITERGBPASSA2);
-    PrintError("  ERROR: Unknown gfx gsDPSetCombineMode arg: %s", _Arg.begin());
+    PrintDataError("  ERROR: Unknown gfx gsDPSetCombineMode arg: %s", _Arg.begin());
     return "";
 }
 
@@ -690,7 +700,7 @@ static Array<s64> ParseGfxSetCombineMode(GfxData* aGfxData, DataNode<Gfx>* aNode
         }
     }
     if (_Args.Count() < 8) {
-        PrintError("  ERROR: gsDPSetCombineMode %s: Not enough arguments", _Buffer.begin());
+        PrintDataError("  ERROR: gsDPSetCombineMode %s: Not enough arguments", _Buffer.begin());
     }
     return _Args;
 }
@@ -808,6 +818,15 @@ static void ParseGfxSymbol(GfxData* aGfxData, DataNode<Gfx>* aNode, Gfx*& aHead,
     }
 
     // Complex symbols
+    if (_Symbol == "gsSPSetLights0") {
+        Lights0 *_Light = (Lights0 *) ParseGfxSymbolArg(aGfxData, aNode, &aTokenIndex, "");
+        gSPNumLights(aHead++, NUMLIGHTS_0);
+        aGfxData->mPointerList.Add(aHead);
+        gSPLight(aHead++, &_Light->l[0], 1);
+        aGfxData->mPointerList.Add(aHead);
+        gSPLight(aHead++, &_Light->a, 2);
+        return;
+    }
     if (_Symbol == "gsSPSetLights1") {
         Lights1 *_Light = (Lights1 *) ParseGfxSymbolArg(aGfxData, aNode, &aTokenIndex, "");
         gSPNumLights(aHead++, NUMLIGHTS_1);
@@ -927,12 +946,12 @@ static void ParseGfxSymbol(GfxData* aGfxData, DataNode<Gfx>* aNode, Gfx*& aHead,
         gDPLoadBlock(aHead++, G_TX_LOADTILE, 0, 0, (((_Arg3) * (_Arg4) + arg2_1) >> arg2_2) - 1, CALC_DXT(_Arg3, arg2_3));
         gDPPipeSync(aHead++);
         gDPSetTile(aHead++, _Arg1, _Arg2, ((((_Arg3) * arg2_4) + 7) >> 3), 0, G_TX_RENDERTILE, _Arg5, _Arg7, _Arg9, _ArgB, _Arg6, _Arg8, _ArgA);
-        gDPSetTileSize(aHead++, G_TX_RENDERTILE, 0, 0, ((_Arg3) - 1) << G_TEXTURE_IMAGE_FRAC, ((_Arg4) - 1) << G_TEXTURE_IMAGE_FRAC);
+        gDPSetTileSize(aHead++, G_TX_RENDERTILE, 0, 0, (((u64)_Arg3) - 1) << G_TEXTURE_IMAGE_FRAC, (((u64)_Arg4) - 1) << G_TEXTURE_IMAGE_FRAC);
         return;
     }
 
     // Unknown
-    PrintError("  ERROR: Unknown gfx symbol: %s", _Symbol.begin());
+    PrintDataError("  ERROR: Unknown gfx symbol: %s", _Symbol.begin());
 }
 
 DataNode<Gfx>* DynOS_Gfx_Parse(GfxData* aGfxData, DataNode<Gfx>* aNode) {

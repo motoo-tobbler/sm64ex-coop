@@ -42,7 +42,8 @@
  *
  */
 
-#define MATRIX_STACK_SIZE 32
+#define MATRIX_STACK_SIZE 64
+#define DISPLAY_LIST_HEAP_SIZE 32000
 
 f32 gProjectionMaxNearValue = 5;
 s16 gProjectionVanillaNearValue = 100;
@@ -53,6 +54,9 @@ Mat4 gMatStack[MATRIX_STACK_SIZE] = {};
 Mat4 gMatStackPrev[MATRIX_STACK_SIZE] = {};
 Mtx *gMatStackFixed[MATRIX_STACK_SIZE] = { 0 };
 Mtx *gMatStackPrevFixed[MATRIX_STACK_SIZE] = { 0 };
+
+s32 gCamSkipInterp = 0;
+Vec3f gCamSkipInterpDisplacement = { 0 };
 
 u8 sUsingCamSpace = FALSE;
 Mtx sPrevCamTranf, sCurrCamTranf = {
@@ -75,7 +79,7 @@ struct GeoAnimState {
     /*0x02*/ s16 frame;
     /*0x04*/ f32 translationMultiplier;
     /*0x08*/ u16 *attribute;
-    /*0x0C*/ s16 *data;
+    /*0x0C*/ struct Animation* anim;
     s16 prevFrame;
 };
 
@@ -89,9 +93,9 @@ s16 gCurrAnimFrame;
 s16 gPrevAnimFrame;
 f32 gCurAnimTranslationMultiplier;
 u16 *gCurrAnimAttribute = NULL;
-s16 *gCurAnimData = NULL;
+struct Animation *gCurAnim = NULL;
 
-struct AllocOnlyPool *gDisplayListHeap = NULL;
+struct GrowingPool* gDisplayListHeap = NULL;
 
 struct RenderModeContainer {
     u32 modes[8];
@@ -226,6 +230,9 @@ void patch_mtx_interpolated(f32 delta) {
     Mtx camTranfInv, prevCamTranfInv;
 
     if (sPerspectiveNode != NULL) {
+        if (gCamSkipInterp) {
+            sPerspectiveNode->prevFov = sPerspectiveNode->fov;
+        }
         u16 perspNorm;
         f32 fovInterpolated = delta_interpolate_f32(sPerspectiveNode->prevFov, sPerspectiveNode->fov, delta);
         f32 near = MIN(sPerspectiveNode->near, gProjectionMaxNearValue);
@@ -319,6 +326,7 @@ void patch_mtx_interpolated(f32 delta) {
                   G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
     }
 
+    gCamSkipInterp = 0;
 }
 
 /**
@@ -327,9 +335,18 @@ void patch_mtx_interpolated(f32 delta) {
 static u8 increment_mat_stack() {
     Mtx *mtx = alloc_display_list(sizeof(*mtx));
     Mtx *mtxPrev = alloc_display_list(sizeof(*mtxPrev));
-    if (mtx == NULL || mtxPrev == NULL) { LOG_ERROR("Failed to allocate our matrices for the matrix stack."); return FALSE; }
+    if (mtx == NULL || mtxPrev == NULL) {
+        LOG_ERROR("Failed to allocate our matrices for the matrix stack.");
+        return FALSE;
+    }
 
     gMatStackIndex++;
+    if (gMatStackIndex >= MATRIX_STACK_SIZE) {
+        LOG_ERROR("Exceeded matrix stack size.");
+        gMatStackIndex = MATRIX_STACK_SIZE - 1;
+        return FALSE;
+    }
+
     mtxf_to_mtx(mtx, gMatStack[gMatStackIndex]);
     mtxf_to_mtx(mtxPrev, gMatStackPrev[gMatStackIndex]);
     gMatStackFixed[gMatStackIndex] = mtx;
@@ -395,8 +412,7 @@ static void geo_append_display_list(void *displayList, s16 layer) {
     gSPLookAt(gDisplayListHead++, &lookAt);
 #endif
     if (gCurGraphNodeMasterList != 0) {
-        struct DisplayListNode *listNode =
-            alloc_only_pool_alloc(gDisplayListHeap, sizeof(struct DisplayListNode));
+        struct DisplayListNode *listNode = growing_pool_alloc(gDisplayListHeap, sizeof(struct DisplayListNode));
 
         listNode->transform = gMatStackFixed[gMatStackIndex];
         listNode->transformPrev = gMatStackPrevFixed[gMatStackIndex];
@@ -529,7 +545,7 @@ static void geo_process_camera(struct GraphNodeCamera *node) {
     Mat4 cameraTransform;
 
     // Sanity check our stack index, If we above or equal to our stack size. Return to prevent OOB.
-    if (gMatStackIndex >= MATRIX_STACK_SIZE) { LOG_ERROR("Preventing attempt to exceed the maximum size %i for our matrix stack with size of %i.", MATRIX_STACK_SIZE - 1, gMatStackIndex); return; }
+    if ((gMatStackIndex + 1) >= MATRIX_STACK_SIZE) { LOG_ERROR("Preventing attempt to exceed the maximum size %i for our matrix stack with size of %i.", MATRIX_STACK_SIZE - 1, gMatStackIndex); return; }
 
     Mtx *rollMtx = alloc_display_list(sizeof(*rollMtx));
     if (rollMtx == NULL) { return; }
@@ -547,6 +563,18 @@ static void geo_process_camera(struct GraphNodeCamera *node) {
     mtxf_lookat(cameraTransform, node->pos, node->focus, node->roll);
     mtxf_mul(gMatStack[gMatStackIndex + 1], cameraTransform, gMatStack[gMatStackIndex]);
 
+    if (gCamSkipInterp) {
+        // apply prevpos camera offset
+        vec3f_copy(node->prevPos, node->pos);
+        vec3f_add(node->prevPos, gCamSkipInterpDisplacement);
+        vec3f_copy(node->prevFocus, node->focus);
+        vec3f_add(node->prevFocus, gCamSkipInterpDisplacement);
+    }
+
+    // save prevpos camera offset
+    vec3f_copy(gCamSkipInterpDisplacement, node->prevPos);
+    vec3f_sub(gCamSkipInterpDisplacement, node->pos);
+
     if (gGlobalTimer == node->prevTimestamp + 1 && gGlobalTimer != gLakituState.skipCameraInterpolationTimestamp) {
         mtxf_lookat(cameraTransform, node->prevPos, node->prevFocus, node->roll);
         mtxf_mul(gMatStackPrev[gMatStackIndex + 1], cameraTransform, gMatStackPrev[gMatStackIndex]);
@@ -561,7 +589,9 @@ static void geo_process_camera(struct GraphNodeCamera *node) {
     if (!increment_mat_stack()) { return; }
 
     // save the camera matrix
-    mtxf_copy(gCamera->mtx, gMatStack[gMatStackIndex]);
+    if (gCamera) {
+        mtxf_copy(gCamera->mtx, gMatStack[gMatStackIndex]);
+    }
 
     if (node->fnNode.node.children != 0) {
         gCurGraphNodeCamera = node;
@@ -586,7 +616,7 @@ static void geo_process_translation_rotation(struct GraphNodeTranslationRotation
     Vec3f translation;
 
     // Sanity check our stack index, If we above or equal to our stack size. Return to prevent OOB\.
-    if (gMatStackIndex >= MATRIX_STACK_SIZE) { LOG_ERROR("Preventing attempt to exceed the maximum size %i for our matrix stack with size of %i.", MATRIX_STACK_SIZE - 1, gMatStackIndex); return; }
+    if ((gMatStackIndex + 1) >= MATRIX_STACK_SIZE) { LOG_ERROR("Preventing attempt to exceed the maximum size %i for our matrix stack with size of %i.", MATRIX_STACK_SIZE - 1, gMatStackIndex); return; }
 
     vec3s_to_vec3f(translation, node->translation);
     mtxf_rotate_zxy_and_translate(mtxf, translation, node->rotation);
@@ -615,7 +645,7 @@ static void geo_process_translation(struct GraphNodeTranslation *node) {
     Vec3f translation;
 
     // Sanity check our stack index, If we above or equal to our stack size. Return to prevent OOB\.
-    if (gMatStackIndex >= MATRIX_STACK_SIZE) { LOG_ERROR("Preventing attempt to exceed the maximum size %i for our matrix stack with size of %i.", MATRIX_STACK_SIZE - 1, gMatStackIndex); return; }
+    if ((gMatStackIndex + 1) >= MATRIX_STACK_SIZE) { LOG_ERROR("Preventing attempt to exceed the maximum size %i for our matrix stack with size of %i.", MATRIX_STACK_SIZE - 1, gMatStackIndex); return; }
 
     vec3s_to_vec3f(translation, node->translation);
     mtxf_rotate_zxy_and_translate(mtxf, translation, gVec3sZero);
@@ -643,7 +673,7 @@ static void geo_process_rotation(struct GraphNodeRotation *node) {
     Mat4 mtxf;
 
     // Sanity check our stack index, If we above or equal to our stack size. Return to prevent OOB\.
-    if (gMatStackIndex >= MATRIX_STACK_SIZE) { LOG_ERROR("Preventing attempt to exceed the maximum size %i for our matrix stack with size of %i.", MATRIX_STACK_SIZE - 1, gMatStackIndex); return; }
+    if ((gMatStackIndex + 1) >= MATRIX_STACK_SIZE) { LOG_ERROR("Preventing attempt to exceed the maximum size %i for our matrix stack with size of %i.", MATRIX_STACK_SIZE - 1, gMatStackIndex); return; }
 
     mtxf_rotate_zxy_and_translate(mtxf, gVec3fZero, node->rotation);
     mtxf_mul(gMatStack[gMatStackIndex + 1], mtxf, gMatStack[gMatStackIndex]);
@@ -679,7 +709,7 @@ static void geo_process_scale(struct GraphNodeScale *node) {
     Vec3f prevScaleVec;
 
     // Sanity check our stack index, If we above or equal to our stack size. Return to prevent OOB\.
-    if (gMatStackIndex >= MATRIX_STACK_SIZE) { LOG_ERROR("Preventing attempt to exceed the maximum size %i for our matrix stack with size of %i.", MATRIX_STACK_SIZE - 1, gMatStackIndex); return; }
+    if ((gMatStackIndex + 1) >= MATRIX_STACK_SIZE) { LOG_ERROR("Preventing attempt to exceed the maximum size %i for our matrix stack with size of %i.", MATRIX_STACK_SIZE - 1, gMatStackIndex); return; }
 
     vec3f_set(scaleVec, node->scale, node->scale, node->scale);
     mtxf_scale_vec3f(gMatStack[gMatStackIndex + 1], gMatStack[gMatStackIndex], scaleVec);
@@ -715,7 +745,7 @@ static void geo_process_billboard(struct GraphNodeBillboard *node) {
     Vec3f translation;
 
     // Sanity check our stack index, If we above or equal to our stack size. Return to prevent OOB\.
-    if (gMatStackIndex >= MATRIX_STACK_SIZE) { LOG_ERROR("Preventing attempt to exceed the maximum size %i for our matrix stack with size of %i.", MATRIX_STACK_SIZE - 1, gMatStackIndex); return; }
+    if ((gMatStackIndex + 1) >= MATRIX_STACK_SIZE) { LOG_ERROR("Preventing attempt to exceed the maximum size %i for our matrix stack with size of %i.", MATRIX_STACK_SIZE - 1, gMatStackIndex); return; }
 
     s16 nextMatStackIndex = gMatStackIndex + 1;
 
@@ -771,7 +801,7 @@ static void geo_process_display_list(struct GraphNodeDisplayList *node) {
 static void geo_process_generated_list(struct GraphNodeGenerated *node) {
     if (node->fnNode.func != NULL) {
         Gfx *list = node->fnNode.func(GEO_CONTEXT_RENDER, &node->fnNode.node,
-                                     (struct AllocOnlyPool *) gMatStack[gMatStackIndex]);
+                                     (struct DynamicPool *) gMatStack[gMatStackIndex]);
 
         if (list != NULL) {
             geo_append_display_list((void *) VIRTUAL_TO_PHYSICAL(list), node->fnNode.node.flags >> 8);
@@ -837,29 +867,20 @@ static void geo_process_background(struct GraphNodeBackground *node) {
 
 static void anim_process(Vec3f translation, Vec3s rotation, u8 *animType, s16 animFrame, u16 **animAttribute) {
     if (*animType == ANIM_TYPE_TRANSLATION) {
-        translation[0] += gCurAnimData[retrieve_animation_index(animFrame, animAttribute)]
-                          * gCurAnimTranslationMultiplier;
-        translation[1] += gCurAnimData[retrieve_animation_index(animFrame, animAttribute)]
-                          * gCurAnimTranslationMultiplier;
-        translation[2] += gCurAnimData[retrieve_animation_index(animFrame, animAttribute)]
-                          * gCurAnimTranslationMultiplier;
+        translation[0] += retrieve_animation_value(gCurAnim, animFrame, animAttribute) * gCurAnimTranslationMultiplier;
+        translation[1] += retrieve_animation_value(gCurAnim, animFrame, animAttribute) * gCurAnimTranslationMultiplier;
+        translation[2] += retrieve_animation_value(gCurAnim, animFrame, animAttribute) * gCurAnimTranslationMultiplier;
         *animType = ANIM_TYPE_ROTATION;
     } else {
         if (*animType == ANIM_TYPE_LATERAL_TRANSLATION) {
-            translation[0] +=
-                gCurAnimData[retrieve_animation_index(animFrame, animAttribute)]
-                * gCurAnimTranslationMultiplier;
+            translation[0] += retrieve_animation_value(gCurAnim, animFrame, animAttribute) * gCurAnimTranslationMultiplier;
             *animAttribute += 2;
-            translation[2] +=
-                gCurAnimData[retrieve_animation_index(animFrame, animAttribute)]
-                * gCurAnimTranslationMultiplier;
+            translation[2] += retrieve_animation_value(gCurAnim, animFrame, animAttribute) * gCurAnimTranslationMultiplier;
             *animType = ANIM_TYPE_ROTATION;
         } else {
             if (*animType == ANIM_TYPE_VERTICAL_TRANSLATION) {
                 *animAttribute += 2;
-                translation[1] +=
-                    gCurAnimData[retrieve_animation_index(animFrame, animAttribute)]
-                    * gCurAnimTranslationMultiplier;
+                translation[1] += retrieve_animation_value(gCurAnim, animFrame, animAttribute) * gCurAnimTranslationMultiplier;
                 *animAttribute += 2;
                 *animType = ANIM_TYPE_ROTATION;
             } else if (*animType == ANIM_TYPE_NO_TRANSLATION) {
@@ -870,9 +891,9 @@ static void anim_process(Vec3f translation, Vec3s rotation, u8 *animType, s16 an
     }
 
     if (*animType == ANIM_TYPE_ROTATION) {
-        rotation[0] = gCurAnimData[retrieve_animation_index(animFrame, animAttribute)];
-        rotation[1] = gCurAnimData[retrieve_animation_index(animFrame, animAttribute)];
-        rotation[2] = gCurAnimData[retrieve_animation_index(animFrame, animAttribute)];
+        rotation[0] = retrieve_animation_value(gCurAnim, animFrame, animAttribute);
+        rotation[1] = retrieve_animation_value(gCurAnim, animFrame, animAttribute);
+        rotation[2] = retrieve_animation_value(gCurAnim, animFrame, animAttribute);
     }
 }
 
@@ -888,7 +909,7 @@ static void geo_process_animated_part(struct GraphNodeAnimatedPart *node) {
     Vec3f translationPrev;
 
     // Sanity check our stack index, If we above or equal to our stack size. Return to prevent OOB\.
-    if (gMatStackIndex >= MATRIX_STACK_SIZE) { LOG_ERROR("Preventing attempt to exceed the maximum size %i for our matrix stack with size of %i.", MATRIX_STACK_SIZE - 1, gMatStackIndex); return; }
+    if ((gMatStackIndex + 1) >= MATRIX_STACK_SIZE) { LOG_ERROR("Preventing attempt to exceed the maximum size %i for our matrix stack with size of %i.", MATRIX_STACK_SIZE - 1, gMatStackIndex); return; }
 
     u16 *animAttribute = gCurrAnimAttribute;
     u8 animType = gCurAnimType;
@@ -960,7 +981,7 @@ void geo_set_animation_globals(struct AnimInfo *node, s32 hasAnimation) {
 
     gCurAnimEnabled = (anim->flags & ANIM_FLAG_5) == 0;
     gCurrAnimAttribute = segmented_to_virtual((void *) anim->index);
-    gCurAnimData = segmented_to_virtual((void *) anim->values);
+    gCurAnim = anim;
 
     if (anim->animYTransDivisor == 0) {
         gCurAnimTranslationMultiplier = 1.0f;
@@ -981,7 +1002,7 @@ static void geo_process_shadow(struct GraphNodeShadow *node) {
     f32 shadowScale;
 
     // Sanity check our stack index, If we above or equal to our stack size. Return to prevent OOB\.
-    if (gMatStackIndex >= MATRIX_STACK_SIZE) { LOG_ERROR("Preventing attempt to exceed the maximum size %i for our matrix stack with size of %i.", MATRIX_STACK_SIZE - 1, gMatStackIndex); return; }
+    if ((gMatStackIndex + 1) >= MATRIX_STACK_SIZE) { LOG_ERROR("Preventing attempt to exceed the maximum size %i for our matrix stack with size of %i.", MATRIX_STACK_SIZE - 1, gMatStackIndex); return; }
 
     if (gCurGraphNodeCamera != NULL && gCurGraphNodeObject != NULL) {
         if (gCurGraphNodeHeldObject != NULL) {
@@ -1003,14 +1024,10 @@ static void geo_process_shadow(struct GraphNodeShadow *node) {
                 if (geo != NULL && geo->type == GRAPH_NODE_TYPE_SCALE) {
                     objScale = ((struct GraphNodeScale *) geo)->scale;
                 }
-                animOffset[0] =
-                    gCurAnimData[retrieve_animation_index(gCurrAnimFrame, &gCurrAnimAttribute)]
-                    * gCurAnimTranslationMultiplier * objScale;
+                animOffset[0] = retrieve_animation_value(gCurAnim, gCurrAnimFrame, &gCurrAnimAttribute) * gCurAnimTranslationMultiplier * objScale;
                 animOffset[1] = 0.0f;
                 gCurrAnimAttribute += 2;
-                animOffset[2] =
-                    gCurAnimData[retrieve_animation_index(gCurrAnimFrame, &gCurrAnimAttribute)]
-                    * gCurAnimTranslationMultiplier * objScale;
+                animOffset[2] = retrieve_animation_value(gCurAnim, gCurrAnimFrame, &gCurrAnimAttribute) * gCurAnimTranslationMultiplier * objScale;
                 gCurrAnimAttribute -= 6;
 
                 // simple matrix rotation so the shadow offset rotates along with the object
@@ -1189,6 +1206,9 @@ static void geo_process_object(struct Object *node) {
     s32 hasAnimation = (node->header.gfx.node.flags & GRAPH_RENDER_HAS_ANIMATION) != 0;
     Vec3f scalePrev;
 
+    // Sanity check our stack index, If we above or equal to our stack size. Return to prevent OOB\.
+    if ((gMatStackIndex + 1) >= MATRIX_STACK_SIZE) { LOG_ERROR("Preventing attempt to exceed the maximum size %i for our matrix stack with size of %i.", MATRIX_STACK_SIZE - 1, gMatStackIndex); return; }
+
     if (node->hookRender) {
         smlua_call_event_hooks_object_param(HOOK_ON_OBJECT_RENDER, node);
     }
@@ -1202,7 +1222,7 @@ static void geo_process_object(struct Object *node) {
             }
         }
         if (gCurGraphNodeMarioState != NULL) {
-            gCurGraphNodeMarioState->minimumBoneY = 999;
+            gCurGraphNodeMarioState->minimumBoneY = 9999;
         }
     }
 
@@ -1377,7 +1397,7 @@ void geo_process_held_object(struct GraphNodeHeldObject *node) {
     Vec3f scalePrev;
 
     // Sanity check our stack index, If we above or equal to our stack size. Return to prevent OOB\.
-    if (gMatStackIndex >= MATRIX_STACK_SIZE) { LOG_ERROR("Preventing attempt to exceed the maximum size %i for our matrix stack with size of %i.", MATRIX_STACK_SIZE - 1, gMatStackIndex); return; }
+    if ((gMatStackIndex + 1) >= MATRIX_STACK_SIZE) { LOG_ERROR("Preventing attempt to exceed the maximum size %i for our matrix stack with size of %i.", MATRIX_STACK_SIZE - 1, gMatStackIndex); return; }
 
 #ifdef F3DEX_GBI_2
     gSPLookAt(gDisplayListHead++, &lookAt);
@@ -1417,7 +1437,7 @@ void geo_process_held_object(struct GraphNodeHeldObject *node) {
                          scalePrev);
 
         if (node->fnNode.func != NULL) {
-            node->fnNode.func(GEO_CONTEXT_HELD_OBJ, &node->fnNode.node, (struct AllocOnlyPool *) gMatStack[gMatStackIndex + 1]);
+            node->fnNode.func(GEO_CONTEXT_HELD_OBJ, &node->fnNode.node, (struct DynamicPool *) gMatStack[gMatStackIndex + 1]);
         }
 
         // Increment the matrix stack, If we fail to do so. Just return.
@@ -1428,7 +1448,7 @@ void geo_process_held_object(struct GraphNodeHeldObject *node) {
         gGeoTempState.frame = gCurrAnimFrame;
         gGeoTempState.translationMultiplier = gCurAnimTranslationMultiplier;
         gGeoTempState.attribute = gCurrAnimAttribute;
-        gGeoTempState.data = gCurAnimData;
+        gGeoTempState.anim = gCurAnim;
         gGeoTempState.prevFrame = gPrevAnimFrame;
         gCurAnimType = 0;
         gCurGraphNodeHeldObject = (void *) node;
@@ -1446,7 +1466,7 @@ void geo_process_held_object(struct GraphNodeHeldObject *node) {
         gCurrAnimFrame = gGeoTempState.frame;
         gCurAnimTranslationMultiplier = gGeoTempState.translationMultiplier;
         gCurrAnimAttribute = gGeoTempState.attribute;
-        gCurAnimData = gGeoTempState.data;
+        gCurAnim = gGeoTempState.anim;
         gPrevAnimFrame = gGeoTempState.prevFrame;
         gMatStackIndex--;
     }
@@ -1474,6 +1494,7 @@ void geo_process_node_and_siblings(struct GraphNode *firstNode) {
     s16 iterateChildren = TRUE;
     struct GraphNode *curGraphNode = firstNode;
     if (curGraphNode == NULL) { return; }
+    u32 depthSanity = 0;
 
     struct GraphNode *parent = curGraphNode->parent;
 
@@ -1485,8 +1506,27 @@ void geo_process_node_and_siblings(struct GraphNode *firstNode) {
 
     do {
         if (curGraphNode == NULL) {
+            LOG_ERROR("Graph Node null!");
             break;
         }
+
+        if (curGraphNode->_guard1 != GRAPH_NODE_GUARD || curGraphNode->_guard2 != GRAPH_NODE_GUARD) {
+            LOG_ERROR("Graph Node corrupted!");
+            break;
+        }
+
+        // Sanity check our stack index, If we above or equal to our stack size. Return to prevent OOB\.
+        if ((gMatStackIndex + 1) >= MATRIX_STACK_SIZE) {
+            LOG_ERROR("Graph Node matrix stack overflow!");
+            break;
+        }
+
+        // Break out of endless loops
+        if (++depthSanity > 5000) {
+            LOG_ERROR("Graph Node too deep!");
+            break;
+        }
+
         if (curGraphNode->flags & GRAPH_RENDER_ACTIVE) {
             if (curGraphNode->flags & GRAPH_RENDER_CHILDREN_FIRST) {
                 geo_try_process_children(curGraphNode);
@@ -1598,10 +1638,10 @@ void geo_process_root(struct GraphNodeRoot *node, Vp *b, Vp *c, s32 clearColor) 
     geo_clear_interp_variables();
 
     if (node->node.flags & GRAPH_RENDER_ACTIVE) {
+        gDisplayListHeap = growing_pool_init(gDisplayListHeap, DISPLAY_LIST_HEAP_SIZE);
+
         Vp *viewport = alloc_display_list(sizeof(*viewport));
         if (viewport == NULL) { return; }
-
-        gDisplayListHeap = alloc_only_pool_init(main_pool_available() - sizeof(struct AllocOnlyPool), MEMORY_POOL_LEFT);
 
         Mtx *initialMatrix = alloc_display_list(sizeof(*initialMatrix));
         if (initialMatrix == NULL) { return; }
@@ -1642,10 +1682,7 @@ void geo_process_root(struct GraphNodeRoot *node, Vp *b, Vp *c, s32 clearColor) 
         if (node->node.children != NULL) {
             geo_process_node_and_siblings(node->node.children);
         }
+
         gCurGraphNodeRoot = NULL;
-        if (gShowDebugText) {
-            print_text_fmt_int(180, 36, "MEM %d", gDisplayListHeap->totalSpace - gDisplayListHeap->usedSpace);
-        }
-        main_pool_free(gDisplayListHeap);
     }
 }

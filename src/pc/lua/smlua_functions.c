@@ -602,6 +602,7 @@ s32 smlua_func_level_script_parse_callback(u8 type, void *cmd) {
         LOG_LUA("Failed to call the callback behaviors: %u", type);
         return 0;
     }
+    return 0;
 }
 
 void smlua_func_level_script_parse(lua_State* L) {
@@ -652,12 +653,12 @@ void smlua_func_level_script_parse(lua_State* L) {
  // custom animations //
 ///////////////////////
 
-static u16 *smlua_to_u16_list(lua_State* L, int index) {
+static u16 *smlua_to_u16_list(lua_State* L, int index, u32* length) {
 
     // Get number of values
-    s32 length = lua_rawlen(L, index);
-    if (!length) { LOG_LUA("smlua_to_u16_list: Table must not be empty"); return NULL; }
-    u16 *values = calloc(length, sizeof(u16));
+    *length = lua_rawlen(L, index);
+    if (!*length) { LOG_LUA("smlua_to_u16_list: Table must not be empty"); return NULL; }
+    u16 *values = calloc(*length, sizeof(u16));
 
     // Retrieve values
     lua_pushnil(L);
@@ -667,10 +668,18 @@ static u16 *smlua_to_u16_list(lua_State* L, int index) {
         int indexValue = lua_gettop(L) - 0;
 
         s32 key = smlua_to_integer(L, indexKey);
-        if (!gSmLuaConvertSuccess) { LOG_LUA("smlua_to_u16_list: Failed to convert table key"); return 0; }
+        if (!gSmLuaConvertSuccess) {
+            LOG_LUA("smlua_to_u16_list: Failed to convert table key");
+            free(values);
+            return 0;
+        }
             
         u16 value = smlua_to_integer(L, indexValue);
-        if (!gSmLuaConvertSuccess) { LOG_LUA("smlua_to_u16_list: Failed to convert table value"); return 0; }
+        if (!gSmLuaConvertSuccess) {
+            LOG_LUA("smlua_to_u16_list: Failed to convert table value");
+            free(values);
+            return 0;
+        }
 
         values[key - 1] = value;
         lua_settop(L, top);
@@ -683,30 +692,32 @@ int smlua_func_smlua_anim_util_register_animation(lua_State* L) {
     if (!smlua_functions_valid_param_count(L, 8)) { return 0; }
 
     const char *name = smlua_to_string(L, 1);
-    if (!gSmLuaConvertSuccess) { LOG_LUA("smlua_anim_util_register_animation: Failed to convert parameter 'name'"); return 0; }
+    if (!gSmLuaConvertSuccess) { LOG_LUA("%s: Failed to convert parameter '%s'", "smlua_anim_util_register_animation", "name"); return 0; }
 
     s16 flags = smlua_to_integer(L, 2);
-    if (!gSmLuaConvertSuccess) { LOG_LUA("smlua_anim_util_register_animation: Failed to convert parameter 'flags'"); return 0; }
+    if (!gSmLuaConvertSuccess) { LOG_LUA("%s: Failed to convert parameter '%s'", "smlua_anim_util_register_animation", "flags"); return 0; }
 
     s16 animYTransDivisor = smlua_to_integer(L, 3);
-    if (!gSmLuaConvertSuccess) { LOG_LUA("smlua_anim_util_register_animation: Failed to convert parameter 'animYTransDivisor'"); return 0; }
+    if (!gSmLuaConvertSuccess) { LOG_LUA("%s: Failed to convert parameter '%s'", "smlua_anim_util_register_animation", "animYTransDivisor"); return 0; }
 
     s16 startFrame = smlua_to_integer(L, 4);
-    if (!gSmLuaConvertSuccess) { LOG_LUA("smlua_anim_util_register_animation: Failed to convert parameter 'startFrame'"); return 0; }
+    if (!gSmLuaConvertSuccess) { LOG_LUA("%s: Failed to convert parameter '%s'", "smlua_anim_util_register_animation", "startFrame"); return 0; }
 
     s16 loopStart = smlua_to_integer(L, 5);
-    if (!gSmLuaConvertSuccess) { LOG_LUA("smlua_anim_util_register_animation: Failed to convert parameter 'loopStart'"); return 0; }
+    if (!gSmLuaConvertSuccess) { LOG_LUA("%s: Failed to convert parameter '%s'", "smlua_anim_util_register_animation", "loopStart"); return 0; }
 
     s16 loopEnd = smlua_to_integer(L, 6);
-    if (!gSmLuaConvertSuccess) { LOG_LUA("smlua_anim_util_register_animation: Failed to convert parameter 'loopEnd'"); return 0; }
+    if (!gSmLuaConvertSuccess) { LOG_LUA("%s: Failed to convert parameter '%s'", "smlua_anim_util_register_animation", "loopEnd"); return 0; }
 
-    s16 *values = (s16 *) smlua_to_u16_list(L, 7);
-    if (!values) { LOG_LUA("smlua_anim_util_register_animation: Failed to convert parameter 'values'"); return 0; }
-    
-    u16 *index = (u16 *) smlua_to_u16_list(L, 8);
-    if (!index) { LOG_LUA("smlua_anim_util_register_animation: Failed to convert parameter 'index'"); return 0; }
+    u32 valuesLength = 0;
+    s16 *values = (s16 *) smlua_to_u16_list(L, 7, &valuesLength);
+    if (!values) { LOG_LUA("%s: Failed to convert parameter '%s'", "smlua_anim_util_register_animation", "values"); return 0; }
 
-    smlua_anim_util_register_animation(name, flags, animYTransDivisor, startFrame, loopStart, loopEnd, values, index);
+    u32 indexLength = 0;
+    u16 *index = (u16 *) smlua_to_u16_list(L, 8, &indexLength);
+    if (!index) { LOG_LUA("%s: Failed to convert parameter '%s'", "smlua_anim_util_register_animation", "index"); free(values); return 0; }
+
+    smlua_anim_util_register_animation(name, flags, animYTransDivisor, startFrame, loopStart, loopEnd, values, valuesLength, index, indexLength);
 
     return 1;
 }
