@@ -15,6 +15,7 @@
 #include "pc/djui/djui_panel.h"
 #include "pc/djui/djui_panel_pause.h"
 #include "pc/djui/djui_panel_main.h"
+#include "pc/djui/djui_console.h"
 #include "pc/network/network.h"
 
 #include "controller_api.h"
@@ -81,6 +82,7 @@ static struct ControlElement ControlElements[CONTROL_ELEMENT_COUNT] = {
 [TOUCH_DDOWN] =      {.type = Button, .character = HUD_DOWN,     .buttonID = D_JPAD},
 [TOUCH_DLEFT] =      {.type = Button, .character = HUD_LEFT,     .buttonID = L_JPAD},
 [TOUCH_DRIGHT] =     {.type = Button, .character = HUD_RIGHT,    .buttonID = R_JPAD},
+[TOUCH_LUA] =        {.type = Button, .character = HUD_LUA,      .buttonID = LUA_BUTTON},
 };
 
 // config-only elements
@@ -315,6 +317,8 @@ static void handle_touch_up(u32 i) { // separated for when the layout changes
                 djui_interactable_on_key_up(configKeyChat[0]);
             if (ControlElements[i].buttonID == PLAYERLIST_BUTTON && !gInTouchConfig)
                 djui_interactable_on_key_up(configKeyPlayerList[0]);
+            if (ControlElements[i].buttonID == LUA_BUTTON && !gInTouchConfig)
+                djui_console_toggle();
             if (gInTouchConfig) {
                 // toggle size of buttons on double-tap
                 if (double_tap_timer - double_tap_timer_last < 10) {
@@ -344,12 +348,17 @@ void touch_up(struct TouchEvent* event) {
     }
 }
 
+// TODO: move all touchscreen textures into their own array
 ALIGNED8 const u8 texture_button[] = {
 #include "textures/touchcontrols/touch_button.rgba16.inc.c"
 };
 
 ALIGNED8 const u8 texture_button_dark[] = {
 #include "textures/touchcontrols/touch_button_dark.rgba16.inc.c"
+};
+
+ALIGNED8 const u8 texture_hud_lua[] = {
+#include "textures/touchcontrols/custom_hud_lua.rgba16.inc.c"
 };
 
 // Sprite drawing code stolen from src/game/print.c
@@ -370,7 +379,11 @@ static void select_char_texture(u8 num) {
     const u8 *const *glyphs = segmented_to_virtual(main_hud_lut);
 
     gDPPipeSync(gDisplayListHead++);
-    gDPSetTextureImage(gDisplayListHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, glyphs[num - 87]);
+    if (num < 87) {
+        gDPSetTextureImage(gDisplayListHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, texture_hud_lua);
+    } else {
+        gDPSetTextureImage(gDisplayListHead++, G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, glyphs[num - 87]);
+    }
     gSPDisplayList(gDisplayListHead++, dl_hud_img_load_tex_block);
 }
 
@@ -518,7 +531,8 @@ static void touchscreen_read(OSContPad *pad) {
                 case Button:
                     if (ControlElements[i].touchID &&
                         ControlElements[i].buttonID != CHAT_BUTTON &&
-                        ControlElements[i].buttonID != PLAYERLIST_BUTTON) {
+                        ControlElements[i].buttonID != PLAYERLIST_BUTTON &&
+                        ControlElements[i].buttonID != LUA_BUTTON) {
                         pad->button |= ControlElements[i].buttonID;
                     }
                     break;
