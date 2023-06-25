@@ -156,6 +156,11 @@ ifneq ($(shell uname -s | grep BSD),)
   TARGET_BSD := 1
 endif
 
+# Attempt to detect 32-bit
+ifneq ($(shell uname -m | grep -e i386 -e i686 -e arm -e armhf -e armv6l -e armv7l -e armv8l -e armv8b),)
+  TARGET_BITS = 32
+endif
+
 # MXE overrides
 
 ifeq ($(TARGET_ANDROID),1)
