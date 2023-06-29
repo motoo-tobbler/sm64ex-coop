@@ -27,6 +27,9 @@ TARGET_N64 = 0
 # Build and optimize for Raspberry Pi(s)
 TARGET_RPI ?= 0
 
+# Build and optimize for BeagleBone Black
+TARGET_BBB ?= 0
+
 # Disable linking to BASS and enable building Lua, coopnet and libjuice from source
 TARGET_FOSS ?= 1
 
@@ -347,6 +350,11 @@ ifeq ($(TARGET_RPI),1)
 	endif
 endif
 
+# BeagleBone Black. Its architecture is not identical to any RPi
+ifeq ($(TARGET_BBB),1)
+  OPT_FLAGS := -march=armv7-a -marm -mfpu=neon -mtune=cortex-a8 -O3
+endif
+
 # Set BITS (32/64) to compile for
 OPT_FLAGS += $(BITS)
 
@@ -391,6 +399,8 @@ ifeq ($(TARGET_RPI),1) # Define RPi to change SDL2 title & GLES2 hints
      DEFINES += USE_GLES=1
 else ifeq ($(TARGET_ANDROID),1)
   DEFINES += TARGET_ANDROID=1 USE_GLES=1 _LANGUAGE_C=1
+else ifeq ($(TARGET_BBB),1)
+  DEFINES += USE_GLES=1
 endif
 
 ifeq ($(OSX_BUILD),1) # Modify GFX & SDL2 for OSX GL
@@ -915,6 +925,8 @@ else ifeq ($(findstring SDL,$(WINDOW_API)),SDL)
     BACKEND_LDFLAGS += -lGLESv2 -llog
   else ifeq ($(TARGET_RPI),1)
     BACKEND_LDFLAGS += -lGLESv2
+  else ifeq ($(TARGET_BBB),1)
+    BACKEND_LDFLAGS += -lGLESv2
   else ifeq ($(OSX_BUILD),1)
     BACKEND_LDFLAGS += -framework OpenGL `pkg-config --libs glew`
     EXTRA_CPP_FLAGS += -stdlib=libc++ -std=c++0x
@@ -1030,6 +1042,8 @@ ifeq ($(WINDOWS_BUILD),1)
     LDFLAGS += -mconsole
   endif
 else ifeq ($(TARGET_RPI),1)
+  LDFLAGS := $(OPT_FLAGS) -lm $(BACKEND_LDFLAGS) -no-pie
+else ifeq ($(TARGET_BBB),1)
   LDFLAGS := $(OPT_FLAGS) -lm $(BACKEND_LDFLAGS) -no-pie
 else ifeq ($(TARGET_ANDROID),1)
   ifneq ($(shell uname -m | grep "i.86"),)

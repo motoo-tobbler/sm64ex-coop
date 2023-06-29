@@ -683,6 +683,7 @@ extern ALIGNED8 const Texture texture_hud_left[];
 extern ALIGNED8 const Texture texture_hud_right[];
 extern ALIGNED8 const Texture texture_button[];
 extern ALIGNED8 const Texture texture_button_dark[];
+extern ALIGNED8 const Texture texture_hud_lua[];
 #endif
 extern ALIGNED8 const Texture texture_credits_char_3[];
 extern ALIGNED8 const Texture texture_credits_char_4[];
