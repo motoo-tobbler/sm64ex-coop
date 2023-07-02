@@ -1,3 +1,8 @@
+tl;dr:
+```bash
+git clone --recursive \
+https://github.com/robertkirkman/sm64ex-coop.git -b android64
+```
 # How to play `sm64ex-coop` on Android
 
 Video Tutorial:
@@ -98,7 +103,7 @@ apksigner clang binutils libglvnd-dev aapt which
 
 ```bash
 git clone --recursive \
-https://github.com/robertkirkman/sm64ex-coop.git
+https://github.com/robertkirkman/sm64ex-coop.git -b android64
 cp /storage/emulated/0/baserom.us.z64 \
 sm64ex-coop/baserom.us.z64
 cd sm64ex-coop
