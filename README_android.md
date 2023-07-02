@@ -1,7 +1,7 @@
 tl;dr:
 ```bash
 git clone --recursive \
-https://github.com/robertkirkman/sm64ex-coop.git -b android64
+https://github.com/Cooliokid956/sm64ex-coop-plus.git -b android64
 ```
 # How to play `sm64ex-coop` on Android
 
