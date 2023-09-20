@@ -245,6 +245,10 @@ bool djui_interactable_on_key_down(int scancode) {
             if (scancode == (int)configKeyPlayerList[i] && !gDjuiInMainMenu && gNetworkType != NT_NONE) {
                 if (gDjuiPlayerList != NULL) {
                     djui_base_set_visible(&gDjuiPlayerList->base, true);
+                    pageIndex++;
+                    if (playerListSize * pageIndex > ceil((network_player_connected_count() - 1) / playerListSize)*playerListSize) {
+                        pageIndex = 0;
+                    }
                 }
                 if (gDjuiModList != NULL) {
                     djui_base_set_visible(&gDjuiModList->base, true);
