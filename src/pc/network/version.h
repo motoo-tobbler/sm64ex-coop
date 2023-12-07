@@ -1,7 +1,7 @@
 #ifndef VERSION_H
 #define VERSION_H
 
-#define VERSION_TEXT "beta"
+#define VERSION_TEXT "test"
 #define VERSION_NUMBER 36
 #define MINOR_VERSION_NUMBER 1
 #define PATCH_VERSION_NUMBER 0
