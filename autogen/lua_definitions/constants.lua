@@ -12252,7 +12252,7 @@ COOP_OBJ_FLAG_NON_SYNC = (1 << 2)
 GRAPH_NODE_GUARD = 0xAA
 
 --- @type integer
-MAX_PLAYERS = 16
+MAX_PLAYERS = 64
 
 --- @type integer
 OBJECT_MAX_BHV_STACK = 16
@@ -12328,4 +12328,4 @@ VERSION_REGION = "SH"
 VERSION_REGION = "US"
 
 --- @type string
-VERSION_TEXT = "beta"
+VERSION_TEXT = "test"
